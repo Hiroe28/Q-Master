@@ -152,7 +152,7 @@
     color: var(--text-muted);
 }
 
-/* フラッシュカード */
+/* フラッシュカード（通常モード） */
 .flashcard-container {
     perspective: 1000px;
     margin-bottom: var(--spacing-lg);
@@ -504,34 +504,27 @@
 
 /* 統合モード用フラッシュカード */
 .integrated-flashcard {
-    perspective: 1000px;
     min-height: 200px;
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 auto;
-    cursor: pointer;
     width: 100%;
+    position: relative;
 }
 
 .integrated-flashcard .flashcard-inner {
     position: relative;
     width: 100%;
     min-height: 200px;
-    height: calc(100dvh - 320px);
-    max-height: calc(100dvh - 320px);
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
+    height: calc(100dvh - 260px);
+    max-height: calc(100dvh - 260px);
 }
 
 /* スマホ向け調整（dvh非対応ブラウザ用フォールバック） */
 @supports not (height: 100dvh) {
     .integrated-flashcard .flashcard-inner {
-        height: calc(100vh - 320px);
-        max-height: calc(100vh - 320px);
+        height: calc(100vh - 260px);
+        max-height: calc(100vh - 260px);
     }
-}
-
-.integrated-flashcard.flipped .flashcard-inner {
-    transform: rotateY(180deg);
 }
 
 .integrated-flashcard .flashcard-front,
@@ -541,25 +534,137 @@
     left: 0;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
     background: var(--card-bg);
     border-radius: var(--border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    overflow: hidden;
+    transition: opacity 0.3s ease-in-out;
 }
 
-.integrated-flashcard .flashcard-front {
+/* カードの初期状態（表面を表示） */
+.integrated-flashcard:not(.flipped) .flashcard-front {
+    z-index: 2;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.integrated-flashcard:not(.flipped) .flashcard-back {
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* フリップ時は裏面のみ表示 */
+.integrated-flashcard.flipped .flashcard-front {
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.integrated-flashcard.flipped .flashcard-back {
+    opacity: 1;
+    pointer-events: auto;
     z-index: 2;
 }
 
-.integrated-flashcard .flashcard-back {
-    transform: rotateY(180deg);
-    z-index: 1;
+/* スクロール可能なコンテンツ領域 */
+.integrated-flashcard .flashcard-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: var(--spacing-lg);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Webkitブラウザ用スクロールバー */
+.integrated-flashcard .flashcard-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.integrated-flashcard .flashcard-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.integrated-flashcard .flashcard-content::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+/* ヒント部分 */
+.integrated-flashcard .flashcard-hint {
+    flex-shrink: 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: var(--spacing-md);
+    margin: 0;
+    background: var(--card-bg);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    pointer-events: none;
+}
+
+/* フラッシュカード内の要素の余白調整 */
+.integrated-flashcard .flashcard-title {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+.integrated-flashcard .flashcard-body {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-md);
+}
+
+.integrated-flashcard .flashcard-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.integrated-flashcard .flashcard-images img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: var(--border-radius);
+}
+
+.integrated-flashcard .flashcard-answer-section,
+.integrated-flashcard .flashcard-explanation-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.integrated-flashcard .flashcard-answer-section:last-child,
+.integrated-flashcard .flashcard-explanation-section:last-child {
+    margin-bottom: 0;
+}
+
+.integrated-flashcard .flashcard-answer-section h4,
+.integrated-flashcard .flashcard-explanation-section h4 {
+    color: #155724;
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 0.9rem;
+}
+
+.integrated-flashcard .flashcard-answer {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #155724;
+    padding: var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+}
+
+.integrated-flashcard .flashcard-explanation {
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 /* 統合モード: 学習フェーズのアクション */
@@ -570,32 +675,47 @@
     right: 0;
     display: flex;
     justify-content: center;
-    align-items: stretch;
+    align-items: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-top: 1px solid var(--border-color);
     z-index: 50;
+    flex-wrap: nowrap;
 }
 
 .integrated-learn-actions .btn {
-    min-width: 150px;
+    min-width: 120px;
     height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    margin: 0;
 }
 
 .integrated-learn-actions .speak-btn {
-    min-width: auto;
+    min-width: 48px;
     width: 48px;
     padding: 0;
+    flex-shrink: 0;
+    margin: 0;
 }
 
 /* スマホ対応 */
 @media (max-width: 600px) {
+    .integrated-flashcard {
+        max-width: 100%;
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .integrated-learn-actions {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-xs);
+    }
+    
     .integrated-learn-actions .btn {
-        min-width: 120px;
+        min-width: 100px;
         font-size: 0.9rem;
     }
 }

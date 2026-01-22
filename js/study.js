@@ -518,26 +518,27 @@ async function showIntegratedResult() {
 async function showIntegratedLearnPhase(question, showAnswered = false) {
     const container = document.getElementById('integrated-learn-container');
     const flashcard = document.getElementById('integrated-flashcard');
-    const flashcardInner = flashcard?.querySelector('.flashcard-inner');
 
     // 学習フェーズ中は画面スクロールを無効化
     document.querySelector('.app-main')?.classList.add('no-scroll');
 
-    // ★ ステップ1: コンテナ全体を非表示にする
-    container.style.display = 'none';
-    
-    // ★ ステップ2: 非表示の状態でトランジション無効化 + フリップ状態リセット
-    if (flashcardInner) {
-        flashcardInner.style.transition = 'none';
+    // quiz-actionsを非表示にする
+    const quizActions = document.querySelector('.quiz-actions');
+    if (quizActions) {
+        quizActions.style.display = 'none';
     }
+
+    // ★ 重要: コンテナを一旦非表示にする
+    container.style.display = 'none';
+
+    // ★ 確実にフリップ状態をリセット（強制的に表面を表示）
     flashcard.classList.remove('flipped');
-    AppState.integrated.isFlipped = false;
-    AppState.integrated.phaseCompleted = false;
     
     // 強制リフロー
-    if (flashcardInner) {
-        flashcardInner.offsetHeight;
-    }
+    void flashcard.offsetHeight;
+    
+    AppState.integrated.isFlipped = false;
+    AppState.integrated.phaseCompleted = false;
 
     // 問題を表示
     document.getElementById('integrated-question-title').textContent = question.title || '問題';
@@ -556,7 +557,7 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
         }
     }
 
-    // 選択肢を表示（4択問題の場合）
+    // 選択肢を表示(4択問題の場合)
     const choicesContainer = document.getElementById('integrated-choices');
     if (choicesContainer) {
         if (question.choices && (question.type !== 'typing')) {
@@ -601,14 +602,33 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
     // 次のステップボタンを非表示(カードを裏返すまで)
     document.getElementById('integrated-next-phase-btn').style.display = 'none';
 
-    // ★ ステップ3: トランジションを再有効化してからコンテナを表示
+    // ★ 少し待ってからコンテナを表示（DOM更新完了を待つ）
     setTimeout(() => {
-        if (flashcardInner) {
-            flashcardInner.style.transition = '';
+        // 解答済み状態でなければ、確実に表面を表示
+        if (!showAnswered) {
+            flashcard.classList.remove('flipped');
         }
+        
         container.style.display = 'block';
 
-        // 解答済み状態で表示する場合（前へ戻った時）
+        // スクロール位置をリセット
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const frontContent = flashcard.querySelector('.flashcard-front .flashcard-content');
+                const backContent = flashcard.querySelector('.flashcard-back .flashcard-content');
+                
+                if (frontContent) {
+                    frontContent.scrollTop = 0;
+                    console.log('表面のスクロール位置をリセット:', frontContent.scrollTop);
+                }
+                if (backContent) {
+                    backContent.scrollTop = 0;
+                    console.log('裏面のスクロール位置をリセット:', backContent.scrollTop);
+                }
+            });
+        });
+
+        // 解答済み状態で表示する場合(前へ戻った時)
         if (showAnswered) {
             flashcard.classList.add('flipped');
             AppState.integrated.isFlipped = true;
@@ -622,7 +642,6 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
             }
         }
     }, 50);
-
 }
 
 /**
@@ -633,6 +652,12 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
 async function showIntegratedQuizPhase(question, showAnswered = false) {
     // 画面スクロールを有効に戻す
     document.querySelector('.app-main')?.classList.remove('no-scroll');
+
+    // ★ 追加: quiz-actionsを表示する
+    const quizActions = document.querySelector('.quiz-actions');
+    if (quizActions) {
+        quizActions.style.display = 'flex';
+    }
 
     // 問題情報を表示
     document.getElementById('question-title').textContent = question.title || '問題';
@@ -713,6 +738,12 @@ async function showIntegratedQuizPhase(question, showAnswered = false) {
 async function showIntegratedTypingPhase(question, showAnswered = false) {
     // 画面スクロールを有効に戻す
     document.querySelector('.app-main')?.classList.remove('no-scroll');
+
+    // ★ 追加: quiz-actionsを表示する
+    const quizActions = document.querySelector('.quiz-actions');
+    if (quizActions) {
+        quizActions.style.display = 'flex';
+    }
 
     // 問題情報を表示
     document.getElementById('question-title').textContent = question.title || '問題';
@@ -802,7 +833,12 @@ async function showIntegratedTypingPhase(question, showAnswered = false) {
 /**
  * 統合モード: フラッシュカードを裏返す
  */
-function flipIntegratedCard() {
+function flipIntegratedCard(event) {
+    // スクロール中や.flashcard-content内のクリックは無視
+    if (event && event.target.closest('.flashcard-content')) {
+        return;
+    }
+    
     const flashcard = document.getElementById('integrated-flashcard');
     const question = AppState.integrated.currentLearnQuestion;
 
@@ -810,6 +846,15 @@ function flipIntegratedCard() {
         flashcard.classList.add('flipped');
         AppState.integrated.isFlipped = true;
         AppState.integrated.phaseCompleted = true;
+
+        // ★ 裏返した時に裏面のスクロール位置をリセット
+        requestAnimationFrame(() => {
+            const backContent = flashcard.querySelector('.flashcard-back .flashcard-content');
+            if (backContent) {
+                backContent.scrollTop = 0;
+                console.log('裏面表示時のスクロール位置をリセット:', backContent.scrollTop);
+            }
+        });
 
         // 裏返した時に音声ボタンを表示してイベント設定
         const speakBtn = document.getElementById('integrated-speak-btn');
@@ -827,6 +872,15 @@ function flipIntegratedCard() {
     } else {
         flashcard.classList.remove('flipped');
         AppState.integrated.isFlipped = false;
+
+        // ★ 表に戻した時に表面のスクロール位置をリセット
+        requestAnimationFrame(() => {
+            const frontContent = flashcard.querySelector('.flashcard-front .flashcard-content');
+            if (frontContent) {
+                frontContent.scrollTop = 0;
+                console.log('表面表示時のスクロール位置をリセット:', frontContent.scrollTop);
+            }
+        });
 
         // 表に戻した時は音声ボタンを非表示
         const speakBtn = document.getElementById('integrated-speak-btn');
