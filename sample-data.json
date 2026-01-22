@@ -1,0 +1,68 @@
+{
+    "questions": [
+        {
+            "title": "[サンプル] 英単語: beautiful",
+            "body_md": "「美しい」を英語で?",
+            "choices": {
+                "A": "beautiful",
+                "B": "bents",
+                "C": "bending",
+                "D": "benefits"
+            },
+            "answer": "A",
+            "explanation_md": "**beautiful** = 美しい\n\n形容詞として使われます。\n\n---\n*このサンプル問題は削除して構いません。*",
+            "tags": ["サンプル", "英語", "形容詞"],
+            "sets": [],
+            "type": "both",
+            "typingAnswer": "beautiful",
+            "acceptableAnswers": ["beautiful", "Beautiful"],
+            "caseSensitive": false,
+            "strictMatch": true,
+            "isLanguageLearning": true,
+            "audioEnabled": true,
+            "audioLang": "en-US"
+        },
+        {
+            "title": "[サンプル] 英単語: important",
+            "body_md": "「重要な」を英語で?",
+            "choices": {
+                "A": "important",
+                "B": "implement",
+                "C": "impatient",
+                "D": "immigrant"
+            },
+            "answer": "A",
+            "explanation_md": "**important** = 重要な\n\n形容詞として使われます。\n\n---\n*このサンプル問題は削除して構いません。*",
+            "tags": ["サンプル", "英語", "形容詞"],
+            "sets": [],
+            "type": "both",
+            "typingAnswer": "important",
+            "acceptableAnswers": ["important", "Important"],
+            "caseSensitive": false,
+            "strictMatch": true,
+            "isLanguageLearning": true,
+            "audioEnabled": true,
+            "audioLang": "en-US"
+        },
+        {
+            "title": "[サンプル] 算数: 7×8",
+            "body_md": "7 × 8 = ?",
+            "choices": {
+                "A": "56",
+                "B": "54",
+                "C": "55",
+                "D": "57"
+            },
+            "answer": "A",
+            "explanation_md": "7 × 8 = **56**\n\n九九の基本問題です。\n\n---\n*このサンプル問題は削除して構いません。*",
+            "tags": ["サンプル", "算数", "九九"],
+            "sets": [],
+            "type": "both",
+            "typingAnswer": "56",
+            "acceptableAnswers": ["56"],
+            "caseSensitive": false,
+            "strictMatch": true
+        }
+    ],
+    "question_sets": []
+}

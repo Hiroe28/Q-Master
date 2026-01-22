@@ -1,0 +1,142 @@
+/**
+ * base.css - リセット・基本設定・CSS変数
+ */
+
+/* ==================== リセット ==================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==================== CSS変数 ==================== */
+
+:root {
+    /* カラーパレット - 濃紺メイン */
+    --primary-color: #001f3f;  /* 濃紺 */
+    --primary-dark: #001529;   /* 濃紺(濃) */
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+
+    /* 背景・テキスト */
+    --bg-color: #f5f7fa;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+
+    /* サイズ */
+    --header-height: 50px;
+    --nav-height: 60px;
+    --border-radius: 8px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* フォント */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ==================== 基本設定 ==================== */
+
+html, body {
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--header-height);
+    padding-bottom: var(--nav-height);
+}
+
+/* ==================== 空メッセージ ==================== */
+
+.empty-message {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--spacing-xl);
+}
+
+/* ==================== Markdown コンテンツ ==================== */
+
+.markdown-content {
+    line-height: 1.7;
+}
+
+.markdown-content p {
+    margin-bottom: 0.5em;
+}
+
+.markdown-content p:last-child {
+    margin-bottom: 0;
+}
+
+.markdown-content code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.9em;
+}
+
+.markdown-content pre {
+    background: #f4f4f4;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.markdown-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: var(--spacing-md);
+    color: var(--text-muted);
+    margin: var(--spacing-md) 0;
+}
+
+.markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
+    text-align: left;
+}
+
+.markdown-content th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.markdown-content tr:nth-child(even) {
+    background: #f8f9fa;
+}

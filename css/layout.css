@@ -1,0 +1,134 @@
+/**
+ * layout.css - レイアウト（ヘッダー、ナビ、メインコンテンツ）
+ */
+
+/* ==================== ヘッダー ==================== */
+
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 12px 0;
+}
+
+.app-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.app-logo {
+    height: 56px;
+}
+
+/* ==================== メインコンテンツ ==================== */
+
+.app-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+}
+
+.screen {
+    display: none;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.screen.active {
+    display: block;
+}
+
+.screen h2 {
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.4rem;
+    color: var(--text-color);
+}
+
+/* 学習フェーズ中のスクロール制御 */
+.app-main.no-scroll {
+    overflow: hidden !important;
+}
+
+/* ==================== ナビゲーション ==================== */
+
+.app-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    background: var(--card-bg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+}
+
+.nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.nav-btn.active {
+    color: var(--primary-color);
+}
+
+.nav-icon {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.nav-label {
+    font-weight: 500;
+}
+
+/* ==================== PWA用調整 ==================== */
+
+/* iOS SafeArea対応 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .app-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+        height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    }
+
+    body {
+        padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    }
+
+    .integrated-learn-actions,
+    .quiz-actions {
+        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    }
+}
+
+/* スタンドアロンモード */
+@media (display-mode: standalone) {
+    .app-header {
+        padding-top: env(safe-area-inset-top);
+        height: calc(var(--header-height) + env(safe-area-inset-top));
+    }
+
+    body {
+        padding-top: calc(var(--header-height) + env(safe-area-inset-top));
+    }
+}

@@ -1,0 +1,282 @@
+/**
+ * sets.css - セット管理画面
+ */
+
+/* ==================== セット一覧 ==================== */
+
+.sets-list-container {
+    padding: var(--spacing-md);
+}
+
+.sets-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.sets-count {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.sets-list {
+    margin-bottom: var(--spacing-lg);
+}
+
+.set-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+    gap: var(--spacing-md);
+    border-left: 4px solid var(--primary-color);
+}
+
+.set-item.disabled {
+    opacity: 0.6;
+    border-left-color: var(--text-muted);
+}
+
+.set-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.set-item-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.set-item-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.set-item-count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.set-item-description {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.set-item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.set-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+}
+
+.set-toggle input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* ==================== セットエディタ ==================== */
+
+.set-editor {
+    background: var(--card-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+}
+
+.set-editor h3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.set-questions-section {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.set-questions-section h4 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-muted);
+}
+
+.set-questions-filters {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.set-questions-filters .form-input {
+    flex: 1;
+}
+
+.set-questions-filters .form-select {
+    min-width: 120px;
+}
+
+.set-questions-bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: #e3f2fd;
+    border-radius: var(--border-radius);
+    flex-wrap: wrap;
+}
+
+.set-questions-bulk-actions .checkbox-label {
+    font-size: 0.85rem;
+}
+
+#set-selected-count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+#set-bulk-remove-btn {
+    margin-left: auto;
+}
+
+@media (max-width: 480px) {
+    .set-questions-filters {
+        flex-direction: column;
+    }
+
+    .set-questions-filters .form-select {
+        width: 100%;
+    }
+}
+
+.set-questions-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.set-question-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.set-question-item:last-child {
+    border-bottom: none;
+}
+
+.set-question-checkbox {
+    flex-shrink: 0;
+}
+
+.set-question-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.set-question-title {
+    display: block;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.set-question-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.set-question-tags .tag-small {
+    font-size: 0.7rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ==================== セットチェックボックス ==================== */
+
+.set-checkboxes {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--card-bg);
+    margin-top: var(--spacing-sm);
+}
+
+.set-checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.set-checkbox-item:hover {
+    background: #f8f9fa;
+}
+
+.set-checkbox-item input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.set-checkbox-item label {
+    cursor: pointer;
+    margin: 0;
+    flex: 1;
+    font-weight: 400;
+}
+
+.set-checkbox-item .set-checkbox-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-left: var(--spacing-sm);
+}
+
+.set-checkboxes-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--spacing-md);
+    font-size: 0.9rem;
+}
+
+/* ==================== セット選択モーダル ==================== */
+
+.set-select-content {
+    max-width: 450px;
+    text-align: left;
+}
+
+.set-select-content h3 {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.set-select-content p {
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.modal-set-list {
+    max-height: 250px;
+    margin-bottom: var(--spacing-md);
+}
