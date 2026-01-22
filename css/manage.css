@@ -4,6 +4,16 @@
 
 /* ==================== 管理画面ヘッダー ==================== */
 
+/* 問題管理タイトルを非表示 */
+#manage-screen h2 {
+    display: none;
+    margin: 0 !important;
+}
+
+#manage-screen {
+    padding-top: 0;
+}
+
 .manage-header {
     display: flex;
     gap: var(--spacing-sm);
@@ -34,14 +44,25 @@
     display: flex;
     gap: var(--spacing-xs);
     margin-bottom: var(--spacing-lg);
+    margin-top: 0;
     border-bottom: 2px solid var(--border-color);
     overflow-x: auto;
+    overflow-y: hidden;
     position: sticky;
     top: 0;
     z-index: 10;
     background: var(--bg-color);
-    padding-top: var(--spacing-sm);
-    margin-top: calc(-1 * var(--spacing-sm));
+    
+    /* 画面幅いっぱいに広げる */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    
+    justify-content: center;
 }
 
 .manage-tab-btn {
@@ -93,6 +114,7 @@
 @media (max-width: 600px) {
     .manage-tabs {
         gap: 0;
+        justify-content: stretch;
     }
 
     .manage-tab-btn {

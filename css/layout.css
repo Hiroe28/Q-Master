@@ -37,6 +37,12 @@
     padding: var(--spacing-md);
 }
 
+/* 管理画面の時だけpaddingを削除 */
+#manage-screen.active ~ .app-main,
+.app-main:has(#manage-screen.active) {
+    padding: 0;
+}
+
 .screen {
     display: none;
     max-width: 800px;
