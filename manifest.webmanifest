@@ -1,6 +1,6 @@
 {
-    "name": "Master-Q",
-    "short_name": "MateryQuiz",
+    "name": "Q-Master",
+    "short_name": "Q-Master",
     "description": "四択クイズで学習できるPWAアプリ。問題の登録・編集、復習機能、Markdown・LaTeX対応。",
     "start_url": "./index.html",
     "scope": "./",
