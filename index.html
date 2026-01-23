@@ -760,9 +760,15 @@
                         <p style="margin: 0; font-size: 14px; line-height: 1.6;">
                             💡 <strong>効果的な問題生成のコツ:</strong><br>
                             • 素材は適度な量で(テキスト500文字程度、画像1-3枚が目安)<br>
-                            • 問題数が多すぎると1問あたりの質が低下します<br>
+                            • 問題数が多すぎると生成に時間がかかり、1問あたりの質が低下します<br>
                             • 数式を含む問題はLaTeX記法で自動的に整形されます
+                        </p><br>
+                        <p style="margin: 0; font-size: 14px; line-height: 1.6;">
+                            ⏱️ <strong>生成時間の目安</strong><br>
+                            • テキストのみ:1問あたり約10〜30秒<br>
+                            • 画像あり:1問あたり約30秒〜1分
                         </p>
+
                     </div>
 
                     <div id="ai-generator-disabled" class="ai-generator-disabled">
@@ -810,7 +816,7 @@
                             <label>作成オプション</label>
                             <div class="radio-options">
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-creation-mode" value="exact" checked> この内容で問題を作る
+                                    <input type="radio" name="ai-creation-mode" value="exact" checked> この内容で問題を作る（素材の問題数分のみ生成）
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="ai-creation-mode" value="reference"> この内容を参考に問題を作る
@@ -883,6 +889,7 @@
                                 <!-- セットが動的に追加されます -->
                             </select>
                         </div>
+                        
                         <div id="ai-new-set-input" class="form-group" style="display: none;">
                             <label for="ai-new-set-name">新規セット名</label>
                             <input type="text" id="ai-new-set-name" class="form-input" placeholder="新しいセットの名前">

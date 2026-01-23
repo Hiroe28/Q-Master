@@ -243,6 +243,24 @@ function buildSystemPrompt(questionType, isLanguageLearning, audioLang, numImage
         languageInstruction = `語学学習問題: isLanguageLearning=true, audioEnabled=true, audioLang="${audioLang}"`;
     }
 
+    // ★ モード別の問題数指示を追加
+    let modeInstruction = '';
+    if (mode === 'exact') {
+        modeInstruction = `
+**重要: 問題数の指定**
+- **素材に含まれる問題数分のみ作成**
+- 素材が1問なら1問、5問なら5問を正確に生成
+- 勝手に問題数を増やさない
+- 画像の場合、画像内の問題数を正確にカウントして生成
+`;
+    } else if (mode === 'reference') {
+        modeInstruction = `
+**問題数の指定**
+- 素材を参考に関連問題を5-10問程度作成
+- ユーザーの追加指示で問題数が指定されている場合はそれに従う
+`;
+    }
+
     let imageInstruction = '';
     if (numImages > 0) {
         imageInstruction = `
@@ -267,7 +285,7 @@ B「サービス維持に使われるデータ」
 - 用語集: 各項目1問(最大10問)
 - 表/グラフ: 各行列の内容
 
-**Markdown活用**
+**Markdown活用(必須)**
 - 問題文・解説は改行・箇条書きを使用
 - 読みやすさ最優先
 - 平文の羅列は避ける
@@ -283,6 +301,7 @@ ${imageInstruction}
 2. 問題文と選択肢を分離
 3. 画像の選択肢はA,B,C,Dに変換
 4. **解説は必ずMarkdown形式で記述**。問題文はMarkdownマストではない。
+${modeInstruction}
 
 **出題形式**
 ${typeInstruction}
@@ -290,7 +309,7 @@ ${typeInstruction}
 
 **ルール**
 
-1. **問題文**: 選択肢内容を含めない。問いのみ。
+1. **問題文**: 
    - 選択肢内容を含めない。問いのみ
    - 複数の要素がある場合は改行で見やすく
 
@@ -333,16 +352,29 @@ ${typeInstruction}
    4択必須+typingAnswer+acceptableAnswers
    caseSensitive=false, strictMatch=true
 
-
 ${languageInstruction}
 
-**重要: Markdownを活用し、改行・太字・箇条書きを使って読みやすくすること**`;
+**重要: すべての問題文と解説でMarkdownを活用し、改行・太字・箇条書きを使って読みやすくすること**
+
+JSON Schemaに厳密準拠。`;
 }
 
+
 function buildUserPrompt(mode, content, instruction) {
-    let prompt = mode === 'exact' ? 
-        'この内容をそのまま使って問題作成。' :
-        'この内容を参考に関連問題作成。';
+    let prompt = '';
+    
+    if (mode === 'exact') {
+        prompt = `**指示: この素材に含まれる問題をそのまま使って問題を作成**
+
+重要: 素材に含まれる問題数分だけ作成してください。勝手に問題数を増やさないでください。
+- 素材が1問なら1問のみ
+- 素材が5問なら5問のみ
+- 画像の場合、画像内の問題数を正確にカウントして生成`;
+    } else {
+        prompt = `**指示: この素材を参考に関連問題を作成**
+
+素材の内容をベースに、関連する問題を5-10問程度作成してください。`;
+    }
 
     if (content) {
         prompt += `\n\n【素材】\n${content}`;
@@ -814,11 +846,25 @@ async function generateQuestions() {
         QuizUI.showLoading('問題を生成中...');
 
         const isImageInput = sourceType === 'image';
+        
+        // ★ ローディングメッセージを状況に応じて変更
+        let loadingMessage = '問題を生成中...';
+        
+        if (isImageInput) {
+            loadingMessage = `画像${AIState.uploadedImages.length}枚から問題を生成中...\n30秒〜1分ほどかかる場合があります`;
+        } else {
+            loadingMessage = '問題を生成中...\n10〜30秒ほどかかる場合があります';
+        }
+        
+        QuizUI.showLoading(loadingMessage);
+
+        // ★ modeを追加
         const systemPrompt = buildSystemPrompt(
             questionType,
             isLanguageLearning,
             audioLang,
-            isImageInput ? AIState.uploadedImages.length : 0
+            isImageInput ? AIState.uploadedImages.length : 0,
+            mode  // ← 追加
         );
         const userPrompt = buildUserPrompt(mode, isImageInput ? '' : sourceText, instruction);
 
