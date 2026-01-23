@@ -295,20 +295,25 @@ async function getReviewScheduleStats() {
             return;
         }
 
-        // 長期定着(8-20日)
-        if (stats.interval >= 8) {
-            masteredCount++;
-            return;
-        }
-        
-        // 学習中(1-7日)はスケジュールで判定
+        // nextReviewDateがない場合は未学習扱い
         if (!stats.nextReviewDate) {
             newCount++;
             return;
         }
-        
+
         const nextReview = stats.nextReviewDate;
-        
+
+        // 長期定着(8-20日) - 習熟度カテゴリとしてカウント
+        if (stats.interval >= 8) {
+            masteredCount++;
+            // 今日復習が必要な場合はtodayCountにもカウント
+            if (nextReview <= today.getTime()) {
+                todayCount++;
+            }
+            return;
+        }
+
+        // 学習中(1-7日)はスケジュールで判定
         if (nextReview <= today.getTime()) {
             todayCount++;
         } else if (nextReview <= tomorrow.getTime()) {

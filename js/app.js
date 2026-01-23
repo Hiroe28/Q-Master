@@ -97,6 +97,10 @@ function setupEventListeners() {
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const screenId = btn.dataset.screen;
+
+            // 画面切り替え時にno-scrollクラスをリセット（学習フェーズ中断時の対策）
+            document.querySelector('.app-main')?.classList.remove('no-scroll');
+
             QuizUI.showScreen(screenId);
 
             // 画面に応じた初期化
