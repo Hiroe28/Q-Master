@@ -16,7 +16,9 @@ const AppState = {
         format: 'multiple-choice', // 出題形式: multiple-choice, typing
         selectedTags: [],       // 選択されたタグ(複数)
         selectedSets: [],       // 選択されたセット(複数)
-        seenQuestions: new Set() // このセッションで統計更新した問題ID
+        seenQuestions: new Set(), // このセッションで統計更新した問題ID
+        shuffleMode: false,     // 選択肢シャッフルモードON/OFF
+        currentChoiceMapping: null // 現在の問題の選択肢マッピング {displayMapping, reverseMapping}
     },
     // 学習モード（フラッシュカード）の状態
     study: {

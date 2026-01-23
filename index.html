@@ -164,6 +164,15 @@
                     <p class="data-help">未選択時は全問題が対象になります</p>
                 </div>
 
+                <!-- シャッフルモード -->
+                <div class="form-group">
+                    <label class="checkbox-label shuffle-mode-label">
+                        <input type="checkbox" id="shuffle-choices-mode" class="form-checkbox">
+                        🔀 選択肢をシャッフルする
+                    </label>
+                    <p class="data-help">対応している問題のみ選択肢の順番がランダムになります</p>
+                </div>
+
                 <button id="start-quiz-btn" class="btn btn-primary btn-large">
                     クイズを開始
                 </button>
@@ -515,6 +524,15 @@
                                 <div id="question-sets-checkboxes" class="set-checkboxes">
                                     <!-- セットのチェックボックスがここに動的に追加されます -->
                                 </div>
+                            </div>
+
+                            <!-- シャッフル対応 -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="shuffle-ready" class="form-checkbox">
+                                    🔀 選択肢シャッフルに対応
+                                </label>
+                                <p class="data-help">解説で「Aが正解」などキー名を使わない問題はチェックを入れてください</p>
                             </div>
 
                             <div class="form-actions">

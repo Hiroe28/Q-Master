@@ -206,13 +206,15 @@ function getQuestionSchema() {
                         strictMatch: { type: "boolean", default: true },
                         isLanguageLearning: { type: "boolean", default: false },
                         audioEnabled: { type: "boolean", default: false },
-                        audioLang: { type: "string", default: "en-US" }
+                        audioLang: { type: "string", default: "en-US" },
+                        shuffleReady: { type: "boolean", default: true }
                     },
                     required: [
                         "title", "body_md", "choices", "answer", "explanation_md",
                         "type", "typingAnswer", "acceptableAnswers",
                         "caseSensitive", "strictMatch",
-                        "isLanguageLearning", "audioEnabled", "audioLang"
+                        "isLanguageLearning", "audioEnabled", "audioLang",
+                        "shuffleReady"
                     ],
                     additionalProperties: false
                 }
@@ -325,27 +327,32 @@ ${typeInstruction}
    ディスプレイ:\`$$x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$$\`
 
 5. **解説(Markdown必須・200-300文字)**:
-   
+
    **必須フォーマット:**
    - 正解理由を**太字**で強調
    - 誤答は箇条書き(- または番号)で整理
    - 改行を適切に使い読みやすく
-   
+
+   **重要: 選択肢シャッフル対応**
+   - 解説では「A」「B」「C」「D」などの選択肢キーを**絶対に使わない**
+   - 代わりに選択肢の内容そのものを引用して説明する
+   - shuffleReady: true を必ず設定
+
    **良い例:**
    \`\`\`
-   **正解はB。** ROE(自己資本利益率)が高いほど、株主資本を効率的に活用していることを示します。
-   
+   **正解は「ROEが高いほど効率的」です。** ROE(自己資本利益率)が高いほど、株主資本を効率的に活用していることを示します。
+
    **誤答解説:**
-   - **A:** 逆です。ROEは株主資本、ROAは総資産の効率性を示します
-   - **C:** ROAと自己資本比率は別の指標です
-   - **D:** 正しいですが、Bがより本質的な理由です
-   
+   - 「逆である」という選択肢 → 誤り。ROEは株主資本の効率性を示します
+   - 「ROAと自己資本比率」という選択肢 → 誤り。別の指標です
+   - 「正しいが理由が異なる」という選択肢 → 部分的に正解ですが、より本質的な理由があります
+
    **覚え方:** E=Equity(株主資本)、A=Assets(総資産)
    \`\`\`
-   
-   **悪い例(これは避ける):**
+
+   **悪い例(これは避ける - 選択肢キーを使用):**
    \`\`\`
-   正解はB。ROEが高いほど株主資本を効率活用。A:逆。ROEは株主、ROAは総資産。C:ROAは自己資本比率と無関係。D:正しいがBがより本質的。覚え方:E=Equity、A=Assets
+   正解はB。A:逆。C:無関係。D:正しいがBがより本質的。
    \`\`\`
 
 6. **タイピング(typing/both)**:
@@ -585,6 +592,11 @@ function validateQuestions(questions, expectedType) {
         }
         if (!q.audioLang) {
             q.audioLang = 'en-US';
+        }
+
+        // AI生成問題はシャッフル対応として設定
+        if (q.shuffleReady === undefined) {
+            q.shuffleReady = true;
         }
     }
 }
