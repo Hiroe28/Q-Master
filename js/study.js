@@ -4,6 +4,77 @@
  * 4択とタイピング両方正解した時のみSM-2更新
  */
 
+// ==================== 選択肢シャッフル関連 ====================
+
+/**
+ * 選択肢のシャッフルマッピングを生成
+ * @returns {Object} { displayMapping, reverseMapping }
+ *   displayMapping: 表示位置 -> 元のキー (例: {A: 'C', B: 'A', C: 'D', D: 'B'})
+ *   reverseMapping: 元のキー -> 表示位置 (例: {A: 'B', B: 'D', C: 'A', D: 'C'})
+ */
+function createChoiceShuffleMapping() {
+    const originalKeys = ['A', 'B', 'C', 'D'];
+    const shuffledKeys = QuizUI.shuffleArray([...originalKeys]);
+
+    const displayMapping = {};
+    const reverseMapping = {};
+
+    shuffledKeys.forEach((originalKey, index) => {
+        const displayKey = originalKeys[index];
+        displayMapping[displayKey] = originalKey;
+        reverseMapping[originalKey] = displayKey;
+    });
+
+    return { displayMapping, reverseMapping };
+}
+
+/**
+ * 解説文中の選択肢キー（A, B, C, D）を置換
+ * @param {string} explanation - 解説文
+ * @param {Object} reverseMapping - 元キー -> 表示キーのマッピング
+ * @returns {string} 置換後の解説文
+ */
+function replaceChoiceKeysInExplanation(explanation, reverseMapping) {
+    if (!explanation || !reverseMapping) return explanation;
+
+    let result = explanation;
+
+    // 置換パターン（順序重要：長いパターンから先に）
+    // 選択肢A, 選択肢B などのパターン
+    for (const [originalKey, newKey] of Object.entries(reverseMapping)) {
+        // 「選択肢A」→「選択肢X」
+        result = result.replace(new RegExp(`選択肢${originalKey}`, 'g'), `選択肢__TEMP_${newKey}__`);
+    }
+    // 一時プレースホルダーを戻す
+    result = result.replace(/__TEMP_([A-D])__/g, '$1');
+
+    // 各パターンを順番に置換（一時プレースホルダー使用で衝突回避）
+    for (const [originalKey, newKey] of Object.entries(reverseMapping)) {
+        // (A) → (X)
+        result = result.replace(new RegExp(`\\(${originalKey}\\)`, 'g'), `(__TEMP_${newKey}__)`);
+        // （A） → （X）（全角括弧）
+        result = result.replace(new RegExp(`（${originalKey}）`, 'g'), `（__TEMP_${newKey}__）`);
+        // A: → X:
+        result = result.replace(new RegExp(`([^a-zA-Z])${originalKey}:`, 'g'), `$1__TEMP_${newKey}__:`);
+        // A： → X：（全角コロン）
+        result = result.replace(new RegExp(`([^a-zA-Z])${originalKey}：`, 'g'), `$1__TEMP_${newKey}__：`);
+        // A. → X.（ただし小数点は除外）
+        result = result.replace(new RegExp(`([^a-zA-Z0-9])${originalKey}\\.([^0-9])`, 'g'), `$1__TEMP_${newKey}__.$2`);
+        // 「Aが正解」「Aは正解」などのパターン
+        result = result.replace(new RegExp(`([^a-zA-Z])${originalKey}(が|は|を|の|も)`, 'g'), `$1__TEMP_${newKey}__$2`);
+        // 「正解はA」「答えはA」などのパターン（文末）
+        result = result.replace(new RegExp(`(正解|答え)(は|が)${originalKey}([。、.\\s]|$)`, 'g'), `$1$2__TEMP_${newKey}__$3`);
+        // **A:** などMarkdown太字内
+        result = result.replace(new RegExp(`\\*\\*${originalKey}:\\*\\*`, 'g'), `**__TEMP_${newKey}__:**`);
+        result = result.replace(new RegExp(`\\*\\*${originalKey}：\\*\\*`, 'g'), `**__TEMP_${newKey}__：**`);
+    }
+
+    // 一時プレースホルダーを実際のキーに置換
+    result = result.replace(/__TEMP_([A-D])__/g, '$1');
+
+    return result;
+}
+
 // ==================== 統合モード関連 ====================
 
 /**
@@ -25,6 +96,11 @@ async function startIntegratedMode() {
         AppState.integrated.questionResults = new Map();
         AppState.integrated.failedQuestions = [];
         AppState.integrated.isRetryMode = false; // 復習モードフラグ
+
+        // シャッフルモードの設定を読み込む
+        const shuffleModeCheckbox = document.getElementById('shuffle-choices-mode');
+        AppState.quiz.shuffleMode = shuffleModeCheckbox?.checked || false;
+        AppState.quiz.currentChoiceMapping = null;
 
         const setCheckboxes = document.querySelectorAll('#quiz-set-checkboxes input[type="checkbox"]:checked');
         const selectedSetIds = Array.from(setCheckboxes).map(cb => cb.value);
@@ -557,16 +633,28 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
         }
     }
 
+    // シャッフルモードの判定（学習フェーズ用）
+    const shouldShuffleLearn = AppState.quiz.shuffleMode && question.shuffleReady === true;
+    let learnMapping = null;
+    if (shouldShuffleLearn) {
+        learnMapping = createChoiceShuffleMapping();
+        AppState.quiz.currentChoiceMapping = learnMapping;
+    } else {
+        AppState.quiz.currentChoiceMapping = null;
+    }
+
     // 選択肢を表示(4択問題の場合)
     const choicesContainer = document.getElementById('integrated-choices');
     if (choicesContainer) {
         if (question.choices && (question.type !== 'typing')) {
-            const choiceHtml = ['A', 'B', 'C', 'D'].map(choice => {
-                const choiceText = question.choices[choice] || '';
+            const choiceHtml = ['A', 'B', 'C', 'D'].map(displayKey => {
+                // シャッフル時は元のキーから内容を取得
+                const originalKey = learnMapping ? learnMapping.displayMapping[displayKey] : displayKey;
+                const choiceText = question.choices[originalKey] || '';
                 if (!choiceText) return '';
                 return `
                     <div class="integrated-choice-item">
-                        <span class="integrated-choice-label">${choice}</span>
+                        <span class="integrated-choice-label">${displayKey}</span>
                         <span class="integrated-choice-text">${QuizUI.escapeHtml(choiceText)}</span>
                     </div>
                 `;
@@ -592,12 +680,18 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
         answerText = question.typingAnswer || '';
     } else {
         const correctChoice = question.answer;
-        answerText = `${correctChoice}: ${question.choices[correctChoice] || ''}`;
+        // シャッフル時は表示キーを使用
+        const displayKey = learnMapping ? learnMapping.reverseMapping[correctChoice] : correctChoice;
+        answerText = `${displayKey}: ${question.choices[correctChoice] || ''}`;
     }
     QuizUI.renderContent(answerText, document.getElementById('integrated-answer'));
 
-    // 解説を表示
-    QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('integrated-explanation'));
+    // 解説を表示（シャッフル時はキーを置換）
+    let explanationText = question.explanation_md || '解説はありません';
+    if (learnMapping) {
+        explanationText = replaceChoiceKeysInExplanation(explanationText, learnMapping.reverseMapping);
+    }
+    QuizUI.renderContent(explanationText, document.getElementById('integrated-explanation'));
 
     // 次のステップボタンを非表示(カードを裏返すまで)
     document.getElementById('integrated-next-phase-btn').style.display = 'none';
@@ -681,17 +775,40 @@ async function showIntegratedQuizPhase(question, showAnswered = false) {
     const result = AppState.integrated.questionResults.get(question.id);
     const wasAnswered = result?.quizCorrect !== null && result?.quizCorrect !== undefined;
 
+    // シャッフルモードの判定
+    const shouldShuffle = AppState.quiz.shuffleMode && question.shuffleReady === true;
+
+    // シャッフルマッピングを取得または生成
+    let mapping = null;
+    if (shouldShuffle) {
+        if (showAnswered && result?.choiceMapping) {
+            // 解答済みの場合は保存されたマッピングを使用
+            mapping = result.choiceMapping;
+        } else if (!showAnswered) {
+            // 新規表示の場合はマッピングを生成
+            mapping = createChoiceShuffleMapping();
+        }
+        AppState.quiz.currentChoiceMapping = mapping;
+    } else {
+        AppState.quiz.currentChoiceMapping = null;
+    }
+
     document.querySelectorAll('.choice-btn').forEach(btn => {
         btn.classList.remove('correct', 'incorrect', 'selected');
-        const choice = btn.dataset.choice;
-        QuizUI.renderContent(question.choices[choice] || '', btn.querySelector('.choice-text'));
+        const displayKey = btn.dataset.choice; // 表示上のキー（A, B, C, D）
+
+        // シャッフル時は元のキーから内容を取得
+        const originalKey = mapping ? mapping.displayMapping[displayKey] : displayKey;
+        QuizUI.renderContent(question.choices[originalKey] || '', btn.querySelector('.choice-text'));
 
         // 解答済みとして表示する場合
         if (showAnswered && wasAnswered) {
             btn.disabled = true;
-            if (choice === question.answer) {
+            // 正解の表示位置を計算
+            const correctDisplayKey = mapping ? mapping.reverseMapping[question.answer] : question.answer;
+            if (displayKey === correctDisplayKey) {
                 btn.classList.add('correct');
-            } else if (result.selectedChoice === choice && !result.quizCorrect) {
+            } else if (result.selectedDisplayChoice === displayKey && !result.quizCorrect) {
                 btn.classList.add('incorrect');
             }
         } else {
@@ -711,12 +828,17 @@ async function showIntegratedQuizPhase(question, showAnswered = false) {
         AppState.quiz.selectedChoice = result.selectedChoice;
         AppState.integrated.phaseCompleted = true;
 
-        // 解説を表示
+        // 解説を表示（シャッフル時はキーを置換）
         const explanationContainer = document.getElementById('explanation-container');
         explanationContainer.style.display = 'block';
         document.getElementById('result-text').textContent = result.quizCorrect ? '正解!' : '不正解...';
         document.getElementById('result-text').className = result.quizCorrect ? 'result-text correct' : 'result-text incorrect';
-        QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('explanation-body'));
+
+        let explanationText = question.explanation_md || '解説はありません';
+        if (mapping) {
+            explanationText = replaceChoiceKeysInExplanation(explanationText, mapping.reverseMapping);
+        }
+        QuizUI.renderContent(explanationText, document.getElementById('explanation-body'));
 
         // 次へボタンを表示
         const nextBtn = document.getElementById('next-question-btn');
@@ -901,7 +1023,12 @@ async function handleIntegratedQuizAnswer(choice) {
     AppState.integrated.phaseCompleted = true;
 
     const question = AppState.integrated.phaseQuestions[AppState.integrated.currentQuestionIndex];
-    const isCorrect = choice === question.answer;
+    const mapping = AppState.quiz.currentChoiceMapping;
+
+    // シャッフル時は表示キーから元のキーに変換して正解判定
+    const displayChoice = choice; // ユーザーが選んだ表示上のキー
+    const originalChoice = mapping ? mapping.displayMapping[displayChoice] : displayChoice;
+    const isCorrect = originalChoice === question.answer;
 
     // 結果を記録
     let result = AppState.integrated.questionResults.get(question.id);
@@ -910,21 +1037,26 @@ async function handleIntegratedQuizAnswer(choice) {
         AppState.integrated.questionResults.set(question.id, result);
     }
     result.quizCorrect = isCorrect;
-    result.selectedChoice = choice; // 選択した選択肢を記録
+    result.selectedChoice = originalChoice; // 元のキーを記録
+    result.selectedDisplayChoice = displayChoice; // 表示上のキーも記録
+    result.choiceMapping = mapping; // マッピング情報を保存（前へ戻った時用）
 
-    console.log(`📝 4択結果: ${isCorrect ? '✅正解' : '❌不正解'}`);
+    console.log(`📝 4択結果: ${isCorrect ? '✅正解' : '❌不正解'}${mapping ? ' (シャッフル)' : ''}`);
 
     // 解答を記録（統計には影響しない）
-    await QuizDB.addAttempt(question.id, choice, isCorrect);
+    await QuizDB.addAttempt(question.id, originalChoice, isCorrect);
 
     // ボタンの表示更新
     document.querySelectorAll('.choice-btn').forEach(btn => {
-        const btnChoice = btn.dataset.choice;
+        const btnDisplayChoice = btn.dataset.choice;
         btn.disabled = true;
 
-        if (btnChoice === question.answer) {
+        // 正解の表示位置を計算
+        const correctDisplayKey = mapping ? mapping.reverseMapping[question.answer] : question.answer;
+
+        if (btnDisplayChoice === correctDisplayKey) {
             btn.classList.add('correct');
-        } else if (btnChoice === choice && !isCorrect) {
+        } else if (btnDisplayChoice === displayChoice && !isCorrect) {
             btn.classList.add('incorrect');
         }
     });
@@ -940,12 +1072,17 @@ async function handleIntegratedQuizAnswer(choice) {
         };
     }
 
-    // 解説を表示
+    // 解説を表示（シャッフル時はキーを置換）
     const explanationContainer = document.getElementById('explanation-container');
     explanationContainer.style.display = 'block';
     document.getElementById('result-text').textContent = isCorrect ? '正解!' : '不正解...';
     document.getElementById('result-text').className = isCorrect ? 'result-text correct' : 'result-text incorrect';
-    QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('explanation-body'));
+
+    let explanationText = question.explanation_md || '解説はありません';
+    if (mapping) {
+        explanationText = replaceChoiceKeysInExplanation(explanationText, mapping.reverseMapping);
+    }
+    QuizUI.renderContent(explanationText, document.getElementById('explanation-body'));
 
     // 次へボタンを表示（イベントリスナーはapp.jsで設定済み）
     const nextBtn = document.getElementById('next-question-btn');

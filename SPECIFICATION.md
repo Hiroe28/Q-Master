@@ -119,7 +119,12 @@ quiz-app/
   // ===== Phase 3: 語学学習モード =====
   isLanguageLearning: true,              // 語学学習問題か
   audioEnabled: true,                    // 音声読み上げ有効
-  audioLang: 'en-US'                    // 読み上げ言語
+  audioLang: 'en-US',                    // 読み上げ言語
+
+  // ===== 選択肢シャッフル対応 =====
+  shuffleReady: true                     // 選択肢シャッフルに対応している問題か
+                                         // true: 解説で「A」「B」等のキー名を使わない問題
+                                         // false/未設定: シャッフル非対応（既存問題）
 }
 ```
 

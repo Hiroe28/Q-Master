@@ -289,6 +289,12 @@ async function showQuestionEditor(questionId) {
                 }
             }
 
+            // シャッフル対応フラグを設定
+            const shuffleReadyCheckbox = document.getElementById('shuffle-ready');
+            if (shuffleReadyCheckbox) {
+                shuffleReadyCheckbox.checked = question.shuffleReady === true;
+            }
+
             // JSON入力タブにもデータを設定
             if (jsonInput) {
                 const jsonData = {
@@ -306,7 +312,8 @@ async function showQuestionEditor(questionId) {
                     strictMatch: question.strictMatch !== undefined ? question.strictMatch : true,
                     isLanguageLearning: question.isLanguageLearning || false,
                     audioEnabled: question.audioEnabled || false,
-                    audioLang: question.audioLang || 'en-US'
+                    audioLang: question.audioLang || 'en-US',
+                    shuffleReady: question.shuffleReady || false
                 };
                 jsonInput.value = JSON.stringify(jsonData, null, 2);
             }
@@ -314,6 +321,12 @@ async function showQuestionEditor(questionId) {
     } else {
         // 新規作成モード
         editorTitle.textContent = '問題を追加';
+
+        // 新規作成時はシャッフル対応フラグをリセット
+        const shuffleReadyCheckbox = document.getElementById('shuffle-ready');
+        if (shuffleReadyCheckbox) {
+            shuffleReadyCheckbox.checked = false;
+        }
     }
 
     document.getElementById('question-editor').style.display = 'block';
@@ -535,6 +548,9 @@ async function saveQuestion() {
             asset_ids.push(item.dataset.assetId);
         });
 
+        // シャッフル対応フラグを取得
+        const shuffleReady = document.getElementById('shuffle-ready')?.checked || false;
+
         const questionData = {
             title,
             body_md,
@@ -542,7 +558,8 @@ async function saveQuestion() {
             answer,
             explanation_md,
             tags,
-            asset_ids
+            asset_ids,
+            shuffleReady
         };
 
         if (AppState.manage.editingId) {
