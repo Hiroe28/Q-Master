@@ -25,7 +25,58 @@
 .quiz-progress-info {
     display: flex;
     flex-direction: column;
+    gap: 4px;
+}
+
+.quiz-phase-current {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* フェーズフロー（全体の流れ表示） */
+.quiz-phase-flow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+}
+
+.phase-flow-item {
+    display: inline-flex;
+    align-items: center;
     gap: 2px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    white-space: nowrap;
+}
+
+.phase-flow-item.current {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.phase-flow-item.completed {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.phase-flow-icon {
+    font-size: 0.8rem;
+}
+
+.phase-flow-count {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.phase-flow-arrow {
+    color: #9ca3af;
+    margin: 0 2px;
 }
 
 .quiz-phase-label {

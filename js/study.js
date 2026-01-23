@@ -316,6 +316,9 @@ async function showCurrentQuestionInPhase(showAnswered = false) {
         phaseLabelEl.className = 'quiz-phase-label ' + (phaseClasses[phaseName] || '');
     }
 
+    // フェーズフロー（全体の流れ）を更新
+    updatePhaseFlow();
+
     // 復習モードの場合はretry-badgeを表示
     const retryBadge = document.getElementById('retry-badge');
     if (retryBadge) {
@@ -503,6 +506,92 @@ async function moveToPrevQuestionInPhase() {
 
     // 前の問題を表示（解答済みの状態で）
     await showCurrentQuestionInPhase(true); // true = 解答済みとして表示
+}
+
+/**
+ * フェーズフロー（全体の流れ）を更新表示
+ */
+function updatePhaseFlow() {
+    const flowEl = document.getElementById('quiz-phase-flow');
+    if (!flowEl) return;
+
+    const phases = AppState.integrated.phases;
+    const currentPhaseIndex = AppState.integrated.currentPhaseIndex;
+    const allQuestions = AppState.integrated.allQuestions;
+
+    // 各フェーズの情報を計算
+    const phaseInfo = [];
+
+    for (let i = 0; i < phases.length; i++) {
+        const phaseName = phases[i];
+        let count = 0;
+        let label = '';
+        let icon = '';
+
+        if (phaseName === 'learn') {
+            // 学習フェーズ：未学習問題数（フェーズ開始時に計算済み）
+            if (i === currentPhaseIndex) {
+                count = AppState.integrated.phaseQuestions?.length || 0;
+            } else if (i < currentPhaseIndex) {
+                count = 0; // 完了済み
+            } else {
+                // まだ開始していないので推定
+                count = '?';
+            }
+            label = '学習';
+            icon = '📚';
+        } else if (phaseName === 'quiz') {
+            // 4択フェーズ：全問題数
+            count = allQuestions.length;
+            label = '4択';
+            icon = '📝';
+        } else if (phaseName === 'typing') {
+            // タイピングフェーズ：タイピング対応問題数（最大値）
+            if (i === currentPhaseIndex) {
+                count = AppState.integrated.phaseQuestions?.length || 0;
+            } else if (i < currentPhaseIndex) {
+                count = 0; // 完了済み
+            } else {
+                // タイピング対応問題数を計算
+                const typingCount = allQuestions.filter(q =>
+                    (q.type === 'typing' || q.type === 'both') && q.typingAnswer
+                ).length;
+                count = typingCount > 0 ? `〜${typingCount}` : 0;
+            }
+            label = 'タイピング';
+            icon = '⌨️';
+        }
+
+        phaseInfo.push({
+            name: phaseName,
+            label,
+            icon,
+            count,
+            isCurrent: i === currentPhaseIndex,
+            isCompleted: i < currentPhaseIndex
+        });
+    }
+
+    // HTMLを生成
+    const flowHtml = phaseInfo.map((info, index) => {
+        let className = 'phase-flow-item';
+        if (info.isCurrent) className += ' current';
+        if (info.isCompleted) className += ' completed';
+
+        const countText = info.count === 0 ? '' :
+                         (typeof info.count === 'string' ? info.count : `${info.count}問`);
+
+        const arrow = index < phaseInfo.length - 1 ? '<span class="phase-flow-arrow">→</span>' : '';
+
+        // 完了済みフェーズは✓表示
+        if (info.isCompleted) {
+            return `<span class="${className}"><span class="phase-flow-icon">✓</span>${info.label}</span>${arrow}`;
+        }
+
+        return `<span class="${className}"><span class="phase-flow-icon">${info.icon}</span>${info.label}${countText ? ` <span class="phase-flow-count">${countText}</span>` : ''}</span>${arrow}`;
+    }).join('');
+
+    flowEl.innerHTML = flowHtml;
 }
 
 /**

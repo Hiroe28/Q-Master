@@ -182,8 +182,11 @@
             <div id="quiz-content" class="quiz-content" style="display: none;">
                 <div class="quiz-header">
                     <div class="quiz-progress-info">
-                        <span id="quiz-phase-label" class="quiz-phase-label">📚 学習</span>
-                        <span id="quiz-progress" class="quiz-progress">1 / 10</span>
+                        <div class="quiz-phase-current">
+                            <span id="quiz-phase-label" class="quiz-phase-label">📚 学習</span>
+                            <span id="quiz-progress" class="quiz-progress">1 / 10</span>
+                        </div>
+                        <div id="quiz-phase-flow" class="quiz-phase-flow"></div>
                     </div>
                     <button id="end-quiz-btn" class="btn btn-small btn-secondary">終了</button>
                 </div>
