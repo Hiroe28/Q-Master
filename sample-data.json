@@ -1,6 +1,75 @@
 {
     "questions": [
         {
+            "title": "[サンプル] 英文: I have a dog.",
+            "body_md": "「私は犬を飼っています。」を英語で?",
+            "choices": {
+                "A": "I have a dog.",
+                "B": "I has a dog.",
+                "C": "I have a cat.",
+                "D": "I had a dog."
+            },
+            "answer": "A",
+            "explanation_md": "**I have a dog.** = 私は犬を飼っています。\n\n`have` は「持っている・飼っている」を表す動詞です。\n\n---\n*このサンプル問題は削除して構いません。*",
+            "tags": ["サンプル", "英語", "文法"],
+            "sets": [],
+            "type": "both",
+            "typingAnswer": "I have a dog.",
+            "acceptableAnswers": [],
+            "caseSensitive": false,
+            "strictMatch": true,
+            "isLanguageLearning": true,
+            "audioEnabled": true,
+            "audioLang": "en-US",
+            "shuffleReady": true
+        },
+        {
+            "title": "[サンプル] 英文: I don't know.",
+            "body_md": "「私は知りません。」を英語で?",
+            "choices": {
+                "A": "I don't know.",
+                "B": "I doesn't know.",
+                "C": "I not know.",
+                "D": "I do not knowing."
+            },
+            "answer": "A",
+            "explanation_md": "**I don't know.** = 私は知りません。\n\n`don't` は `do not` の短縮形です。\n\n---\n*このサンプル問題は削除して構いません。*",
+            "tags": ["サンプル", "英語", "文法"],
+            "sets": [],
+            "type": "both",
+            "typingAnswer": "I don't know.",
+            "acceptableAnswers": ["I do not know."],
+            "caseSensitive": false,
+            "strictMatch": true,
+            "isLanguageLearning": true,
+            "audioEnabled": true,
+            "audioLang": "en-US",
+            "shuffleReady": true
+        },
+        {
+            "title": "[サンプル] 英文: well-known",
+            "body_md": "「有名な、よく知られた」を英語で?",
+            "choices": {
+                "A": "well-known",
+                "B": "well known",
+                "C": "famous",
+                "D": "popular"
+            },
+            "answer": "A",
+            "explanation_md": "**well-known** = 有名な、よく知られた\n\nハイフンでつながった複合形容詞です。\n\n---\n*このサンプル問題は削除して構いません。*",
+            "tags": ["サンプル", "英語", "形容詞"],
+            "sets": [],
+            "type": "both",
+            "typingAnswer": "well-known",
+            "acceptableAnswers": [],
+            "caseSensitive": false,
+            "strictMatch": true,
+            "isLanguageLearning": true,
+            "audioEnabled": true,
+            "audioLang": "en-US",
+            "shuffleReady": true
+        },
+        {
             "title": "[サンプル] 英単語: beautiful",
             "body_md": "「美しい」を英語で?",
             "choices": {

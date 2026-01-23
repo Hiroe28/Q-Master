@@ -889,58 +889,97 @@ async function showIntegratedTypingPhase(question, showAnswered = false) {
     const result = AppState.integrated.questionResults.get(question.id);
     const wasAnswered = result?.typingCorrect !== null && result?.typingCorrect !== undefined;
 
-    // 入力欄
+    // 語学学習モードかどうか判定
+    const isSelectiveMode = question.isLanguageLearning === true && question.typingAnswer;
+
+    // 入力欄の取得・参照用
     const typingInput = document.getElementById('typing-input');
+    const typingInputArea = document.querySelector('.typing-input-area');
+    const selectiveContainer = typingContainer.querySelector('.selective-typing-container');
 
-    // 解答済みとして表示する場合
-    if (showAnswered && wasAnswered) {
-        if (typingInput) {
-            typingInput.value = result.userAnswer || '';
-            typingInput.disabled = true;
+    // 語学学習モード用のトークンを保存
+    let tokens = null;
+    if (isSelectiveMode) {
+        tokens = QuizTyping.tokenizeAnswer(question.typingAnswer);
+        AppState.integrated.currentTokens = tokens;
+    }
+
+    if (isSelectiveMode) {
+        // 語学学習モード: 既存の通常入力を非表示、selective UIを生成
+        if (typingInput) typingInput.style.display = 'none';
+
+        // 既存のselective-typing-containerを削除
+        if (selectiveContainer) {
+            selectiveContainer.remove();
         }
-        document.getElementById('submit-answer-btn').disabled = true;
 
-        // 結果を表示
-        const typingResult = document.getElementById('typing-result');
-        const resultText = document.getElementById('typing-result-text');
-        const userAnswerEl = document.getElementById('user-answer');
-        const correctAnswerEl = document.getElementById('correct-answer');
+        // 新しいselective typing UIを生成
+        const selectiveUI = QuizTyping.createSelectiveTypingUI(tokens);
+        typingInputArea.appendChild(selectiveUI);
 
-        if (typingResult) typingResult.style.display = 'block';
-        if (resultText) {
-            resultText.textContent = result.typingCorrect ? '正解!' : '不正解...';
-            resultText.className = result.typingCorrect ? 'result-text correct' : 'result-text incorrect';
+        // 解答済みとして表示する場合
+        if (showAnswered && wasAnswered) {
+            // 保存された回答を各フィールドに設定
+            if (result.tokenAnswers) {
+                const inputs = selectiveUI.querySelectorAll('.selective-typing-input');
+                result.tokenAnswers.forEach((value, index) => {
+                    if (inputs[index]) {
+                        inputs[index].value = value;
+                    }
+                });
+            }
+            // 正誤表示
+            QuizTyping.showSelectiveTypingResults(selectiveUI, tokens);
+            document.getElementById('submit-answer-btn').disabled = true;
+
+            showTypingResultUI(result, question, true);
+            AppState.quiz.answered = true;
+            AppState.integrated.phaseCompleted = true;
+        } else {
+            // 通常の初期表示
+            document.getElementById('submit-answer-btn').disabled = false;
+            document.getElementById('typing-result').style.display = 'none';
+
+            // 最初の入力フィールドにフォーカス
+            const firstInput = selectiveUI.querySelector('.selective-typing-input');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            AppState.quiz.answered = false;
+            AppState.integrated.phaseCompleted = false;
         }
-        if (userAnswerEl) userAnswerEl.textContent = result.userAnswer || '';
-        if (correctAnswerEl) correctAnswerEl.textContent = question.typingAnswer;
-
-        // 解説を表示
-        const explanationContainer = document.getElementById('explanation-container');
-        if (explanationContainer) {
-            explanationContainer.style.display = 'block';
-            document.getElementById('result-text').style.display = 'none';
-        }
-        QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('explanation-body'));
-
-        // 次へボタンを表示
-        const nextBtn = document.getElementById('next-question-btn');
-        nextBtn.textContent = '次へ (N)';
-        nextBtn.style.display = 'inline-block';
-
-        AppState.quiz.answered = true;
-        AppState.integrated.phaseCompleted = true;
     } else {
-        // 通常の初期表示
-        if (typingInput) {
-            typingInput.value = '';
-            typingInput.disabled = false;
-            typingInput.focus();
+        // 通常モード: 既存のselective UIを削除、通常入力を表示
+        if (selectiveContainer) {
+            selectiveContainer.remove();
         }
-        document.getElementById('submit-answer-btn').disabled = false;
-        document.getElementById('typing-result').style.display = 'none';
+        if (typingInput) typingInput.style.display = 'block';
 
-        AppState.quiz.answered = false;
-        AppState.integrated.phaseCompleted = false;
+        // 解答済みとして表示する場合
+        if (showAnswered && wasAnswered) {
+            if (typingInput) {
+                typingInput.value = result.userAnswer || '';
+                typingInput.disabled = true;
+            }
+            document.getElementById('submit-answer-btn').disabled = true;
+
+            showTypingResultUI(result, question, false);
+            AppState.quiz.answered = true;
+            AppState.integrated.phaseCompleted = true;
+        } else {
+            // 通常の初期表示
+            if (typingInput) {
+                typingInput.value = '';
+                typingInput.disabled = false;
+                typingInput.focus();
+            }
+            document.getElementById('submit-answer-btn').disabled = false;
+            document.getElementById('typing-result').style.display = 'none';
+
+            AppState.quiz.answered = false;
+            AppState.integrated.phaseCompleted = false;
+        }
     }
 
     // 音声ボタンは最初は非表示（解答後に表示）
@@ -949,7 +988,37 @@ async function showIntegratedTypingPhase(question, showAnswered = false) {
         speakBtn.style.display = 'none';
         AppState.integrated.currentTypingQuestion = question;
     }
+}
 
+/**
+ * タイピング結果UIを表示（共通処理）
+ */
+function showTypingResultUI(result, question, isSelectiveMode) {
+    const typingResult = document.getElementById('typing-result');
+    const resultText = document.getElementById('typing-result-text');
+    const userAnswerEl = document.getElementById('user-answer');
+    const correctAnswerEl = document.getElementById('correct-answer');
+
+    if (typingResult) typingResult.style.display = 'block';
+    if (resultText) {
+        resultText.textContent = result.typingCorrect ? '正解!' : '不正解...';
+        resultText.className = result.typingCorrect ? 'result-text correct' : 'result-text incorrect';
+    }
+    if (userAnswerEl) userAnswerEl.textContent = result.userAnswer || '';
+    if (correctAnswerEl) correctAnswerEl.textContent = question.typingAnswer;
+
+    // 解説を表示
+    const explanationContainer = document.getElementById('explanation-container');
+    if (explanationContainer) {
+        explanationContainer.style.display = 'block';
+        document.getElementById('result-text').style.display = 'none';
+    }
+    QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('explanation-body'));
+
+    // 次へボタンを表示
+    const nextBtn = document.getElementById('next-question-btn');
+    nextBtn.textContent = '次へ (N)';
+    nextBtn.style.display = 'inline-block';
 }
 
 /**
@@ -1098,19 +1167,53 @@ async function handleIntegratedQuizAnswer(choice) {
 async function handleIntegratedTypingAnswer() {
     if (AppState.quiz.answered) return;
 
-    const input = document.getElementById('typing-input');
-    const userAnswer = input?.value.trim();
+    const question = AppState.integrated.phaseQuestions[AppState.integrated.currentQuestionIndex];
+    const isSelectiveMode = question.isLanguageLearning === true && question.typingAnswer;
+    const typingContainer = document.getElementById('typing-container');
 
-    if (!userAnswer) {
-        QuizUI.showToast('答えを入力してください', 'warning');
-        return;
+    let userAnswer = '';
+    let tokenAnswers = null;
+
+    if (isSelectiveMode) {
+        // 語学学習モード: selective typing UIから回答を収集
+        const selectiveContainer = typingContainer.querySelector('.selective-typing-container');
+        const tokens = AppState.integrated.currentTokens;
+
+        if (selectiveContainer && tokens) {
+            userAnswer = QuizTyping.collectSelectiveTypingAnswer(selectiveContainer, tokens);
+
+            // 各フィールドの回答を保存（前へ戻った時用）
+            const inputs = selectiveContainer.querySelectorAll('.selective-typing-input');
+            tokenAnswers = Array.from(inputs).map(input => input.value);
+        }
+
+        // 入力チェック（単語部分が未入力かどうか）
+        const hasEmptyInput = tokenAnswers && tokenAnswers.some(v => !v.trim());
+        if (hasEmptyInput) {
+            QuizUI.showToast('すべての単語を入力してください', 'warning');
+            return;
+        }
+    } else {
+        // 通常モード
+        const input = document.getElementById('typing-input');
+        userAnswer = input?.value.trim() || '';
+
+        if (!userAnswer) {
+            QuizUI.showToast('答えを入力してください', 'warning');
+            return;
+        }
     }
 
     AppState.quiz.answered = true;
     AppState.integrated.phaseCompleted = true;
 
-    const question = AppState.integrated.phaseQuestions[AppState.integrated.currentQuestionIndex];
-    const isCorrect = QuizTyping.validateTypingAnswer(userAnswer, question);
+    // 判定（語学学習モードは専用の判定関数を使用）
+    let isCorrect;
+    if (isSelectiveMode) {
+        isCorrect = QuizTyping.validateLanguageLearningAnswer(userAnswer, question);
+    } else {
+        isCorrect = QuizTyping.validateTypingAnswer(userAnswer, question);
+    }
 
     // 結果を記録
     let result = AppState.integrated.questionResults.get(question.id);
@@ -1119,12 +1222,27 @@ async function handleIntegratedTypingAnswer() {
         AppState.integrated.questionResults.set(question.id, result);
     }
     result.typingCorrect = isCorrect;
-    result.userAnswer = userAnswer; // ユーザーの入力を記録
+    result.userAnswer = userAnswer;
+    if (tokenAnswers) {
+        result.tokenAnswers = tokenAnswers;
+    }
 
-    console.log(`⌨️ タイピング結果: ${isCorrect ? '✅正解' : '❌不正解'}`);
+    console.log(`⌨️ タイピング結果: ${isCorrect ? '✅正解' : '❌不正解'}${isSelectiveMode ? ' (語学学習モード)' : ''}`);
 
     // 解答を記録（統計には影響しない）
     await QuizDB.addAttempt(question.id, userAnswer, isCorrect);
+
+    // 語学学習モードの場合、各フィールドの正誤を表示
+    if (isSelectiveMode) {
+        const selectiveContainer = typingContainer.querySelector('.selective-typing-container');
+        const tokens = AppState.integrated.currentTokens;
+        if (selectiveContainer && tokens) {
+            QuizTyping.showSelectiveTypingResults(selectiveContainer, tokens);
+        }
+    } else {
+        const input = document.getElementById('typing-input');
+        if (input) input.disabled = true;
+    }
 
     // 結果を表示
     const typingResult = document.getElementById('typing-result');
@@ -1140,7 +1258,6 @@ async function handleIntegratedTypingAnswer() {
     if (userAnswerEl) userAnswerEl.textContent = userAnswer;
     if (correctAnswerEl) correctAnswerEl.textContent = question.typingAnswer;
 
-    if (input) input.disabled = true;
     document.getElementById('submit-answer-btn').disabled = true;
 
     // 音声ボタンを解答後に表示してイベント設定
