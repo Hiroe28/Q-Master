@@ -365,20 +365,24 @@ async function createQuestionSetWithId(setData) {
  * サンプルデータをインポート
  */
 async function importSampleData() {
-    // 確認ダイアログ
-    const confirmed = await QuizUI.showConfirm('サンプル問題（3問）を追加しますか？');
-    if (!confirmed) return;
-
     try {
-        QuizUI.showLoading('サンプルデータを読み込み中...');
-
+        // まずサンプルデータを取得して問題数を確認
         const response = await fetch('sample-data.json');
         if (!response.ok) {
             throw new Error('サンプルデータの取得に失敗しました');
         }
 
         const data = await response.json();
-        const count = await importQuestions(data.questions || data, false);
+        const questions = data.questions || data;
+        const questionCount = Array.isArray(questions) ? questions.length : 0;
+
+        // 確認ダイアログ（実際の問題数を表示）
+        const confirmed = await QuizUI.showConfirm(`サンプル問題（${questionCount}問）を追加しますか？`);
+        if (!confirmed) return;
+
+        QuizUI.showLoading('サンプルデータを読み込み中...');
+
+        const count = await importQuestions(questions, false);
 
         // 問題セットもあればインポート
         if (data.question_sets && data.question_sets.length > 0) {

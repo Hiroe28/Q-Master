@@ -187,6 +187,22 @@ async function startIntegratedMode() {
         AppState.quiz.format = 'integrated';
         AppState.quiz.seenQuestions = new Set();
 
+        // 学習開始前のstatsを保存（進捗変化の表示用）
+        AppState.integrated.beforeStats = new Map();
+        for (const q of questions) {
+            try {
+                const stats = await QuizDB.getStats(q.id);
+                if (stats) {
+                    AppState.integrated.beforeStats.set(q.id, {
+                        interval: stats.interval || 0,
+                        repetitions: stats.repetitions || 0
+                    });
+                }
+            } catch (e) {
+                // 取得失敗は無視
+            }
+        }
+
         document.getElementById('quiz-start').style.display = 'none';
         document.getElementById('quiz-content').style.display = 'block';
 
@@ -299,6 +315,9 @@ async function showCurrentQuestionInPhase(showAnswered = false) {
         phaseLabelEl.textContent = phaseLabels[phaseName] || phaseName;
         phaseLabelEl.className = 'quiz-phase-label ' + (phaseClasses[phaseName] || '');
     }
+
+    // フェーズフロー（全体の流れ）を更新
+    updatePhaseFlow();
 
     // 復習モードの場合はretry-badgeを表示
     const retryBadge = document.getElementById('retry-badge');
@@ -490,6 +509,92 @@ async function moveToPrevQuestionInPhase() {
 }
 
 /**
+ * フェーズフロー（全体の流れ）を更新表示
+ */
+function updatePhaseFlow() {
+    const flowEl = document.getElementById('quiz-phase-flow');
+    if (!flowEl) return;
+
+    const phases = AppState.integrated.phases;
+    const currentPhaseIndex = AppState.integrated.currentPhaseIndex;
+    const allQuestions = AppState.integrated.allQuestions;
+
+    // 各フェーズの情報を計算
+    const phaseInfo = [];
+
+    for (let i = 0; i < phases.length; i++) {
+        const phaseName = phases[i];
+        let count = 0;
+        let label = '';
+        let icon = '';
+
+        if (phaseName === 'learn') {
+            // 学習フェーズ：未学習問題数（フェーズ開始時に計算済み）
+            if (i === currentPhaseIndex) {
+                count = AppState.integrated.phaseQuestions?.length || 0;
+            } else if (i < currentPhaseIndex) {
+                count = 0; // 完了済み
+            } else {
+                // まだ開始していないので推定
+                count = '?';
+            }
+            label = '学習';
+            icon = '📚';
+        } else if (phaseName === 'quiz') {
+            // 4択フェーズ：全問題数
+            count = allQuestions.length;
+            label = '4択';
+            icon = '📝';
+        } else if (phaseName === 'typing') {
+            // タイピングフェーズ：タイピング対応問題数（最大値）
+            if (i === currentPhaseIndex) {
+                count = AppState.integrated.phaseQuestions?.length || 0;
+            } else if (i < currentPhaseIndex) {
+                count = 0; // 完了済み
+            } else {
+                // タイピング対応問題数を計算
+                const typingCount = allQuestions.filter(q =>
+                    (q.type === 'typing' || q.type === 'both') && q.typingAnswer
+                ).length;
+                count = typingCount > 0 ? `〜${typingCount}` : 0;
+            }
+            label = 'タイピング';
+            icon = '⌨️';
+        }
+
+        phaseInfo.push({
+            name: phaseName,
+            label,
+            icon,
+            count,
+            isCurrent: i === currentPhaseIndex,
+            isCompleted: i < currentPhaseIndex
+        });
+    }
+
+    // HTMLを生成
+    const flowHtml = phaseInfo.map((info, index) => {
+        let className = 'phase-flow-item';
+        if (info.isCurrent) className += ' current';
+        if (info.isCompleted) className += ' completed';
+
+        const countText = info.count === 0 ? '' :
+                         (typeof info.count === 'string' ? info.count : `${info.count}問`);
+
+        const arrow = index < phaseInfo.length - 1 ? '<span class="phase-flow-arrow">→</span>' : '';
+
+        // 完了済みフェーズは✓表示
+        if (info.isCompleted) {
+            return `<span class="${className}"><span class="phase-flow-icon">✓</span>${info.label}</span>${arrow}`;
+        }
+
+        return `<span class="${className}"><span class="phase-flow-icon">${info.icon}</span>${info.label}${countText ? ` <span class="phase-flow-count">${countText}</span>` : ''}</span>${arrow}`;
+    }).join('');
+
+    flowEl.innerHTML = flowHtml;
+}
+
+/**
  * 統合モード結果を表示
  */
 async function showIntegratedResult() {
@@ -500,27 +605,10 @@ async function showIntegratedResult() {
     document.getElementById('quiz-result').style.display = 'block';
 
     const total = AppState.quiz.seenQuestions.size;
-    const allQuestions = AppState.integrated.allQuestions;
-    const questionResults = AppState.integrated.questionResults;
 
     document.getElementById('result-total').innerHTML = `全${total}問完了しました`;
 
     let detailHtml = '';
-    // 各問題の詳細結果を生成
-    // let detailHtml = `
-    //     <div class="result-stats-detail">
-    //         <p>✅ <strong>学習完了!</strong></p>
-    //         <p>📚 学習 → 📝 4択 → ⌨️ タイピングの順で学習しました</p>
-    //         <p>🎯 ${total}問の統計を更新しました</p>
-    //     </div>
-    //     <div class="result-questions-list">
-    //         <h3>📊 各問題の結果</h3>
-    // `;
-
-    // 全問題（元データ）から結果を取得
-    const originalQuestions = AppState.integrated.allQuestions.length > 0
-        ? AppState.integrated.allQuestions
-        : Array.from(AppState.quiz.seenQuestions).map(id => ({ id }));
 
     // seenQuestionsにある問題の統計を取得
     for (const questionId of AppState.quiz.seenQuestions) {
@@ -530,8 +618,15 @@ async function showIntegratedResult() {
 
             if (!question) continue;
 
-            const title = question.title || question.id.substring(0, 8);
+            // タグとセット情報を表示（タイトルは非表示）
+            const questionLabel = await formatQuestionLabel(question);
             const hasTyping = (question.type === 'typing' || question.type === 'both') && question.typingAnswer;
+
+            // 復習間隔の変化を取得
+            const beforeStats = AppState.integrated.beforeStats?.get(questionId);
+            const beforeInterval = beforeStats?.interval || 0;
+            const afterInterval = stats?.interval || 0;
+            const intervalChange = afterInterval - beforeInterval;
 
             // 次回復習日を計算
             let nextReviewText = '';
@@ -542,38 +637,51 @@ async function showIntegratedResult() {
                 const diffDays = Math.ceil((nextReview - today) / (1000 * 60 * 60 * 24));
 
                 if (diffDays <= 0) {
-                    nextReviewText = '今日復習';
+                    nextReviewText = '今日';
                 } else if (diffDays === 1) {
-                    nextReviewText = '明日復習';
+                    nextReviewText = '明日';
                 } else {
-                    nextReviewText = `${diffDays}日後に復習`;
+                    nextReviewText = `${diffDays}日後`;
                 }
             } else {
-                nextReviewText = '初回学習完了';
+                nextReviewText = '初回';
             }
 
             // 習熟度インジケーター
-            let masteryLevel = '';
+            let masteryBadge = '';
             if (stats) {
                 const interval = stats.interval || 0;
                 if (interval >= 21) {
-                    masteryLevel = '<span class="mastery-high">🌟 定着</span>';
+                    masteryBadge = '<span class="badge badge-mastery-high">🌟 定着</span>';
                 } else if (interval >= 7) {
-                    masteryLevel = '<span class="mastery-mid">📈 成長中</span>';
+                    masteryBadge = '<span class="badge badge-mastery-mid">📈 成長中</span>';
                 } else {
-                    masteryLevel = '<span class="mastery-low">🌱 学習中</span>';
+                    masteryBadge = '<span class="badge badge-mastery-low">🌱 学習中</span>';
                 }
+            }
+
+            // 進捗変化の表示
+            let progressText = '';
+            if (beforeInterval === 0) {
+                progressText = `<span class="progress-new">✨ 新規学習</span>`;
+            } else if (intervalChange > 0) {
+                progressText = `<span class="progress-up">📈 +${intervalChange}日</span>`;
+            } else if (intervalChange === 0) {
+                progressText = `<span class="progress-same">→ 維持</span>`;
+            } else {
+                progressText = `<span class="progress-down">📉 ${intervalChange}日</span>`;
             }
 
             detailHtml += `
                 <div class="result-question-item">
-                    <div class="result-question-title">${QuizUI.escapeHtml(title)}</div>
-                    <div class="result-question-badges">
-                        <span class="badge badge-success">✅ 合格</span>
-                        ${hasTyping ? '<span class="badge badge-typing">⌨️</span>' : ''}
-                        ${masteryLevel}
+                    <div class="result-question-header">
+                        <div class="result-question-label">${questionLabel}</div>
+                        ${masteryBadge}
                     </div>
-                    <div class="result-question-next">📅 ${nextReviewText}</div>
+                    <div class="result-question-progress">
+                        ${progressText}
+                        <span class="result-next-review">📅 次回: ${nextReviewText}</span>
+                    </div>
                 </div>
             `;
         } catch (error) {
@@ -581,8 +689,78 @@ async function showIntegratedResult() {
         }
     }
 
-    detailHtml += '</div>';
     document.getElementById('result-stats').innerHTML = detailHtml;
+}
+
+/**
+ * 問題のラベルをフォーマット（タグとセット情報）- 結果画面用
+ * @param {Object} question - 問題オブジェクト
+ * @returns {string} フォーマットされたラベル（HTML）
+ */
+async function formatQuestionLabel(question) {
+    const parts = [];
+
+    // タグを表示（最大2つ）
+    if (question.tags && question.tags.length > 0) {
+        const displayTags = question.tags.slice(0, 2).map(tag =>
+            `<span class="result-tag">${QuizUI.escapeHtml(tag)}</span>`
+        ).join('');
+        parts.push(displayTags);
+    }
+
+    // セット名を表示（最初の1つ）
+    if (question.sets && question.sets.length > 0) {
+        try {
+            const set = await QuizDB.getQuestionSet(question.sets[0]);
+            if (set) {
+                parts.push(`<span class="result-set">📦 ${QuizUI.escapeHtml(set.name)}</span>`);
+            }
+        } catch (e) {
+            // セット取得失敗は無視
+        }
+    }
+
+    // 何もない場合は問題の冒頭を表示
+    if (parts.length === 0) {
+        const bodyPreview = (question.body_md || '').substring(0, 30);
+        return `<span class="result-body-preview">${QuizUI.escapeHtml(bodyPreview)}${bodyPreview.length >= 30 ? '...' : ''}</span>`;
+    }
+
+    return parts.join(' ');
+}
+
+/**
+ * クイズ中に表示するラベルを生成（タイトルの代わりにタグ・セット）
+ * @param {Object} question - 問題オブジェクト
+ * @returns {string} プレーンテキストのラベル
+ */
+async function getQuizDisplayLabel(question) {
+    const parts = [];
+
+    // タグを表示（最大2つ）
+    if (question.tags && question.tags.length > 0) {
+        const displayTags = question.tags.slice(0, 2).map(tag => `#${tag}`).join(' ');
+        parts.push(displayTags);
+    }
+
+    // セット名を表示（最初の1つ）
+    if (question.sets && question.sets.length > 0) {
+        try {
+            const set = await QuizDB.getQuestionSet(question.sets[0]);
+            if (set) {
+                parts.push(`📦 ${set.name}`);
+            }
+        } catch (e) {
+            // セット取得失敗は無視
+        }
+    }
+
+    // 何もない場合は「問題」を表示
+    if (parts.length === 0) {
+        return '問題';
+    }
+
+    return parts.join('  ');
 }
 
 
@@ -616,8 +794,9 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
     AppState.integrated.isFlipped = false;
     AppState.integrated.phaseCompleted = false;
 
-    // 問題を表示
-    document.getElementById('integrated-question-title').textContent = question.title || '問題';
+    // 問題を表示（タイトルの代わりにタグ・セット情報）
+    const learnLabel = await getQuizDisplayLabel(question);
+    document.getElementById('integrated-question-title').textContent = learnLabel;
     QuizUI.renderContent(question.body_md || '', document.getElementById('integrated-question-body'));
 
     // 画像を表示
@@ -753,8 +932,9 @@ async function showIntegratedQuizPhase(question, showAnswered = false) {
         quizActions.style.display = 'flex';
     }
 
-    // 問題情報を表示
-    document.getElementById('question-title').textContent = question.title || '問題';
+    // 問題情報を表示（タイトルの代わりにタグ・セット情報）
+    const quizLabel = await getQuizDisplayLabel(question);
+    document.getElementById('question-title').textContent = quizLabel;
     QuizUI.renderContent(question.body_md, document.getElementById('question-body'));
 
     // 画像
@@ -867,8 +1047,9 @@ async function showIntegratedTypingPhase(question, showAnswered = false) {
         quizActions.style.display = 'flex';
     }
 
-    // 問題情報を表示
-    document.getElementById('question-title').textContent = question.title || '問題';
+    // 問題情報を表示（タイトルの代わりにタグ・セット情報）
+    const typingLabel = await getQuizDisplayLabel(question);
+    document.getElementById('question-title').textContent = typingLabel;
     QuizUI.renderContent(question.body_md, document.getElementById('question-body'));
 
     // 画像
