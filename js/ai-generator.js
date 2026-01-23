@@ -225,7 +225,7 @@ function getQuestionSchema() {
 
 // ==================== プロンプト生成 ====================
 
-function buildSystemPrompt(questionType, isLanguageLearning, audioLang, numImages) {
+function buildSystemPrompt(questionType, isLanguageLearning, audioLang, numImages, mode) {
     let typeInstruction = '';
 
     if (questionType === 'multiple-choice') {
@@ -851,9 +851,9 @@ async function generateQuestions() {
         let loadingMessage = '問題を生成中...';
         
         if (isImageInput) {
-            loadingMessage = `画像${AIState.uploadedImages.length}枚から問題を生成中...\n30秒〜1分ほどかかる場合があります`;
+            loadingMessage = `画像${AIState.uploadedImages.length}枚から問題を生成中...`;
         } else {
-            loadingMessage = '問題を生成中...\n10〜30秒ほどかかる場合があります';
+            loadingMessage = '問題を生成中...';
         }
         
         QuizUI.showLoading(loadingMessage);
