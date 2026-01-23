@@ -352,20 +352,127 @@
     font-size: 0.8rem;
 }
 
+/* ==================== 新しい結果画面スタイル ==================== */
+
+.result-question-item {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-align: left;
+}
+
+.result-question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.result-question-label {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.result-tag {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.result-set {
+    display: inline-block;
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.result-body-preview {
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.result-question-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: 0.85rem;
+}
+
+.progress-new {
+    color: #8b5cf6;
+    font-weight: 600;
+}
+
+.progress-up {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.progress-same {
+    color: #6b7280;
+}
+
+.progress-down {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.result-next-review {
+    color: var(--text-muted);
+}
+
+/* 習熟度バッジ（新スタイル） */
+.badge-mastery-high {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.badge-mastery-mid {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.badge-mastery-low {
+    background: #e5e7eb;
+    color: #4b5563;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
 /* スマホ対応 */
 @media (max-width: 480px) {
     .result-question-item {
         padding: var(--spacing-sm);
     }
 
-    .result-question-title {
-        font-size: 0.9rem;
+    .result-question-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .result-question-next {
-        flex: 1 1 100%;
-        margin-left: 0;
-        margin-top: var(--spacing-xs);
+    .result-question-progress {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
     }
 }
 
