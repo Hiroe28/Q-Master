@@ -136,6 +136,8 @@ async function addQuestion(questionData) {
             isLanguageLearning: questionData.isLanguageLearning || false,
             audioEnabled: questionData.audioEnabled || false,
             audioLang: questionData.audioLang || 'en-US',
+            // 選択肢シャッフル対応
+            shuffleReady: questionData.shuffleReady || false,
             created_at: Date.now(),
             updated_at: Date.now()
         };
@@ -174,6 +176,8 @@ async function addQuestionWithId(questionData) {
             isLanguageLearning: questionData.isLanguageLearning || false,
             audioEnabled: questionData.audioEnabled || false,
             audioLang: questionData.audioLang || 'en-US',
+            // 選択肢シャッフル対応
+            shuffleReady: questionData.shuffleReady || false,
             created_at: questionData.created_at || Date.now(),
             updated_at: questionData.updated_at || Date.now()
         };
