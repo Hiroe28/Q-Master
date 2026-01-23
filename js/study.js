@@ -618,69 +618,37 @@ async function showIntegratedResult() {
 
             if (!question) continue;
 
-            // タグとセット情報を表示（タイトルは非表示）
-            const questionLabel = await formatQuestionLabel(question);
-            const hasTyping = (question.type === 'typing' || question.type === 'both') && question.typingAnswer;
+            // タイトルとタグ・セット情報を表示
+            const questionLabel = await formatQuestionLabel(question, true);
 
-            // 復習間隔の変化を取得
+            // 復習間隔の変化を取得して％計算
             const beforeStats = AppState.integrated.beforeStats?.get(questionId);
             const beforeInterval = beforeStats?.interval || 0;
             const afterInterval = stats?.interval || 0;
-            const intervalChange = afterInterval - beforeInterval;
 
-            // 次回復習日を計算
-            let nextReviewText = '';
-            if (stats && stats.next_review) {
-                const nextReview = new Date(stats.next_review);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const diffDays = Math.ceil((nextReview - today) / (1000 * 60 * 60 * 24));
+            // ％計算（interval / 21 * 100、最大100%）
+            const beforePercent = Math.min(Math.round(beforeInterval / 21 * 100), 100);
+            const afterPercent = Math.min(Math.round(afterInterval / 21 * 100), 100);
 
-                if (diffDays <= 0) {
-                    nextReviewText = '今日';
-                } else if (diffDays === 1) {
-                    nextReviewText = '明日';
-                } else {
-                    nextReviewText = `${diffDays}日後`;
-                }
-            } else {
-                nextReviewText = '初回';
-            }
-
-            // 習熟度インジケーター
-            let masteryBadge = '';
-            if (stats) {
-                const interval = stats.interval || 0;
-                if (interval >= 21) {
-                    masteryBadge = '<span class="badge badge-mastery-high">🌟 定着</span>';
-                } else if (interval >= 7) {
-                    masteryBadge = '<span class="badge badge-mastery-mid">📈 成長中</span>';
-                } else {
-                    masteryBadge = '<span class="badge badge-mastery-low">🌱 学習中</span>';
-                }
-            }
-
-            // 進捗変化の表示
+            // 進捗変化の表示（％→％形式）
             let progressText = '';
-            if (beforeInterval === 0) {
-                progressText = `<span class="progress-new">✨ 新規学習</span>`;
-            } else if (intervalChange > 0) {
-                progressText = `<span class="progress-up">📈 +${intervalChange}日</span>`;
-            } else if (intervalChange === 0) {
-                progressText = `<span class="progress-same">→ 維持</span>`;
+            if (beforeInterval === 0 && afterInterval > 0) {
+                progressText = `<span class="progress-new">✨ 新規 → ${afterPercent}%</span>`;
+            } else if (afterPercent > beforePercent) {
+                progressText = `<span class="progress-up">📈 ${beforePercent}% → ${afterPercent}%</span>`;
+            } else if (afterPercent === beforePercent) {
+                progressText = `<span class="progress-same">→ ${afterPercent}% 維持</span>`;
             } else {
-                progressText = `<span class="progress-down">📉 ${intervalChange}日</span>`;
+                progressText = `<span class="progress-down">📉 ${beforePercent}% → ${afterPercent}%</span>`;
             }
 
             detailHtml += `
                 <div class="result-question-item">
                     <div class="result-question-header">
                         <div class="result-question-label">${questionLabel}</div>
-                        ${masteryBadge}
                     </div>
                     <div class="result-question-progress">
                         ${progressText}
-                        <span class="result-next-review">📅 次回: ${nextReviewText}</span>
                     </div>
                 </div>
             `;
@@ -695,10 +663,16 @@ async function showIntegratedResult() {
 /**
  * 問題のラベルをフォーマット（タグとセット情報）- 結果画面用
  * @param {Object} question - 問題オブジェクト
+ * @param {boolean} showTitle - タイトルを表示するか（デフォルト: false）
  * @returns {string} フォーマットされたラベル（HTML）
  */
-async function formatQuestionLabel(question) {
+async function formatQuestionLabel(question, showTitle = false) {
     const parts = [];
+
+    // タイトルを表示（showTitleがtrueの場合）
+    if (showTitle && question.title) {
+        parts.push(`<span class="result-title">${QuizUI.escapeHtml(question.title)}</span>`);
+    }
 
     // タグを表示（最大2つ）
     if (question.tags && question.tags.length > 0) {
