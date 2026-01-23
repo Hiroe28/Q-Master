@@ -235,7 +235,7 @@ function buildSystemPrompt(questionType, isLanguageLearning, audioLang, numImage
     } else if (questionType === 'both') {
         typeInstruction = 'すべての問題を4択+タイピング(type: "both")で作成。4択+typingAnswer/acceptableAnswers必須。';
     } else {
-        typeInstruction = '問題に応じて適切な形式を選択。どの形式でも4択は必須。';
+        typeInstruction = '問題に応じて適切な形式を選択。どの形式でも4択は必須。タイピングは、解答が簡単なタイピングで入力可能な場合のみ使用。';
     }
 
     let languageInstruction = '';
@@ -267,8 +267,11 @@ B「サービス維持に使われるデータ」
 - 用語集: 各項目1問(最大10問)
 - 表/グラフ: 各行列の内容
 
-**ユーザーが読みやすい問題・解説**
-- Markdown形式で、改行をしっかり使い、ユーザーが読みやすい問題・解説文とすること
+**Markdown活用**
+- 問題文・解説は改行・箇条書きを使用
+- 読みやすさ最優先
+- 平文の羅列は避ける
+
 `;
     }
 
@@ -279,6 +282,7 @@ ${imageInstruction}
 1. 素材の内容のみ使用
 2. 問題文と選択肢を分離
 3. 画像の選択肢はA,B,C,Dに変換
+4. **解説は必ずMarkdown形式で記述**。問題文はMarkdownマストではない。
 
 **出題形式**
 ${typeInstruction}
@@ -287,6 +291,8 @@ ${typeInstruction}
 **ルール**
 
 1. **問題文**: 選択肢内容を含めない。問いのみ。
+   - 選択肢内容を含めない。問いのみ
+   - 複数の要素がある場合は改行で見やすく
 
 2. **選択肢(本試験レベル)**:
    - 正解をA-Dにランダム配置
@@ -299,14 +305,29 @@ ${typeInstruction}
    インライン:\`$F=ma$\`
    ディスプレイ:\`$$x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$$\`
 
-5. **解説(200-300文字厳守)**:
-   構成: 正解理由(1-2文)→誤答理由(各1文)→覚え方(1文)
+5. **解説(Markdown必須・200-300文字)**:
    
-   例:「正解はB。ROEが高いほど株主資本を効率活用。
-   A:逆。ROEは株主、ROAは総資産。
-   C:ROAは自己資本比率と無関係。
-   D:正しいがBがより本質的。
-   覚え方:E=Equity、A=Assets」
+   **必須フォーマット:**
+   - 正解理由を**太字**で強調
+   - 誤答は箇条書き(- または番号)で整理
+   - 改行を適切に使い読みやすく
+   
+   **良い例:**
+   \`\`\`
+   **正解はB。** ROE(自己資本利益率)が高いほど、株主資本を効率的に活用していることを示します。
+   
+   **誤答解説:**
+   - **A:** 逆です。ROEは株主資本、ROAは総資産の効率性を示します
+   - **C:** ROAと自己資本比率は別の指標です
+   - **D:** 正しいですが、Bがより本質的な理由です
+   
+   **覚え方:** E=Equity(株主資本)、A=Assets(総資産)
+   \`\`\`
+   
+   **悪い例(これは避ける):**
+   \`\`\`
+   正解はB。ROEが高いほど株主資本を効率活用。A:逆。ROEは株主、ROAは総資産。C:ROAは自己資本比率と無関係。D:正しいがBがより本質的。覚え方:E=Equity、A=Assets
+   \`\`\`
 
 6. **タイピング(typing/both)**:
    4択必須+typingAnswer+acceptableAnswers
@@ -315,7 +336,7 @@ ${typeInstruction}
 
 ${languageInstruction}
 
-JSON Schemaに厳密準拠。`;
+**重要: Markdownを活用し、改行・太字・箇条書きを使って読みやすくすること**`;
 }
 
 function buildUserPrompt(mode, content, instruction) {
