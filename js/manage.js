@@ -41,10 +41,10 @@ async function refreshManageScreen() {
             filterTag.value = currentValue;
         }
 
-        // 問題数を表示
-        document.getElementById('question-count').textContent = `全${questions.length}問`;
+        // 問題数を表示（全問題数はAppStateに保存）
+        AppState.manage.totalQuestionCount = questions.length;
 
-        // リストを表示
+        // リストを表示（フィルタ後の件数もここで更新される）
         filterQuestionList();
 
     } catch (error) {
@@ -122,6 +122,18 @@ async function filterQuestionList() {
     const bulkActions = document.getElementById('bulk-actions');
     if (bulkActions) {
         bulkActions.style.display = questions.length > 0 ? 'flex' : 'none';
+    }
+
+    // 問題件数を更新（フィルタ後の件数 / 全件数）
+    const totalCount = AppState.manage.totalQuestionCount || 0;
+    const filteredCount = questions.length;
+    const questionCountEl = document.getElementById('question-count');
+    if (questionCountEl) {
+        if (filteredCount === totalCount) {
+            questionCountEl.textContent = `全${totalCount}問`;
+        } else {
+            questionCountEl.textContent = `${filteredCount}問表示中（全${totalCount}問）`;
+        }
     }
 
     // 表示

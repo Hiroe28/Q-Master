@@ -303,6 +303,7 @@ ${imageInstruction}
 2. 問題文と選択肢を分離
 3. 画像の選択肢はA,B,C,Dに変換
 4. **解説は必ずMarkdown形式で記述**。問題文はMarkdownマストではない。
+5. **タイトルは問題内容がわかりやすい短い見出しを付ける**（答えを含んでも良い。学習時は非表示のため）
 ${modeInstruction}
 
 **出題形式**
@@ -613,27 +614,20 @@ function showPreviewModal(questions) {
     if (!modal || !listContainer) return;
 
     listContainer.innerHTML = questions.map((q, index) => {
-        const bodyPreview = (q.body_md || '').replace(/[#*`$\\[\]]/g, '');
         const typeBadge = getTypeBadgeHTML(q.type);
 
         const choicesHtml = ['A', 'B', 'C', 'D'].map(choice => {
             const isCorrect = q.answer === choice;
+            const choiceText = q.choices?.[choice] || '';
+            if (!choiceText) return '';
             return `
                 <div class="ai-preview-choice ${isCorrect ? 'correct' : ''}">
-                    <span class="choice-label">${choice}.</span>
-                    <span class="choice-text">${QuizUI.escapeHtml(q.choices?.[choice] || '')}</span>
-                    ${isCorrect ? '<span class="correct-mark">✓</span>' : ''}
+                    <span class="choice-label">${choice}</span>
+                    <span class="choice-text markdown-content" data-markdown="${QuizUI.escapeHtml(choiceText)}">${QuizUI.escapeHtml(choiceText)}</span>
+                    ${isCorrect ? '<span class="correct-mark">✓ 正解</span>' : ''}
                 </div>
             `;
         }).join('');
-
-        const explanationText = (q.explanation_md || '').replace(/[#*`$\\[\]]/g, '').trim();
-        const explanationHtml = explanationText ? `
-            <div class="ai-preview-explanation">
-                <div class="ai-preview-explanation-label">💡 解説</div>
-                <div class="ai-preview-explanation-text">${QuizUI.escapeHtml(explanationText)}</div>
-            </div>
-        ` : '';
 
         return `
             <div class="ai-preview-item" data-index="${index}">
@@ -645,15 +639,26 @@ function showPreviewModal(questions) {
                         ${typeBadge}
                         <span class="ai-preview-item-title">${QuizUI.escapeHtml(q.title || `問題 ${index + 1}`)}</span>
                     </div>
-                    <div class="ai-preview-item-body">${QuizUI.escapeHtml(bodyPreview)}</div>
+                    <div class="ai-preview-item-body markdown-content" data-markdown="${QuizUI.escapeHtml(q.body_md || '')}"></div>
                     <div class="ai-preview-choices">
                         ${choicesHtml}
                     </div>
-                    ${explanationHtml}
+                    <div class="ai-preview-explanation">
+                        <div class="ai-preview-explanation-label">💡 解説</div>
+                        <div class="ai-preview-explanation-text markdown-content" data-markdown="${QuizUI.escapeHtml(q.explanation_md || '解説はありません')}"></div>
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
+
+    // Markdownレンダリングを適用
+    listContainer.querySelectorAll('.markdown-content[data-markdown]').forEach(el => {
+        const markdown = el.getAttribute('data-markdown');
+        if (markdown) {
+            QuizUI.renderContent(markdown, el);
+        }
+    });
 
     const selectAllCheckbox = document.getElementById('ai-select-all');
     if (selectAllCheckbox) {
