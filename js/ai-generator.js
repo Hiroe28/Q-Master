@@ -623,7 +623,7 @@ function showPreviewModal(questions) {
             return `
                 <div class="ai-preview-choice ${isCorrect ? 'correct' : ''}">
                     <span class="choice-label">${choice}</span>
-                    <span class="choice-text markdown-content" data-markdown="${QuizUI.escapeHtml(choiceText)}">${QuizUI.escapeHtml(choiceText)}</span>
+                    <span class="choice-text">${QuizUI.escapeHtml(choiceText)}</span>
                     ${isCorrect ? '<span class="correct-mark">✓ 正解</span>' : ''}
                 </div>
             `;
@@ -643,10 +643,10 @@ function showPreviewModal(questions) {
                     <div class="ai-preview-choices">
                         ${choicesHtml}
                     </div>
-                    <div class="ai-preview-explanation">
-                        <div class="ai-preview-explanation-label">💡 解説</div>
-                        <div class="ai-preview-explanation-text markdown-content" data-markdown="${QuizUI.escapeHtml(q.explanation_md || '解説はありません')}"></div>
-                    </div>
+                    <details class="ai-preview-explanation-details">
+                        <summary class="ai-preview-explanation-toggle">💡 解説を見る</summary>
+                        <div class="ai-preview-explanation-content markdown-content" data-markdown="${QuizUI.escapeHtml(q.explanation_md || '解説はありません')}"></div>
+                    </details>
                 </div>
             </div>
         `;
