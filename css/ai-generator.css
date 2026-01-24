@@ -378,33 +378,55 @@
     padding-top: 2px;
 }
 
-/* 解説表示 - 管理画面プレビューと統一 */
-.ai-preview-explanation {
+/* 解説表示 - 折りたたみ式 */
+.ai-preview-explanation-details {
     margin-top: var(--spacing-md);
-    padding: var(--spacing-md);
-    background: #f8f9fa;
     border-radius: var(--border-radius);
-    border-left: 4px solid var(--primary-color);
-    font-size: 0.9rem;
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
 }
 
-.ai-preview-explanation-label {
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
+.ai-preview-explanation-toggle {
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    font-weight: 500;
     color: var(--primary-color);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    user-select: none;
 }
 
-.ai-preview-explanation-text {
+.ai-preview-explanation-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.ai-preview-explanation-toggle::after {
+    content: '▶';
+    font-size: 0.7rem;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.ai-preview-explanation-details[open] .ai-preview-explanation-toggle::after {
+    transform: rotate(90deg);
+}
+
+.ai-preview-explanation-content {
+    padding: var(--spacing-md);
+    padding-top: 0;
     word-break: break-word;
     line-height: 1.6;
     color: var(--text-color);
+    font-size: 0.9rem;
 }
 
-.ai-preview-explanation-text p {
+.ai-preview-explanation-content p {
     margin: 0 0 var(--spacing-sm) 0;
 }
 
-.ai-preview-explanation-text p:last-child {
+.ai-preview-explanation-content p:last-child {
     margin-bottom: 0;
 }
 
