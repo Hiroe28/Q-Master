@@ -35,6 +35,13 @@
   "quiz.start": "Start Quiz",
 
   "quiz.phase.learn": "📚 Study",
+  "quiz.phase.quiz": "📝 Multiple Choice",
+  "quiz.phase.typing": "⌨️ Typing",
+  "quiz.phaseFlow.learn": "Study",
+  "quiz.phaseFlow.quiz": "Choice",
+  "quiz.phaseFlow.typing": "Typing",
+  "quiz.noTags": "No tags available",
+  "quiz.noExplanation": "No explanation available",
   "quiz.progress": "{{current}} / {{total}}",
   "quiz.end": "End",
   "quiz.retry.badge": "🔄 Review (does not affect schedule)",
@@ -81,7 +88,25 @@
   "manage.filter.completed": "Mastered",
 
   "manage.questionCount": "{{count}} Questions",
+  "manage.questionCountFiltered": "{{filtered}} of {{total}} Questions",
   "manage.addQuestion": "+ Add Question",
+  "manage.untitled": "Untitled",
+  "manage.noSet": "Not in Set",
+
+  "manage.status.notStarted": "Not Started",
+  "manage.status.completed": "Mastered",
+  "manage.status.today": "📌 Today",
+  "manage.status.tomorrow": "Tomorrow",
+  "manage.status.daysLater": "In {{days}} days",
+
+  "manage.badge.completed": "✓ Mastered",
+
+  "manage.action.edit": "Edit",
+  "manage.action.delete": "Delete",
+  "manage.action.complete": "✓ Mastered",
+  "manage.action.completeTitle": "Mark as Mastered",
+  "manage.action.restart": "🔄 Restart",
+  "manage.action.restartTitle": "Restart Learning",
 
   "manage.bulk.selectAll": "Select All",
   "manage.bulk.selectedCount": "{{count}} selected",
@@ -144,11 +169,17 @@
   "editor.json.label": "Enter question in JSON format",
   "editor.json.help": "Add multiple questions with an array: [{question1}, {question2}, ...]",
   "editor.json.add": "Add from JSON",
+  "editor.json.update": "Update",
 
   "sets.title": "Set Management",
   "sets.count": "{{count}} Sets",
   "sets.add": "+ Create Set",
   "sets.empty": "No question sets",
+  "sets.noSets": "No sets available",
+  "sets.noSetsCreate": "No sets available. Please create a set first.",
+  "sets.noMatchingQuestions": "No matching questions",
+  "sets.removeFromSet": "Remove",
+  "sets.enabled": "Enabled",
 
   "sets.editor.titleAdd": "Create Set",
   "sets.editor.titleEdit": "Edit Set",
@@ -246,12 +277,17 @@
   "toast.apiKeyDeleted": "API key deleted",
   "toast.questionsGenerated": "{{count}} questions generated",
   "toast.markedAsCompleted": "Marked as mastered",
+  "toast.removedFromSet": "{{count}} questions removed from set",
+  "toast.selectTag": "Please select a tag",
+  "toast.allAnswered": "No unanswered questions. All questions answered!",
+  "toast.noQuestions": "No questions available",
   "toast.error": "An error occurred",
   "toast.jsonParseError": "Invalid JSON format",
 
   "confirm.deleteQuestion": "Delete this question?",
   "confirm.deleteQuestions": "Delete {{count}} questions?",
   "confirm.deleteSet": "Delete this set? (Questions will not be deleted)",
+  "confirm.removeFromSet": "Remove {{count}} questions from set?",
   "confirm.clearData": "Delete all data? This cannot be undone.",
   "confirm.endQuiz": "End the quiz?"
 }

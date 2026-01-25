@@ -35,6 +35,13 @@
   "quiz.start": "クイズを開始",
 
   "quiz.phase.learn": "📚 学習",
+  "quiz.phase.quiz": "📝 4択テスト",
+  "quiz.phase.typing": "⌨️ タイピング",
+  "quiz.phaseFlow.learn": "学習",
+  "quiz.phaseFlow.quiz": "4択",
+  "quiz.phaseFlow.typing": "タイピング",
+  "quiz.noTags": "タグがありません",
+  "quiz.noExplanation": "解説はありません",
   "quiz.progress": "{{current}} / {{total}}",
   "quiz.end": "終了",
   "quiz.retry.badge": "🔄 復習中（スケジュールには影響しません）",
@@ -81,7 +88,25 @@
   "manage.filter.completed": "習得済み",
 
   "manage.questionCount": "全{{count}}問",
+  "manage.questionCountFiltered": "{{filtered}}問表示中（全{{total}}問）",
   "manage.addQuestion": "+ 問題を追加",
+  "manage.untitled": "無題",
+  "manage.noSet": "セット未所属",
+
+  "manage.status.notStarted": "未学習",
+  "manage.status.completed": "習得済み",
+  "manage.status.today": "📌 今日",
+  "manage.status.tomorrow": "明日",
+  "manage.status.daysLater": "{{days}}日後",
+
+  "manage.badge.completed": "✓ 習得済み",
+
+  "manage.action.edit": "編集",
+  "manage.action.delete": "削除",
+  "manage.action.complete": "✓ 習得済み",
+  "manage.action.completeTitle": "習得済みにする",
+  "manage.action.restart": "🔄 再学習",
+  "manage.action.restartTitle": "再度学習する",
 
   "manage.bulk.selectAll": "すべて選択",
   "manage.bulk.selectedCount": "{{count}}件選択中",
@@ -144,11 +169,17 @@
   "editor.json.label": "JSON形式で問題を入力",
   "editor.json.help": "配列で複数問題を一括追加できます: [{問題1}, {問題2}, ...]",
   "editor.json.add": "JSONから追加",
+  "editor.json.update": "更新",
 
   "sets.title": "セット管理",
   "sets.count": "全{{count}}セット",
   "sets.add": "+ セットを作成",
   "sets.empty": "問題セットがありません",
+  "sets.noSets": "セットがありません",
+  "sets.noSetsCreate": "セットがありません。先にセットを作成してください。",
+  "sets.noMatchingQuestions": "該当する問題がありません",
+  "sets.removeFromSet": "除外",
+  "sets.enabled": "有効",
 
   "sets.editor.titleAdd": "セットを作成",
   "sets.editor.titleEdit": "セットを編集",
@@ -246,12 +277,17 @@
   "toast.apiKeyDeleted": "APIキーを削除しました",
   "toast.questionsGenerated": "{{count}}問を生成しました",
   "toast.markedAsCompleted": "習得済みにしました",
+  "toast.removedFromSet": "{{count}}件の問題を除外しました",
+  "toast.selectTag": "タグを選択してください",
+  "toast.allAnswered": "未解答の問題がありません。すべての問題を解答済みです!",
+  "toast.noQuestions": "出題できる問題がありません",
   "toast.error": "エラーが発生しました",
   "toast.jsonParseError": "JSONの形式が正しくありません",
 
   "confirm.deleteQuestion": "この問題を削除しますか？",
   "confirm.deleteQuestions": "{{count}}件の問題を削除しますか？",
   "confirm.deleteSet": "このセットを削除しますか？（問題自体は削除されません）",
+  "confirm.removeFromSet": "{{count}}件の問題をセットから除外しますか？",
   "confirm.clearData": "すべてのデータを削除しますか？この操作は取り消せません。",
   "confirm.endQuiz": "クイズを終了しますか？"
 }

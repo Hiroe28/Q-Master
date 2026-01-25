@@ -35,6 +35,13 @@
   "quiz.start": "クイズを はじめる",
 
   "quiz.phase.learn": "📚 がくしゅう",
+  "quiz.phase.quiz": "📝 4たく テスト",
+  "quiz.phase.typing": "⌨️ タイピング",
+  "quiz.phaseFlow.learn": "がくしゅう",
+  "quiz.phaseFlow.quiz": "4たく",
+  "quiz.phaseFlow.typing": "タイピング",
+  "quiz.noTags": "タグが ないよ",
+  "quiz.noExplanation": "かいせつは ないよ",
   "quiz.progress": "{{current}} / {{total}}",
   "quiz.end": "おわる",
   "quiz.retry.badge": "🔄 ふくしゅうちゅう（スケジュールには えいきょうしないよ）",
@@ -81,7 +88,25 @@
   "manage.filter.completed": "おぼえた",
 
   "manage.questionCount": "ぜんぶで {{count}}もん",
+  "manage.questionCountFiltered": "{{filtered}}もん ひょうじちゅう（ぜんぶで {{total}}もん）",
   "manage.addQuestion": "+ もんだいを ついか",
+  "manage.untitled": "タイトル なし",
+  "manage.noSet": "セットに はいってない",
+
+  "manage.status.notStarted": "まだやってない",
+  "manage.status.completed": "おぼえた",
+  "manage.status.today": "📌 きょう",
+  "manage.status.tomorrow": "あした",
+  "manage.status.daysLater": "{{days}}にち ご",
+
+  "manage.badge.completed": "✓ おぼえた",
+
+  "manage.action.edit": "へんしゅう",
+  "manage.action.delete": "さくじょ",
+  "manage.action.complete": "✓ おぼえた",
+  "manage.action.completeTitle": "おぼえたよ にする",
+  "manage.action.restart": "🔄 もういちど",
+  "manage.action.restartTitle": "もういちど がくしゅう",
 
   "manage.bulk.selectAll": "ぜんぶ えらぶ",
   "manage.bulk.selectedCount": "{{count}}けん えらんでるよ",
@@ -144,11 +169,17 @@
   "editor.json.label": "JSON けいしきで もんだいを にゅうりょく",
   "editor.json.help": "はいれつで まとめて ついかできるよ: [{もんだい1}, {もんだい2}, ...]",
   "editor.json.add": "JSONから ついか",
+  "editor.json.update": "こうしん",
 
   "sets.title": "セット かんり",
   "sets.count": "ぜんぶで {{count}}セット",
   "sets.add": "+ セットを つくる",
   "sets.empty": "もんだいセットが ないよ",
+  "sets.noSets": "セットが ないよ",
+  "sets.noSetsCreate": "セットが ないよ。さきに セットを つくってね。",
+  "sets.noMatchingQuestions": "あてはまる もんだいが ないよ",
+  "sets.removeFromSet": "はずす",
+  "sets.enabled": "ゆうこう",
 
   "sets.editor.titleAdd": "セットを つくる",
   "sets.editor.titleEdit": "セットを へんしゅう",
@@ -246,12 +277,17 @@
   "toast.apiKeyDeleted": "APIキーを さくじょしたよ",
   "toast.questionsGenerated": "{{count}}もんを つくったよ",
   "toast.markedAsCompleted": "おぼえたよ に したよ",
+  "toast.removedFromSet": "{{count}}けんの もんだいを はずしたよ",
+  "toast.selectTag": "タグを えらんでね",
+  "toast.allAnswered": "ぜんぶの もんだいに こたえたよ！",
+  "toast.noQuestions": "だせる もんだいが ないよ",
   "toast.error": "エラーが おきたよ",
   "toast.jsonParseError": "JSONの かきかたが ただしくないよ",
 
   "confirm.deleteQuestion": "この もんだいを さくじょする？",
   "confirm.deleteQuestions": "{{count}}けんの もんだいを さくじょする？",
   "confirm.deleteSet": "この セットを さくじょする？（もんだいは きえないよ）",
+  "confirm.removeFromSet": "{{count}}けんの もんだいを セットから はずす？",
   "confirm.clearData": "ぜんぶの データを さくじょする？もとには もどせないよ。",
   "confirm.endQuiz": "クイズを おわりにする？"
 }

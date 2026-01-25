@@ -158,7 +158,7 @@ async function startIntegratedMode() {
             const selectedTags = AppState.quiz.selectedTags;
 
             if (selectedTags.length === 0) {
-                QuizUI.showToast('タグを選択してください', 'warning');
+                QuizUI.showToast(I18n.t('toast.selectTag'), 'warning');
                 return;
             }
 
@@ -172,9 +172,9 @@ async function startIntegratedMode() {
 
         if (questions.length === 0) {
             if (mode === 'unanswered') {
-                QuizUI.showToast('未解答の問題がありません。すべての問題を解答済みです!', 'info');
+                QuizUI.showToast(I18n.t('toast.allAnswered'), 'info');
             } else {
-                QuizUI.showToast('出題できる問題がありません', 'warning');
+                QuizUI.showToast(I18n.t('toast.noQuestions'), 'warning');
             }
             return;
         }
@@ -303,9 +303,9 @@ async function showCurrentQuestionInPhase(showAnswered = false) {
     const phaseLabelEl = document.getElementById('quiz-phase-label');
     if (phaseLabelEl) {
         const phaseLabels = {
-            'learn': '📚 新規学習',
-            'quiz': '📝 4択テスト',
-            'typing': '⌨️ タイピング'
+            'learn': I18n.t('quiz.phase.learn'),
+            'quiz': I18n.t('quiz.phase.quiz'),
+            'typing': I18n.t('quiz.phase.typing')
         };
         const phaseClasses = {
             'learn': 'phase-learn',
@@ -538,12 +538,12 @@ function updatePhaseFlow() {
                 // まだ開始していないので推定
                 count = '?';
             }
-            label = '学習';
+            label = I18n.t('quiz.phaseFlow.learn');
             icon = '📚';
         } else if (phaseName === 'quiz') {
             // 4択フェーズ：全問題数
             count = allQuestions.length;
-            label = '4択';
+            label = I18n.t('quiz.phaseFlow.quiz');
             icon = '📝';
         } else if (phaseName === 'typing') {
             // タイピングフェーズ：タイピング対応問題数（最大値）
@@ -558,7 +558,7 @@ function updatePhaseFlow() {
                 ).length;
                 count = typingCount > 0 ? `〜${typingCount}` : 0;
             }
-            label = 'タイピング';
+            label = I18n.t('quiz.phaseFlow.typing');
             icon = '⌨️';
         }
 
@@ -731,7 +731,7 @@ async function getQuizDisplayLabel(question) {
 
     // 何もない場合は「問題」を表示
     if (parts.length === 0) {
-        return '問題';
+        return I18n.t('quiz.question');
     }
 
     return parts.join('  ');
@@ -840,7 +840,7 @@ async function showIntegratedLearnPhase(question, showAnswered = false) {
     QuizUI.renderContent(answerText, document.getElementById('integrated-answer'));
 
     // 解説を表示（シャッフル時はキーを置換）
-    let explanationText = question.explanation_md || '解説はありません';
+    let explanationText = question.explanation_md || I18n.t('quiz.noExplanation');
     if (learnMapping) {
         explanationText = replaceChoiceKeysInExplanation(explanationText, learnMapping.reverseMapping);
     }
@@ -988,7 +988,7 @@ async function showIntegratedQuizPhase(question, showAnswered = false) {
         document.getElementById('result-text').textContent = result.quizCorrect ? I18n.t('quiz.result.correct') : I18n.t('quiz.result.incorrect');
         document.getElementById('result-text').className = result.quizCorrect ? 'result-text correct' : 'result-text incorrect';
 
-        let explanationText = question.explanation_md || '解説はありません';
+        let explanationText = question.explanation_md || I18n.t('quiz.noExplanation');
         if (mapping) {
             explanationText = replaceChoiceKeysInExplanation(explanationText, mapping.reverseMapping);
         }
@@ -1168,7 +1168,7 @@ function showTypingResultUI(result, question, isSelectiveMode) {
         explanationContainer.style.display = 'block';
         document.getElementById('result-text').style.display = 'none';
     }
-    QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('explanation-body'));
+    QuizUI.renderContent(question.explanation_md || I18n.t('quiz.noExplanation'), document.getElementById('explanation-body'));
 
     // 次へボタンを表示
     const nextBtn = document.getElementById('next-question-btn');
@@ -1302,7 +1302,7 @@ async function handleIntegratedQuizAnswer(choice) {
     document.getElementById('result-text').textContent = isCorrect ? I18n.t('quiz.result.correct') : I18n.t('quiz.result.incorrect');
     document.getElementById('result-text').className = isCorrect ? 'result-text correct' : 'result-text incorrect';
 
-    let explanationText = question.explanation_md || '解説はありません';
+    let explanationText = question.explanation_md || I18n.t('quiz.noExplanation');
     if (mapping) {
         explanationText = replaceChoiceKeysInExplanation(explanationText, mapping.reverseMapping);
     }
@@ -1431,7 +1431,7 @@ async function handleIntegratedTypingAnswer() {
         explanationContainer.style.display = 'block';
         document.getElementById('result-text').style.display = 'none';
     }
-    QuizUI.renderContent(question.explanation_md || '解説はありません', document.getElementById('explanation-body'));
+    QuizUI.renderContent(question.explanation_md || I18n.t('quiz.noExplanation'), document.getElementById('explanation-body'));
 
     // 次へボタンを表示（イベントリスナーはapp.jsで設定済み）
     const nextBtn = document.getElementById('next-question-btn');

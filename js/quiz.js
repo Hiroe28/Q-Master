@@ -143,7 +143,7 @@ async function renderTagCheckboxes(containerId, selectedTags = []) {
     const tags = await QuizDB.getAllTags();
 
     if (tags.length === 0) {
-        container.innerHTML = '<div class="tag-checkboxes-empty">タグがありません</div>';
+        container.innerHTML = `<div class="tag-checkboxes-empty">${I18n.t('quiz.noTags')}</div>`;
         return;
     }
 
