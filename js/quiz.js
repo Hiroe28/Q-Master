@@ -124,10 +124,10 @@ async function markCurrentAsCompleted() {
         if (!question) return;
 
         await QuizDB.markAsCompleted(question.id);
-        QuizUI.showToast('習得済みにしました', 'success');
+        QuizUI.showToast(I18n.t('toast.markedAsCompleted'), 'success');
     } catch (error) {
         console.error('習得済み設定エラー:', error);
-        QuizUI.showToast('エラーが発生しました', 'error');
+        QuizUI.showToast(I18n.t('toast.error'), 'error');
     }
 }
 
@@ -143,7 +143,7 @@ async function renderTagCheckboxes(containerId, selectedTags = []) {
     const tags = await QuizDB.getAllTags();
 
     if (tags.length === 0) {
-        container.innerHTML = '<div class="tag-checkboxes-empty">タグがありません</div>';
+        container.innerHTML = `<div class="tag-checkboxes-empty">${I18n.t('quiz.noTags')}</div>`;
         return;
     }
 

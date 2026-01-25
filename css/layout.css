@@ -14,10 +14,37 @@
     color: white;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     z-index: 100;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 12px 0;
+    padding: 12px 16px;
+}
+
+/* 言語セレクター */
+.language-select {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s;
+}
+
+.language-select:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.language-select:focus {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.language-select option {
+    background: var(--primary-color);
+    color: white;
 }
 
 .app-title {

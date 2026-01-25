@@ -39,6 +39,7 @@ quiz-app/
 ├── js/
 │   ├── db.js                    # データベース操作 (IndexedDB)
 │   ├── ui.js                    # UI・レンダリング
+│   ├── i18n.js                  # 多言語対応 (国際化)
 │   ├── export-import.js         # インポート/エクスポート
 │   ├── sm2.js                   # SM-2アルゴリズム
 │   ├── state.js                 # 共有状態管理 (AppState)
@@ -49,6 +50,10 @@ quiz-app/
 │   ├── typing.js                # タイピングモード
 │   ├── ai-generator.js          # AI問題生成機能
 │   └── app.js                   # 初期化・イベント設定
+├── locales/                     # 多言語リソース
+│   ├── ja.json                  # 日本語
+│   ├── ja-kids.json             # 日本語（こども向け・ひらがな）
+│   └── en.json                  # 英語
 └── icons/
     ├── icon-192.png
     └── icon-512.png
@@ -70,6 +75,7 @@ quiz-app/
 | ファイル | グローバル名 | 責務 |
 |---------|-------------|------|
 | state.js | AppState | アプリケーション共有状態 |
+| i18n.js | I18n | 多言語対応（言語切替、翻訳取得） |
 | quiz.js | QuizCore | クイズ開始、問題表示、4択解答 |
 | manage.js | QuizManage | 問題一覧、エディタ、プレビュー |
 | sets.js | QuizSets | セットCRUD、一括操作 |
@@ -196,4 +202,100 @@ quiz-app/
   filename: 'image.png',
   created_at: 1234567890
 }
+```
+
+---
+
+## 🌐 多言語対応（i18n）
+
+### 概要
+アプリケーションUIを複数言語で表示する機能。言語設定はLocalStorageに保存され、次回起動時に自動的に適用される。
+
+### 対応言語
+| コード | 言語名 | 説明 |
+|--------|--------|------|
+| ja | 日本語 | 標準日本語（デフォルト） |
+| ja-kids | にほんご（こどもよう） | ひらがな・カタカナ主体の子供向け表示 |
+| en | English | 英語 |
+
+### 実装方式
+
+#### 1. 翻訳リソース（locales/*.json）
+```javascript
+// locales/ja.json の例
+{
+  "nav.study": "学習",
+  "nav.manage": "管理",
+  "quiz.start": "クイズを開始",
+  "manage.questionCount": "全{{count}}問",  // パラメータ置換
+  ...
+}
+```
+
+#### 2. HTML属性による静的翻訳
+```html
+<!-- data-i18n属性で翻訳キーを指定 -->
+<span data-i18n="nav.study">学習</span>
+
+<!-- placeholder翻訳 -->
+<input data-i18n-placeholder="manage.search.placeholder" placeholder="検索...">
+
+<!-- innerHTML翻訳（HTMLを含む場合） -->
+<p data-i18n-html="data.help.backup">...</p>
+```
+
+#### 3. JavaScript動的翻訳
+```javascript
+// 基本的な翻訳
+I18n.t('manage.empty')  // → "問題がありません"
+
+// パラメータ付き翻訳
+I18n.t('manage.questionCount', { count: 10 })  // → "全10問"
+I18n.t('manage.status.daysLater', { days: 3 }) // → "3日後"
+```
+
+### I18nモジュール API
+
+```javascript
+const I18n = {
+  currentLocale: 'ja',           // 現在の言語コード
+  translations: {},              // 読み込まれた翻訳データ
+  availableLocales: [...],       // 利用可能な言語リスト
+  STORAGE_KEY: 'quiz-app-locale', // LocalStorageキー
+
+  // 初期化（app.js起動時に呼び出し）
+  async init(),
+
+  // 言語切替
+  async setLocale(locale),
+
+  // 翻訳取得
+  t(key, params = {}),
+
+  // UI全体を更新（data-i18n属性を持つ要素）
+  updateUI()
+};
+```
+
+### 言語セレクター
+ヘッダー右上に言語選択ドロップダウンを配置。選択した言語は即座に反映され、LocalStorageに保存される。
+
+```html
+<select id="language-select" class="language-select">
+  <option value="ja">日本語</option>
+  <option value="ja-kids">にほんご（こどもよう）</option>
+  <option value="en">English</option>
+</select>
+```
+
+### 翻訳キー命名規則
+```
+{画面}.{セクション}.{要素}
+
+例:
+- nav.study          → ナビゲーション > 学習
+- quiz.start         → クイズ画面 > 開始ボタン
+- manage.empty       → 管理画面 > 空状態メッセージ
+- toast.questionSaved → トースト > 問題保存完了
+- confirm.deleteQuestion → 確認ダイアログ > 問題削除
 ```

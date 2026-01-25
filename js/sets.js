@@ -13,13 +13,13 @@ async function refreshSetsScreen() {
         const sets = await QuizDB.getAllQuestionSets();
 
         // セット数を表示
-        document.getElementById('sets-count').textContent = `全${sets.length}セット`;
+        document.getElementById('sets-count').textContent = I18n.t('sets.count', { count: sets.length });
 
         // リストを表示
         const listContainer = document.getElementById('sets-list');
         if (listContainer) {
             if (sets.length === 0) {
-                listContainer.innerHTML = '<p class="empty-message">問題セットがありません</p>';
+                listContainer.innerHTML = `<p class="empty-message">${I18n.t('sets.empty')}</p>`;
             } else {
                 listContainer.innerHTML = sets.map(set => {
                     const questionCount = set.questionIds?.length || 0;
@@ -35,10 +35,10 @@ async function refreshSetsScreen() {
                         <div class="set-item-actions">
                             <label class="set-toggle">
                                 <input type="checkbox" ${set.enabled ? 'checked' : ''} onchange="toggleSetEnabled('${set.id}', this.checked)">
-                                有効
+                                ${I18n.t('sets.enabled')}
                             </label>
-                            <button class="btn btn-small btn-edit" onclick="editSet('${set.id}')">編集</button>
-                            <button class="btn btn-small btn-danger" onclick="deleteSetConfirm('${set.id}')">削除</button>
+                            <button class="btn btn-small btn-edit" onclick="editSet('${set.id}')">${I18n.t('manage.action.edit')}</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteSetConfirm('${set.id}')">${I18n.t('manage.action.delete')}</button>
                         </div>
                     </div>
                 `}).join('');
@@ -79,7 +79,7 @@ async function showSetEditor(setId) {
 
     if (setId) {
         // 編集モード
-        editorTitle.textContent = 'セットを編集';
+        editorTitle.textContent = I18n.t('sets.editor.titleEdit');
         const set = await QuizDB.getQuestionSet(setId);
 
         if (set) {
@@ -99,7 +99,7 @@ async function showSetEditor(setId) {
         }
     } else {
         // 新規作成モード
-        editorTitle.textContent = 'セットを作成';
+        editorTitle.textContent = I18n.t('sets.editor.titleAdd');
         AppState.sets.currentSet = null;
         if (questionsSection) {
             questionsSection.style.display = 'none';
@@ -124,7 +124,7 @@ async function updateSetQuestionsTagFilter(set) {
     });
 
     const tags = Array.from(tagsSet).sort();
-    tagFilter.innerHTML = '<option value="">全てのタグ</option>';
+    tagFilter.innerHTML = `<option value="">${I18n.t('manage.filter.allTags')}</option>`;
     tags.forEach(tag => {
         tagFilter.innerHTML += `<option value="${QuizUI.escapeHtml(tag)}">${QuizUI.escapeHtml(tag)}</option>`;
     });
@@ -189,9 +189,9 @@ async function renderSetQuestions(set) {
     if (questions.length === 0) {
         const isFiltered = AppState.sets.questionSearchQuery || AppState.sets.questionFilterTag;
         if (isFiltered) {
-            container.innerHTML = '<p class="empty-message" style="padding: 16px;">該当する問題がありません</p>';
+            container.innerHTML = `<p class="empty-message" style="padding: 16px;">${I18n.t('sets.noMatchingQuestions')}</p>`;
         } else {
-            container.innerHTML = '<p class="empty-message" style="padding: 16px;">問題がありません</p>';
+            container.innerHTML = `<p class="empty-message" style="padding: 16px;">${I18n.t('manage.empty')}</p>`;
         }
     } else {
         container.innerHTML = questions.map(q => {
@@ -204,10 +204,10 @@ async function renderSetQuestions(set) {
                 <input type="checkbox" class="set-question-checkbox" data-question-id="${q.id}"
                     ${isSelected ? 'checked' : ''} onchange="toggleSetQuestionSelection('${q.id}', this.checked)">
                 <div class="set-question-info">
-                    <span class="set-question-title">${QuizUI.escapeHtml(q.title || q.body_md?.substring(0, 50) || '無題')}</span>
+                    <span class="set-question-title">${QuizUI.escapeHtml(q.title || q.body_md?.substring(0, 50) || I18n.t('manage.untitled'))}</span>
                     <div class="set-question-tags">${tagsHtml}</div>
                 </div>
-                <button class="btn btn-small btn-danger" onclick="removeQuestionFromSetUI('${q.id}', '${set.id}')">除外</button>
+                <button class="btn btn-small btn-danger" onclick="removeQuestionFromSetUI('${q.id}', '${set.id}')">${I18n.t('sets.removeFromSet')}</button>
             </div>
         `}).join('');
     }
@@ -253,7 +253,7 @@ function toggleSetSelectAllQuestions(selected) {
 function updateSetSelectedCount() {
     const countEl = document.getElementById('set-selected-count');
     if (countEl) {
-        countEl.textContent = `${AppState.sets.selectedQuestions.size}件選択中`;
+        countEl.textContent = I18n.t('manage.bulk.selectedCount', { count: AppState.sets.selectedQuestions.size });
     }
 }
 
@@ -279,7 +279,7 @@ async function removeSelectedQuestionsFromSet() {
     }
 
     const count = AppState.sets.selectedQuestions.size;
-    const confirmed = await QuizUI.showConfirm(`${count}件の問題をセットから除外しますか？`);
+    const confirmed = await QuizUI.showConfirm(I18n.t('confirm.removeFromSet', { count }));
 
     if (!confirmed) return;
 
@@ -295,7 +295,7 @@ async function removeSelectedQuestionsFromSet() {
         AppState.sets.selectedQuestions.clear();
         document.getElementById('set-select-all-questions').checked = false;
 
-        QuizUI.showToast(`${count}件の問題を除外しました`, 'success');
+        QuizUI.showToast(I18n.t('toast.removedFromSet', { count }), 'success');
 
         // セット情報を再取得して表示を更新
         const set = await QuizDB.getQuestionSet(setId);
@@ -362,7 +362,7 @@ function editSet(id) {
  * セット削除の確認
  */
 async function deleteSetConfirm(id) {
-    const confirmed = await QuizUI.showConfirm('このセットを削除しますか？');
+    const confirmed = await QuizUI.showConfirm(I18n.t('confirm.deleteSet'));
     if (confirmed) {
         try {
             await QuizDB.deleteQuestionSet(id);
@@ -418,7 +418,7 @@ async function renderSetCheckboxes(containerId, selectedSets = []) {
     const sets = await QuizDB.getAllQuestionSets();
 
     if (sets.length === 0) {
-        container.innerHTML = '<div class="set-checkboxes-empty">セットがありません</div>';
+        container.innerHTML = `<div class="set-checkboxes-empty">${I18n.t('sets.noSets')}</div>`;
         return;
     }
 
@@ -517,7 +517,7 @@ function toggleSelectAllQuestions(selected) {
 function updateSelectedCount() {
     const countEl = document.getElementById('selected-count');
     if (countEl) {
-        countEl.textContent = `${AppState.manage.selectedQuestions.size}件選択中`;
+        countEl.textContent = I18n.t('manage.bulk.selectedCount', { count: AppState.manage.selectedQuestions.size });
     }
 }
 
@@ -542,7 +542,7 @@ async function showSetSelectModal() {
     const sets = await QuizDB.getAllQuestionSets();
 
     if (sets.length === 0) {
-        container.innerHTML = '<p class="empty-message">セットがありません。先にセットを作成してください。</p>';
+        container.innerHTML = `<p class="empty-message">${I18n.t('sets.noSetsCreate')}</p>`;
     } else {
         container.innerHTML = sets.map(set => {
             const questionCount = set.questionIds?.length || 0;
@@ -622,7 +622,7 @@ async function deleteSelectedQuestions() {
     }
 
     const count = AppState.manage.selectedQuestions.size;
-    const confirmed = await QuizUI.showConfirm(`${count}件の問題を削除しますか？\nこの操作は取り消せません。`);
+    const confirmed = await QuizUI.showConfirm(I18n.t('confirm.deleteQuestions', { count }));
 
     if (!confirmed) {
         return;

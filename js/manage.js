@@ -34,7 +34,7 @@ async function refreshManageScreen() {
         const filterTag = document.getElementById('filter-tag');
         if (filterTag) {
             const currentValue = filterTag.value;
-            filterTag.innerHTML = '<option value="">全てのタグ</option>';
+            filterTag.innerHTML = `<option value="">${I18n.t('manage.filter.allTags')}</option>`;
             tags.forEach(tag => {
                 filterTag.innerHTML += `<option value="${QuizUI.escapeHtml(tag)}">${QuizUI.escapeHtml(tag)}</option>`;
             });
@@ -130,9 +130,9 @@ async function filterQuestionList() {
     const questionCountEl = document.getElementById('question-count');
     if (questionCountEl) {
         if (filteredCount === totalCount) {
-            questionCountEl.textContent = `全${totalCount}問`;
+            questionCountEl.textContent = I18n.t('manage.questionCount', { count: totalCount });
         } else {
-            questionCountEl.textContent = `${filteredCount}問表示中（全${totalCount}問）`;
+            questionCountEl.textContent = I18n.t('manage.questionCountFiltered', { filtered: filteredCount, total: totalCount });
         }
     }
 
@@ -140,7 +140,7 @@ async function filterQuestionList() {
     const listContainer = document.getElementById('question-list');
     if (listContainer) {
         if (questions.length === 0) {
-            listContainer.innerHTML = '<p class="empty-message">問題がありません</p>';
+            listContainer.innerHTML = `<p class="empty-message">${I18n.t('manage.empty')}</p>`;
         } else {
             listContainer.innerHTML = questions.map(q => {
                 // 問題文のプレビュー(最初の50文字、Markdown記号を除去)
@@ -165,23 +165,23 @@ async function filterQuestionList() {
                 // 次回学習日を計算
                 let nextReviewText = '';
                 if (!stats || !stats.nextReviewDate) {
-                    nextReviewText = '未学習';
+                    nextReviewText = I18n.t('manage.status.notStarted');
                 } else if (isCompleted) {
-                    nextReviewText = '習得済み';
+                    nextReviewText = I18n.t('manage.status.completed');
                 } else {
                     const now = Date.now();
                     const nextReview = stats.nextReviewDate;
                     const daysUntil = Math.ceil((nextReview - now) / (24 * 60 * 60 * 1000));
 
                     if (daysUntil <= 0) {
-                        nextReviewText = '📌 今日';
+                        nextReviewText = I18n.t('manage.status.today');
                     } else if (daysUntil === 1) {
-                        nextReviewText = '明日';
+                        nextReviewText = I18n.t('manage.status.tomorrow');
                     } else if (daysUntil <= 7) {
-                        nextReviewText = `${daysUntil}日後`;
+                        nextReviewText = I18n.t('manage.status.daysLater', { days: daysUntil });
                     } else {
                         const nextDate = new Date(nextReview);
-                        nextReviewText = nextDate.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+                        nextReviewText = nextDate.toLocaleDateString(I18n.currentLocale === 'en' ? 'en-US' : 'ja-JP', { month: 'numeric', day: 'numeric' });
                     }
                 }
 
@@ -198,9 +198,9 @@ async function filterQuestionList() {
                     <input type="checkbox" class="question-item-checkbox" data-question-id="${q.id}" ${isSelected ? 'checked' : ''} onchange="toggleQuestionSelection('${q.id}', this.checked)">
                     <div class="question-item-content">
                         <div class="question-item-title">
-                            ${isCompleted ? '<span class="completed-badge">✓ 習得済み</span>' : ''}
+                            ${isCompleted ? `<span class="completed-badge">${I18n.t('manage.badge.completed')}</span>` : ''}
                             ${getQuestionTypeBadge(q.type)}
-                            ${QuizUI.escapeHtml(q.title || '無題')}
+                            ${QuizUI.escapeHtml(q.title || I18n.t('manage.untitled'))}
                         </div>
                         <div class="question-item-preview">${QuizUI.escapeHtml(bodyPreview)}${bodyPreview.length >= 50 ? '...' : ''}</div>
                         <div class="question-item-progress">
@@ -215,7 +215,7 @@ async function filterQuestionList() {
                             <div class="question-item-sets">
                                 ${belongsToSet
                                     ? setNames.map(name => `<span class="set-badge">${QuizUI.escapeHtml(name)}</span>`).join('')
-                                    : '<span class="no-set-badge">セット未所属</span>'
+                                    : `<span class="no-set-badge">${I18n.t('manage.noSet')}</span>`
                                 }
                             </div>
                             <div class="question-item-tags">
@@ -225,15 +225,15 @@ async function filterQuestionList() {
                     </div>
                     <div class="question-item-actions">
                         ${isCompleted
-                            ? `<button class="btn btn-small btn-secondary" onclick="restartQuestionLearning('${q.id}')" title="再度学習する">
-                                🔄 再学習
+                            ? `<button class="btn btn-small btn-secondary" onclick="restartQuestionLearning('${q.id}')" title="${I18n.t('manage.action.restartTitle')}">
+                                ${I18n.t('manage.action.restart')}
                             </button>`
-                            : `<button class="btn btn-small btn-success" onclick="markQuestionAsCompleted('${q.id}')" title="習得済みにする">
-                                ✓ 習得済み
+                            : `<button class="btn btn-small btn-success" onclick="markQuestionAsCompleted('${q.id}')" title="${I18n.t('manage.action.completeTitle')}">
+                                ${I18n.t('manage.action.complete')}
                             </button>`
                         }
-                        <button class="btn btn-small btn-edit" onclick="editQuestion('${q.id}')">編集</button>
-                        <button class="btn btn-small btn-danger" onclick="deleteQuestionConfirm('${q.id}')">削除</button>
+                        <button class="btn btn-small btn-edit" onclick="editQuestion('${q.id}')">${I18n.t('manage.action.edit')}</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteQuestionConfirm('${q.id}')">${I18n.t('manage.action.delete')}</button>
                     </div>
                 </div>
             `}).join('');
@@ -266,7 +266,7 @@ async function showQuestionEditor(questionId) {
 
     if (questionId) {
         // 編集モード
-        editorTitle.textContent = '問題を編集';
+        editorTitle.textContent = I18n.t('editor.title.edit');
         const question = await QuizDB.getQuestion(questionId);
 
         if (question) {
@@ -332,7 +332,7 @@ async function showQuestionEditor(questionId) {
         }
     } else {
         // 新規作成モード
-        editorTitle.textContent = '問題を追加';
+        editorTitle.textContent = I18n.t('editor.title.add');
 
         // 新規作成時はシャッフル対応フラグをリセット
         const shuffleReadyCheckbox = document.getElementById('shuffle-ready');
@@ -348,9 +348,9 @@ async function showQuestionEditor(questionId) {
     const saveJsonBtn = document.getElementById('save-json-btn');
     if (saveJsonBtn) {
         if (questionId) {
-            saveJsonBtn.textContent = '更新';
+            saveJsonBtn.textContent = I18n.t('editor.json.update');
         } else {
-            saveJsonBtn.textContent = 'JSONから追加';
+            saveJsonBtn.textContent = I18n.t('editor.json.add');
         }
     }
 }
@@ -391,9 +391,9 @@ function switchEditorTab(tabName) {
     const saveJsonBtn = document.getElementById('save-json-btn');
     if (saveJsonBtn) {
         if (AppState.manage.editingId) {
-            saveJsonBtn.textContent = '更新';
+            saveJsonBtn.textContent = I18n.t('editor.json.update');
         } else {
-            saveJsonBtn.textContent = 'JSONから追加';
+            saveJsonBtn.textContent = I18n.t('editor.json.add');
         }
     }
 }
@@ -604,11 +604,11 @@ function editQuestion(id) {
  * 問題削除の確認
  */
 async function deleteQuestionConfirm(id) {
-    const confirmed = await QuizUI.showConfirm('この問題を削除しますか?');
+    const confirmed = await QuizUI.showConfirm(I18n.t('confirm.deleteQuestion'));
     if (confirmed) {
         try {
             await QuizDB.deleteQuestion(id);
-            QuizUI.showToast('問題を削除しました', 'success');
+            QuizUI.showToast(I18n.t('toast.questionDeleted'), 'success');
             await refreshManageScreen();
         } catch (error) {
             console.error('削除エラー:', error);
@@ -623,11 +623,11 @@ async function deleteQuestionConfirm(id) {
 async function markQuestionAsCompleted(questionId) {
     try {
         await QuizDB.markAsCompleted(questionId);
-        QuizUI.showToast('習得済みにしました', 'success');
+        QuizUI.showToast(I18n.t('toast.markedAsCompleted'), 'success');
         await refreshManageScreen();
     } catch (error) {
         console.error('習得済み設定エラー:', error);
-        QuizUI.showToast('エラーが発生しました', 'error');
+        QuizUI.showToast(I18n.t('toast.error'), 'error');
     }
 }
 
