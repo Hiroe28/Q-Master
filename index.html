@@ -13,9 +13,9 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">    
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
- 
+
     <!-- OGP (Open Graph Protocol) -->
     <meta property="og:title" content="Q-Master - 四択問題で効率的に学習" />
     <meta property="og:description" content="Markdown・LaTeX対応の四択クイズアプリ。問題作成・管理、復習機能、データインポート/エクスポートに対応。PWAでオフラインでも使える学習支援ツール。" />
@@ -59,7 +59,12 @@
     <!-- ヘッダー -->
     <header class="app-header">
         <img src="icons/title.png" alt="Q-Master" class="app-logo">
-        <!-- <h1 class="app-title">Q-Master</h1> -->
+        <!-- 言語セレクター -->
+        <select id="language-select" class="language-select">
+            <option value="ja">日本語</option>
+            <option value="ja-kids">にほんご（こどもよう）</option>
+            <option value="en">English</option>
+        </select>
     </header>
 
     <!-- メインコンテンツ -->
@@ -69,87 +74,87 @@
             <!-- クイズ開始画面 -->
             <div id="quiz-start" class="quiz-start">
                 <div class="study-dashboard">
-                    <h3>📊 今日学習できる数</h3>
+                    <h3 data-i18n="quiz.dashboard.title">📊 今日学習できる数</h3>
                     <div class="study-stats">
                         <div class="stat-card">
                             <div class="stat-number" id="today-review-count">0</div>
-                            <div class="stat-label">復習対象</div>
+                            <div class="stat-label" data-i18n="quiz.dashboard.reviewCount">復習対象</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-number" id="today-unstudied-count">0</div>
-                            <div class="stat-label">未学習</div>
+                            <div class="stat-label" data-i18n="quiz.dashboard.unstudiedCount">未学習</div>
                         </div>
                     </div>
 
                     <div class="schedule-section">
                         <div class="schedule-header" id="schedule-header">
-                            <h4>📅 復習スケジュール</h4>
+                            <h4 data-i18n="quiz.schedule.title">📅 復習スケジュール</h4>
                             <span class="schedule-toggle" id="schedule-toggle">▼</span>
                         </div>
-                        
+
                         <div class="schedule-content" id="schedule-content">
                             <div class="mastery-stats">
                                 <div class="mastery-item">
-                                    <span class="mastery-label">📌 今日</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.today">📌 今日</span>
                                     <span class="mastery-count" id="today-due-count">0問</span>
                                 </div>
                                 <div class="mastery-item">
-                                    <span class="mastery-label">📆 明日</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.tomorrow">📆 明日</span>
                                     <span class="mastery-count" id="tomorrow-due-count">0問</span>
                                 </div>
                                 <div class="mastery-item">
-                                    <span class="mastery-label">📊 3日以内</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.within3days">📊 3日以内</span>
                                     <span class="mastery-count" id="within-3days-count">0問</span>
                                 </div>
                                 <div class="mastery-item">
-                                    <span class="mastery-label">📈 7日以内</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.withinWeek">📈 7日以内</span>
                                     <span class="mastery-count" id="within-week-count">0問</span>
                                 </div>
                                 <div class="mastery-item">
-                                    <span class="mastery-label">📚 長期記憶(8-20日)</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.longTerm">📚 長期記憶(8-20日)</span>
                                     <span class="mastery-count" id="mastered-count">0問</span>
                                 </div>
                                 <div class="mastery-item">
-                                    <span class="mastery-label">✨ 完全習得</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.completed">✨ 完全習得</span>
                                     <span class="mastery-count" id="completed-count">0問</span>
                                 </div>
                                 <div class="mastery-item">
-                                    <span class="mastery-label">🆕 未学習</span>
+                                    <span class="mastery-label" data-i18n="quiz.schedule.new">🆕 未学習</span>
                                     <span class="mastery-count" id="new-count">0問</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="quiz-mode">出題モード</label>
+                    <label for="quiz-mode" data-i18n="quiz.mode.label">出題モード</label>
                     <select id="quiz-mode" class="form-select">
-                        <option value="today">📅 今日の学習</option>
-                        <option value="unanswered">未解答問題</option>
-                        <option value="random">ランダム</option>
-                        <option value="tag">タグ指定</option>
+                        <option value="today" data-i18n="quiz.mode.today">📅 今日の学習</option>
+                        <option value="unanswered" data-i18n="quiz.mode.unanswered">未解答問題</option>
+                        <option value="random" data-i18n="quiz.mode.random">ランダム</option>
+                        <option value="tag" data-i18n="quiz.mode.tag">タグ指定</option>
                     </select>
                 </div>
 
                 <!-- 問題数選択（今日の学習モード用） -->
                 <div class="form-group" id="question-count-select" style="display: block;">
-                    <label>1日の問題数</label>
+                    <label data-i18n="quiz.questionCount.label">1日の問題数</label>
                     <div class="question-count-options">
                         <label class="radio-label">
-                            <input type="radio" name="question-count" value="5"> 5問
+                            <input type="radio" name="question-count" value="5"> <span data-i18n="quiz.questionCount.5">5問</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="question-count" value="10" checked> 10問
+                            <input type="radio" name="question-count" value="10" checked> <span data-i18n="quiz.questionCount.10">10問</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="question-count" value="20"> 20問
+                            <input type="radio" name="question-count" value="20"> <span data-i18n="quiz.questionCount.20">20問</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="form-group" id="quiz-tag-select-container" style="display: none;">
-                    <label>タグを選択(複数選択可)</label>
+                    <label data-i18n="quiz.tagSelect.label">タグを選択(複数選択可)</label>
                     <div id="quiz-tag-checkboxes" class="tag-checkboxes">
                         <!-- タグのチェックボックスがここに動的に追加されます -->
                     </div>
@@ -157,23 +162,23 @@
 
                 <!-- セット選択 -->
                 <div class="form-group" id="quiz-set-select-container">
-                    <label>問題セットを選択</label>
+                    <label data-i18n="quiz.setSelect.label">問題セットを選択</label>
                     <div id="quiz-set-checkboxes" class="set-checkboxes">
                         <!-- セットのチェックボックスがここに動的に追加されます -->
                     </div>
-                    <p class="data-help">未選択時は全問題が対象になります</p>
+                    <p class="data-help" data-i18n="quiz.setSelect.help">未選択時は全問題が対象になります</p>
                 </div>
 
                 <!-- シャッフルモード -->
                 <div class="form-group">
                     <label class="checkbox-label shuffle-mode-label">
                         <input type="checkbox" id="shuffle-choices-mode" class="form-checkbox" checked>
-                        🔀 選択肢をシャッフルする
+                        <span data-i18n="quiz.shuffle.label">🔀 選択肢をシャッフルする</span>
                     </label>
-                    <p class="data-help">対応している問題のみ選択肢の順番がランダムになります</p>
+                    <p class="data-help" data-i18n="quiz.shuffle.help">対応している問題のみ選択肢の順番がランダムになります</p>
                 </div>
 
-                <button id="start-quiz-btn" class="btn btn-primary btn-large">
+                <button id="start-quiz-btn" class="btn btn-primary btn-large" data-i18n="quiz.start">
                     クイズを開始
                 </button>
             </div>
@@ -183,21 +188,21 @@
                 <div class="quiz-header">
                     <div class="quiz-progress-info">
                         <div class="quiz-phase-current">
-                            <span id="quiz-phase-label" class="quiz-phase-label">📚 学習</span>
+                            <span id="quiz-phase-label" class="quiz-phase-label" data-i18n="quiz.phase.learn">📚 学習</span>
                             <span id="quiz-progress" class="quiz-progress">1 / 10</span>
                         </div>
                         <div id="quiz-phase-flow" class="quiz-phase-flow"></div>
                     </div>
-                    <button id="end-quiz-btn" class="btn btn-small btn-secondary">終了</button>
+                    <button id="end-quiz-btn" class="btn btn-small btn-secondary" data-i18n="quiz.end">終了</button>
                 </div>
 
                 <!-- 再出題の表示 -->
-                <div id="retry-badge" class="retry-badge" style="display: none;">
+                <div id="retry-badge" class="retry-badge" style="display: none;" data-i18n="quiz.retry.badge">
                     🔄 復習中（スケジュールには影響しません）
                 </div>
 
                 <div class="question-container">
-                    <h3 id="question-title" class="question-title">問題</h3>
+                    <h3 id="question-title" class="question-title" data-i18n="quiz.question">問題</h3>
                     <div id="question-body" class="question-body markdown-content"></div>
                     <div id="question-images" class="question-images"></div>
                 </div>
@@ -228,14 +233,14 @@
                         <button id="speak-btn" class="btn btn-secondary speak-btn" title="読み上げ" style="display: none;">
                             🔊
                         </button>
-                        <input type="text" id="typing-input" class="form-input typing-input" placeholder="答えを入力..." autocomplete="off">
-                        <button id="submit-answer-btn" class="btn btn-primary">解答</button>
+                        <input type="text" id="typing-input" class="form-input typing-input" data-i18n-placeholder="quiz.typing.placeholder" placeholder="答えを入力..." autocomplete="off">
+                        <button id="submit-answer-btn" class="btn btn-primary" data-i18n="quiz.typing.submit">解答</button>
                     </div>
                     <div id="typing-result" class="typing-result" style="display: none;">
                         <div id="typing-result-text" class="result-text"></div>
                         <div class="typing-answer-comparison">
-                            <p><strong>あなたの答え:</strong> <span id="user-answer"></span></p>
-                            <p><strong>正解:</strong> <span id="correct-answer"></span></p>
+                            <p><strong data-i18n="quiz.typing.yourAnswer">あなたの答え:</strong> <span id="user-answer"></span></p>
+                            <p><strong data-i18n="quiz.typing.correctAnswer">正解:</strong> <span id="correct-answer"></span></p>
                         </div>
                     </div>
                 </div>
@@ -243,22 +248,22 @@
                 <div id="explanation-container" class="explanation-container" style="display: none;">
                     <div id="result-text" class="result-text"></div>
                     <div class="explanation-box">
-                        <h4>解説</h4>
+                        <h4 data-i18n="quiz.explanation.title">解説</h4>
                         <div id="explanation-body" class="markdown-content"></div>
                     </div>
                 </div>
 
                 <div class="quiz-actions">
-                    <button id="prev-question-btn" class="btn btn-secondary" style="display: none;">
+                    <button id="prev-question-btn" class="btn btn-secondary" style="display: none;" data-i18n="quiz.prev">
                         ← 前へ
                     </button>
-                    <button id="mark-completed-btn" class="btn btn-success">
+                    <button id="mark-completed-btn" class="btn btn-success" data-i18n="quiz.markCompleted">
                         ✓ 習得済みにする
                     </button>
-                    <button id="skip-question-btn" class="btn btn-secondary">
+                    <button id="skip-question-btn" class="btn btn-secondary" data-i18n="quiz.skip">
                         スキップ (S)
                     </button>
-                    <button id="next-question-btn" class="btn btn-primary" style="display: none;">
+                    <button id="next-question-btn" class="btn btn-primary" style="display: none;" data-i18n="quiz.next">
                         次へ →
                     </button>
                 </div>
@@ -269,39 +274,39 @@
                             <!-- 表面 -->
                             <div class="flashcard-front">
                                 <div class="flashcard-content">
-                                    <h3 id="integrated-question-title" class="flashcard-title">問題</h3>
+                                    <h3 id="integrated-question-title" class="flashcard-title" data-i18n="quiz.question">問題</h3>
                                     <div id="integrated-question-body" class="flashcard-body markdown-content"></div>
                                     <div id="integrated-question-images" class="flashcard-images"></div>
                                     <!-- 選択肢表示 -->
                                     <div id="integrated-choices" class="integrated-choices"></div>
                                 </div>
-                                <p class="flashcard-hint">タップして答えを見る</p>
+                                <p class="flashcard-hint" data-i18n="quiz.flashcard.tapToSeeAnswer">タップして答えを見る</p>
                             </div>
-                            
+
                             <!-- 裏面 -->
                             <div class="flashcard-back">
                                 <div class="flashcard-content">
                                     <div class="flashcard-answer-section">
-                                        <h4>答え</h4>
+                                        <h4 data-i18n="quiz.flashcard.answer">答え</h4>
                                         <div id="integrated-answer" class="flashcard-answer"></div>
                                     </div>
                                     <div class="flashcard-explanation-section">
-                                        <h4>解説</h4>
+                                        <h4 data-i18n="quiz.flashcard.explanation">解説</h4>
                                         <div id="integrated-explanation" class="flashcard-explanation markdown-content"></div>
                                     </div>
                                 </div>
-                                <p class="flashcard-hint">タップして問題に戻る</p>
+                                <p class="flashcard-hint" data-i18n="quiz.flashcard.tapToReturn">タップして問題に戻る</p>
                             </div>
                         </div>
                     </div>
                     <div class="integrated-learn-actions">
-                        <button id="integrated-prev-btn" class="btn btn-secondary" style="display: none;">
+                        <button id="integrated-prev-btn" class="btn btn-secondary" style="display: none;" data-i18n="quiz.prev">
                             ← 前へ
                         </button>
                         <button id="integrated-speak-btn" class="btn btn-secondary speak-btn" title="読み上げ" style="display: none;">
                             🔊
                         </button>
-                        <button id="integrated-next-phase-btn" class="btn btn-primary">
+                        <button id="integrated-next-phase-btn" class="btn btn-primary" data-i18n="quiz.next">
                             次へ →
                         </button>
                     </div>
@@ -310,10 +315,10 @@
 
             <!-- クイズ結果 -->
             <div id="quiz-result" class="quiz-result" style="display: none;">
-                <h2>クイズ完了</h2>
+                <h2 data-i18n="quiz.result.title">クイズ完了</h2>
                 <p id="result-total" class="result-total">全10問完了しました</p>
                 <div id="result-stats" class="result-stats"></div>
-                <button id="end-quiz-btn-result" class="btn btn-primary" onclick="endQuiz()">
+                <button id="end-quiz-btn-result" class="btn btn-primary" onclick="endQuiz()" data-i18n="quiz.result.back">
                     最初に戻る
                 </button>
             </div>
@@ -321,20 +326,20 @@
 
         <!-- 管理画面 -->
         <section id="manage-screen" class="screen active">
-            <h2>問題管理</h2>
+            <h2 data-i18n="manage.title">問題管理</h2>
 
             <!-- ★ 管理画面タブ -->
             <div class="manage-tabs">
-                <button class="manage-tab-btn active" data-tab="questions-tab">
+                <button class="manage-tab-btn active" data-tab="questions-tab" data-i18n="manage.tab.questions">
                     📚 問題一覧
                 </button>
-                <button class="manage-tab-btn" data-tab="ai-tab">
+                <button class="manage-tab-btn" data-tab="ai-tab" data-i18n="manage.tab.ai">
                     🤖 AI生成
                 </button>
-                <button class="manage-tab-btn" data-tab="sets-tab">
+                <button class="manage-tab-btn" data-tab="sets-tab" data-i18n="manage.tab.sets">
                     📦 セット
                 </button>
-                <button class="manage-tab-btn" data-tab="data-tab">
+                <button class="manage-tab-btn" data-tab="data-tab" data-i18n="manage.tab.data">
                     💾 データ
                 </button>
             </div>
@@ -343,30 +348,30 @@
             <div id="questions-tab" class="manage-tab-content active">
                 <!-- 問題一覧コンテナ -->
                 <div id="question-list-container" class="question-list-container">
-                    
+
                     <!-- 検索とフィルター -->
                     <div class="manage-header">
                         <div class="search-box">
-                            <input type="text" id="search-input" class="form-input" placeholder="検索...">
+                            <input type="text" id="search-input" class="form-input" data-i18n-placeholder="manage.search.placeholder" placeholder="検索...">
                         </div>
                         <select id="filter-tag" class="form-select form-select-small">
-                            <option value="">全てのタグ</option>
+                            <option value="" data-i18n="manage.filter.allTags">全てのタグ</option>
                         </select>
                         <select id="filter-set" class="form-select form-select-small">
-                            <option value="">全ての問題</option>
-                            <option value="no-set">セット未所属のみ</option>
+                            <option value="" data-i18n="manage.filter.allQuestions">全ての問題</option>
+                            <option value="no-set" data-i18n="manage.filter.noSet">セット未所属のみ</option>
                         </select>
                         <select id="filter-mastery" class="form-select form-select-small">
-                            <option value="">学習状態</option>
-                            <option value="not-started">未学習</option>
-                            <option value="in-progress">学習中</option>
-                            <option value="completed">習得済み</option>
+                            <option value="" data-i18n="manage.filter.masteryLabel">学習状態</option>
+                            <option value="not-started" data-i18n="manage.filter.notStarted">未学習</option>
+                            <option value="in-progress" data-i18n="manage.filter.inProgress">学習中</option>
+                            <option value="completed" data-i18n="manage.filter.completed">習得済み</option>
                         </select>
                     </div>
 
                     <div class="manage-actions">
                         <span id="question-count" class="question-count">全0問</span>
-                        <button id="add-question-btn" class="btn btn-primary">
+                        <button id="add-question-btn" class="btn btn-primary" data-i18n="manage.addQuestion">
                             + 問題を追加
                         </button>
                     </div>
@@ -376,55 +381,55 @@
                         <div class="bulk-actions-left">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="select-all-questions">
-                                すべて選択
+                                <span data-i18n="manage.bulk.selectAll">すべて選択</span>
                             </label>
                             <span id="selected-count">0件選択中</span>
                         </div>
                         <div class="bulk-actions-right">
-                            <button id="bulk-add-to-set-btn" class="btn btn-secondary btn-small">
+                            <button id="bulk-add-to-set-btn" class="btn btn-secondary btn-small" data-i18n="manage.bulk.addToSet">
                                 📦 セットに追加
                             </button>
-                            <button id="bulk-delete-btn" class="btn btn-bulk-delete btn-small">
+                            <button id="bulk-delete-btn" class="btn btn-bulk-delete btn-small" data-i18n="manage.bulk.delete">
                                 🗑️ 削除する
                             </button>
                         </div>
                     </div>
 
                     <div id="question-list" class="question-list">
-                        <p class="empty-message">問題がありません</p>
+                        <p class="empty-message" data-i18n="manage.empty">問題がありません</p>
                     </div>
                 </div>
 
                 <!-- 問題エディタ(既存のまま) -->
                 <div id="question-editor" class="question-editor" style="display: none;">
-                    <h3 id="editor-title">問題を追加</h3>
+                    <h3 id="editor-title" data-i18n="editor.title.add">問題を追加</h3>
 
                     <div class="editor-tabs">
-                        <button type="button" class="tab-btn active" data-tab="form">フォーム入力</button>
-                        <button type="button" class="tab-btn" data-tab="json">JSON入力</button>
-                    </div>                
+                        <button type="button" class="tab-btn active" data-tab="form" data-i18n="editor.tab.form">フォーム入力</button>
+                        <button type="button" class="tab-btn" data-tab="json" data-i18n="editor.tab.json">JSON入力</button>
+                    </div>
 
                     <!-- フォーム入力モード -->
                     <div class="tab-content active" data-tab="form">
                         <form id="question-form" class="question-form">
                             <div class="form-group">
-                                <label for="q-title">タイトル(任意)</label>
-                                <input type="text" id="q-title" class="form-input" placeholder="問題のタイトル">
+                                <label for="q-title" data-i18n="editor.field.title">タイトル(任意)</label>
+                                <input type="text" id="q-title" class="form-input" data-i18n-placeholder="editor.field.titlePlaceholder" placeholder="問題のタイトル">
                             </div>
 
                             <div class="form-group">
-                                <label for="q-body">問題文(Markdown対応)*</label>
-                                <textarea id="q-body" class="form-textarea" rows="5" placeholder="問題文を入力(Markdown, LaTeX対応)"></textarea>
+                                <label for="q-body" data-i18n="editor.field.body">問題文(Markdown対応)*</label>
+                                <textarea id="q-body" class="form-textarea" rows="5" data-i18n-placeholder="editor.field.bodyPlaceholder" placeholder="問題文を入力(Markdown, LaTeX対応)"></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label>画像(任意)</label>
+                                <label data-i18n="editor.field.images">画像(任意)</label>
                                 <input type="file" id="image-upload" class="form-input" accept="image/*" multiple>
                                 <div id="uploaded-images" class="uploaded-images"></div>
                             </div>
 
                             <div class="choices-edit">
-                                <h4>選択肢(Markdown対応)</h4>
+                                <h4 data-i18n="editor.field.choices">選択肢(Markdown対応)</h4>
                                 <div class="form-group">
                                     <label for="q-choice-a">A</label>
                                     <input type="text" id="q-choice-a" class="form-input" placeholder="選択肢A">
@@ -444,7 +449,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="q-answer">正解</label>
+                                <label for="q-answer" data-i18n="editor.field.answer">正解</label>
                                 <select id="q-answer" class="form-select">
                                     <option value="A">A</option>
                                     <option value="B">B</option>
@@ -454,28 +459,28 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="q-explanation">解説(Markdown対応)</label>
-                                <textarea id="q-explanation" class="form-textarea" rows="3" placeholder="解説を入力"></textarea>
+                                <label for="q-explanation" data-i18n="editor.field.explanation">解説(Markdown対応)</label>
+                                <textarea id="q-explanation" class="form-textarea" rows="3" data-i18n-placeholder="editor.field.explanationPlaceholder" placeholder="解説を入力"></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label for="tag-input">タグ(Enterで追加)</label>
-                                <input type="text" id="tag-input" class="form-input" placeholder="タグを入力してEnter">
+                                <label for="tag-input" data-i18n="editor.field.tags">タグ(Enterで追加)</label>
+                                <input type="text" id="tag-input" class="form-input" data-i18n-placeholder="editor.field.tagsPlaceholder" placeholder="タグを入力してEnter">
                                 <div id="tags-container" class="tags-container"></div>
                             </div>
 
                             <!-- 出題形式選択 -->
                             <div class="form-group">
-                                <label>出題形式</label>
+                                <label data-i18n="editor.questionType.label">出題形式</label>
                                 <div class="question-type-options">
                                     <label class="radio-label">
-                                        <input type="radio" name="question-type" value="multiple-choice" checked> 4択のみ
+                                        <input type="radio" name="question-type" value="multiple-choice" checked> <span data-i18n="editor.questionType.multipleChoice">4択のみ</span>
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="question-type" value="typing"> タイピングのみ
+                                        <input type="radio" name="question-type" value="typing"> <span data-i18n="editor.questionType.typing">タイピングのみ</span>
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="question-type" value="both"> 両方対応
+                                        <input type="radio" name="question-type" value="both"> <span data-i18n="editor.questionType.both">両方対応</span>
                                     </label>
                                 </div>
                             </div>
@@ -483,17 +488,17 @@
                             <!-- タイピング設定（タイピング対応時のみ表示） -->
                             <div id="typing-settings" class="typing-settings" style="display: none;">
                                 <div class="form-group">
-                                    <label for="typing-answer">タイピング用の正解*</label>
-                                    <input type="text" id="typing-answer" class="form-input" placeholder="beautiful">
+                                    <label for="typing-answer" data-i18n="editor.typing.answer">タイピング用の正解*</label>
+                                    <input type="text" id="typing-answer" class="form-input" data-i18n-placeholder="editor.typing.answerPlaceholder" placeholder="beautiful">
                                 </div>
                                 <div class="form-group">
-                                    <label for="acceptable-answers">許容する別解（カンマ区切り）</label>
-                                    <input type="text" id="acceptable-answers" class="form-input" placeholder="Beautiful, BEAUTIFUL">
+                                    <label for="acceptable-answers" data-i18n="editor.typing.acceptable">許容する別解（カンマ区切り）</label>
+                                    <input type="text" id="acceptable-answers" class="form-input" data-i18n-placeholder="editor.typing.acceptablePlaceholder" placeholder="Beautiful, BEAUTIFUL">
                                 </div>
                                 <div class="form-group">
                                     <label>
                                         <input type="checkbox" id="case-sensitive" class="form-checkbox">
-                                        大文字小文字を区別する
+                                        <span data-i18n="editor.typing.caseSensitive">大文字小文字を区別する</span>
                                     </label>
                                 </div>
                             </div>
@@ -502,28 +507,28 @@
                             <div class="form-group">
                                 <label>
                                     <input type="checkbox" id="language-learning" class="form-checkbox">
-                                    語学学習モード（音声読み上げ対応）
+                                    <span data-i18n="editor.language.label">語学学習モード（音声読み上げ対応）</span>
                                 </label>
                             </div>
                             <div id="audio-settings" class="audio-settings" style="display: none;">
                                 <div class="form-group">
-                                    <label for="audio-lang">読み上げ言語</label>
+                                    <label for="audio-lang" data-i18n="editor.language.audioLang">読み上げ言語</label>
                                     <select id="audio-lang" class="form-select form-select-small">
-                                        <option value="en-US">英語(US)</option>
-                                        <option value="en-GB">英語(UK)</option>
-                                        <option value="ja-JP">日本語</option>
-                                        <option value="zh-CN">中国語</option>
-                                        <option value="ko-KR">韓国語</option>
-                                        <option value="fr-FR">フランス語</option>
-                                        <option value="de-DE">ドイツ語</option>
-                                        <option value="es-ES">スペイン語</option>
+                                        <option value="en-US" data-i18n="editor.language.enUS">英語(US)</option>
+                                        <option value="en-GB" data-i18n="editor.language.enGB">英語(UK)</option>
+                                        <option value="ja-JP" data-i18n="editor.language.jaJP">日本語</option>
+                                        <option value="zh-CN" data-i18n="editor.language.zhCN">中国語</option>
+                                        <option value="ko-KR" data-i18n="editor.language.koKR">韓国語</option>
+                                        <option value="fr-FR" data-i18n="editor.language.frFR">フランス語</option>
+                                        <option value="de-DE" data-i18n="editor.language.deDE">ドイツ語</option>
+                                        <option value="es-ES" data-i18n="editor.language.esES">スペイン語</option>
                                     </select>
                                 </div>
                             </div>
 
                             <!-- 所属セット選択 -->
                             <div class="form-group">
-                                <label>所属セット</label>
+                                <label data-i18n="editor.sets.label">所属セット</label>
                                 <div id="question-sets-checkboxes" class="set-checkboxes">
                                     <!-- セットのチェックボックスがここに動的に追加されます -->
                                 </div>
@@ -533,19 +538,19 @@
                             <div class="form-group">
                                 <label class="checkbox-label">
                                     <input type="checkbox" id="shuffle-ready" class="form-checkbox">
-                                    🔀 選択肢シャッフルに対応
+                                    <span data-i18n="editor.shuffle.label">🔀 選択肢シャッフルに対応</span>
                                 </label>
-                                <p class="data-help">解説で「Aが正解」などキー名を使わない問題はチェックを入れてください</p>
+                                <p class="data-help" data-i18n="editor.shuffle.help">解説で「Aが正解」などキー名を使わない問題はチェックを入れてください</p>
                             </div>
 
                             <div class="form-actions">
-                                <button type="button" id="preview-form-btn" class="btn btn-secondary">
+                                <button type="button" id="preview-form-btn" class="btn btn-secondary" data-i18n="editor.preview">
                                     プレビュー
                                 </button>
-                                <button type="button" id="cancel-edit-btn" class="btn btn-secondary">
+                                <button type="button" id="cancel-edit-btn" class="btn btn-secondary" data-i18n="editor.cancel">
                                     キャンセル
                                 </button>
-                                <button type="button" id="save-question-btn" class="btn btn-primary">
+                                <button type="button" id="save-question-btn" class="btn btn-primary" data-i18n="editor.save">
                                     保存
                                 </button>
                             </div>
@@ -553,14 +558,14 @@
 
                         <!-- フォーム入力のプレビューエリア -->
                         <div id="form-preview-area" class="preview-area" style="display: none;">
-                            <h4 class="preview-heading">プレビュー</h4>
+                            <h4 class="preview-heading" data-i18n="editor.previewTitle">プレビュー</h4>
                             <div class="preview-container">
                                 <div class="preview-question">
                                     <h4 id="form-preview-title" class="preview-question-title">問題タイトル</h4>
                                     <div id="form-preview-body" class="preview-question-body markdown-content"></div>
                                     <div id="form-preview-images" class="preview-question-images"></div>
                                 </div>
-                                
+
                                 <div class="preview-choices">
                                     <div class="preview-choice">
                                         <span class="choice-label">A</span>
@@ -581,16 +586,16 @@
                                 </div>
 
                                 <div class="preview-answer">
-                                    <strong>正解: </strong><span id="form-preview-answer">A</span>
+                                    <strong data-i18n="editor.previewAnswer">正解: </strong><span id="form-preview-answer">A</span>
                                 </div>
 
                                 <div class="preview-explanation">
-                                    <h4>解説</h4>
+                                    <h4 data-i18n="quiz.explanation.title">解説</h4>
                                     <div id="form-preview-explanation" class="markdown-content"></div>
                                 </div>
 
                                 <div class="preview-tags">
-                                    <strong>タグ: </strong><span id="form-preview-tags-list"></span>
+                                    <strong data-i18n="editor.previewTags">タグ: </strong><span id="form-preview-tags-list"></span>
                                 </div>
                             </div>
                         </div>
@@ -600,7 +605,7 @@
                     <div class="tab-content" data-tab="json">
                         <div id="json-input-form" class="json-input-form">
                             <div class="form-group">
-                                <label for="json-input">JSON形式で問題を入力</label>
+                                <label for="json-input" data-i18n="editor.json.label">JSON形式で問題を入力</label>
                                 <textarea id="json-input" class="form-textarea json-textarea" rows="15" placeholder='{
   "title": "問題タイトル",
   "body_md": "問題文(Markdown対応)",
@@ -614,16 +619,16 @@
   "explanation_md": "解説(Markdown対応)",
   "tags": ["タグ1", "タグ2"]
 }'></textarea>
-                                <p class="json-help">配列で複数問題を一括追加できます: <code>[{問題1}, {問題2}, ...]</code></p>
+                                <p class="json-help" data-i18n="editor.json.help">配列で複数問題を一括追加できます: <code>[{問題1}, {問題2}, ...]</code></p>
                             </div>
                             <div class="form-actions">
-                                <button type="button" id="preview-json-btn" class="btn btn-secondary">
+                                <button type="button" id="preview-json-btn" class="btn btn-secondary" data-i18n="editor.preview">
                                     プレビュー
                                 </button>
-                                <button type="button" id="cancel-json-btn" class="btn btn-secondary">
+                                <button type="button" id="cancel-json-btn" class="btn btn-secondary" data-i18n="editor.cancel">
                                     キャンセル
                                 </button>
-                                <button type="button" id="save-json-btn" class="btn btn-primary">
+                                <button type="button" id="save-json-btn" class="btn btn-primary" data-i18n="editor.json.add">
                                     JSONから追加
                                 </button>
                             </div>
@@ -631,14 +636,14 @@
 
                         <!-- JSON入力のプレビューエリア -->
                         <div id="json-preview-area" class="preview-area" style="display: none;">
-                            <h4 class="preview-heading">プレビュー</h4>
+                            <h4 class="preview-heading" data-i18n="editor.previewTitle">プレビュー</h4>
                             <div class="preview-container">
                                 <div class="preview-question">
                                     <h4 id="json-preview-title" class="preview-question-title">問題タイトル</h4>
                                     <div id="json-preview-body" class="preview-question-body markdown-content"></div>
                                     <div id="json-preview-images" class="preview-question-images"></div>
                                 </div>
-                                
+
                                 <div class="preview-choices">
                                     <div class="preview-choice">
                                         <span class="choice-label">A</span>
@@ -659,16 +664,16 @@
                                 </div>
 
                                 <div class="preview-answer">
-                                    <strong>正解: </strong><span id="json-preview-answer">A</span>
+                                    <strong data-i18n="editor.previewAnswer">正解: </strong><span id="json-preview-answer">A</span>
                                 </div>
 
                                 <div class="preview-explanation">
-                                    <h4>解説</h4>
+                                    <h4 data-i18n="quiz.explanation.title">解説</h4>
                                     <div id="json-preview-explanation" class="markdown-content"></div>
                                 </div>
 
                                 <div class="preview-tags">
-                                    <strong>タグ: </strong><span id="json-preview-tags-list"></span>
+                                    <strong data-i18n="editor.previewTags">タグ: </strong><span id="json-preview-tags-list"></span>
                                 </div>
                             </div>
                         </div>
@@ -682,54 +687,54 @@
                 <div id="sets-list-container" class="sets-list-container">
                     <div class="sets-actions">
                         <span id="sets-count" class="sets-count">全0セット</span>
-                        <button id="add-set-btn" class="btn btn-primary">
+                        <button id="add-set-btn" class="btn btn-primary" data-i18n="sets.add">
                             + セットを作成
                         </button>
                     </div>
 
                     <div id="sets-list" class="sets-list">
-                        <p class="empty-message">問題セットがありません</p>
+                        <p class="empty-message" data-i18n="sets.empty">問題セットがありません</p>
                     </div>
                 </div>
 
                 <!-- セットエディタ(既存のまま) -->
 <!-- セットエディタ -->
                 <div id="set-editor" class="set-editor" style="display: none;">
-                    <h3 id="set-editor-title">セットを作成</h3>
+                    <h3 id="set-editor-title" data-i18n="sets.editor.titleAdd">セットを作成</h3>
 
                     <div class="form-group">
-                        <label for="set-name">セット名</label>
-                        <input type="text" id="set-name" class="form-input" placeholder="英単語セット1">
+                        <label for="set-name" data-i18n="sets.editor.name">セット名</label>
+                        <input type="text" id="set-name" class="form-input" data-i18n-placeholder="sets.editor.namePlaceholder" placeholder="英単語セット1">
                     </div>
 
                     <div class="form-group">
-                        <label for="set-description">説明（任意）</label>
-                        <textarea id="set-description" class="form-textarea" rows="2" placeholder="セットの説明"></textarea>
+                        <label for="set-description" data-i18n="sets.editor.description">説明（任意）</label>
+                        <textarea id="set-description" class="form-textarea" rows="2" data-i18n-placeholder="sets.editor.descriptionPlaceholder" placeholder="セットの説明"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>
                             <input type="checkbox" id="set-enabled" class="form-checkbox" checked>
-                            学習対象に含める
+                            <span data-i18n="sets.editor.enabled">学習対象に含める</span>
                         </label>
                     </div>
 
                     <!-- セット編集時の問題一覧 -->
                     <div id="set-questions-section" class="set-questions-section" style="display: none;">
-                        <h4>含まれる問題（<span id="set-questions-count">0</span>問）</h4>
+                        <h4><span data-i18n="sets.editor.questionsTitle">含まれる問題（</span><span id="set-questions-count">0</span><span>問）</span></h4>
                         <div class="set-questions-filters">
-                            <input type="text" id="set-questions-search-input" class="form-input" placeholder="問題を検索...">
+                            <input type="text" id="set-questions-search-input" class="form-input" data-i18n-placeholder="sets.editor.searchPlaceholder" placeholder="問題を検索...">
                             <select id="set-questions-filter-tag" class="form-select form-select-small">
-                                <option value="">全てのタグ</option>
+                                <option value="" data-i18n="manage.filter.allTags">全てのタグ</option>
                             </select>
                         </div>
                         <div class="set-questions-bulk-actions">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="set-select-all-questions">
-                                すべて選択
+                                <span data-i18n="manage.bulk.selectAll">すべて選択</span>
                             </label>
                             <span id="set-selected-count">0件選択中</span>
-                            <button id="set-bulk-remove-btn" class="btn btn-small btn-danger">
+                            <button id="set-bulk-remove-btn" class="btn btn-small btn-danger" data-i18n="sets.editor.removeSelected">
                                 選択を除外
                             </button>
                         </div>
@@ -739,10 +744,10 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" id="cancel-set-btn" class="btn btn-secondary">
+                        <button type="button" id="cancel-set-btn" class="btn btn-secondary" data-i18n="editor.cancel">
                             キャンセル
                         </button>
-                        <button type="button" id="save-set-btn" class="btn btn-primary">
+                        <button type="button" id="save-set-btn" class="btn btn-primary" data-i18n="editor.save">
                             保存
                         </button>
                     </div>
@@ -753,20 +758,20 @@
             <div id="ai-tab" class="manage-tab-content">
                 <!-- APIキー設定セクション -->
                 <div class="api-key-section">
-                    <h3>🔑 OpenAI APIキー設定</h3>
+                    <h3 data-i18n="ai.apiKey.title">🔑 OpenAI APIキー設定</h3>
                     <div class="api-key-form">
                         <div class="form-group">
-                            <label for="openai-api-key">APIキー</label>
+                            <label for="openai-api-key" data-i18n="ai.apiKey.label">APIキー</label>
                             <div class="api-key-input-wrapper">
-                                <input type="password" id="openai-api-key" class="form-input" placeholder="sk-...">
+                                <input type="password" id="openai-api-key" class="form-input" data-i18n-placeholder="ai.apiKey.placeholder" placeholder="sk-...">
                                 <button type="button" id="toggle-api-key-btn" class="btn btn-small btn-secondary">👁️</button>
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button type="button" id="save-api-key-btn" class="btn btn-primary">
+                            <button type="button" id="save-api-key-btn" class="btn btn-primary" data-i18n="ai.apiKey.save">
                                 💾 保存
                             </button>
-                            <button type="button" id="delete-api-key-btn" class="btn btn-danger">
+                            <button type="button" id="delete-api-key-btn" class="btn btn-danger" data-i18n="ai.apiKey.delete">
                                 🗑️ 削除
                             </button>
                         </div>
@@ -776,7 +781,7 @@
 
                 <!-- AI問題生成セクション -->
                 <div class="ai-generator-section">
-                    <h3>🤖 AI問題生成</h3>
+                    <h3 data-i18n="ai.generator.title">🤖 AI問題生成</h3>
 
                     <!-- ★ 注意書きを追加 -->
                     <div class="ai-generator-notice" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
@@ -795,31 +800,31 @@
                     </div>
 
                     <div id="ai-generator-disabled" class="ai-generator-disabled">
-                        <p>⚠️ APIキーが設定されていません。上のセクションでAPIキーを設定してください。</p>
+                        <p data-i18n="ai.generator.disabled">⚠️ APIキーが設定されていません。上のセクションでAPIキーを設定してください。</p>
                     </div>
                     <div id="ai-generator-form" class="ai-generator-form" style="display: none;">
                         <!-- 素材入力方法の選択 -->
                         <div class="form-group">
-                            <label>素材の種類</label>
+                            <label data-i18n="ai.source.label">素材の種類</label>
                             <div class="radio-options horizontal">
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-source-type" value="text" checked> テキスト
+                                    <input type="radio" name="ai-source-type" value="text" checked> <span data-i18n="ai.source.text">テキスト</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-source-type" value="image"> 画像（最大3枚）
+                                    <input type="radio" name="ai-source-type" value="image"> <span data-i18n="ai.source.image">画像（最大3枚）</span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- テキスト入力 -->
                         <div id="ai-text-input-section" class="form-group">
-                            <label for="ai-source-text">素材テキスト</label>
-                            <textarea id="ai-source-text" class="form-textarea" rows="5" placeholder="問題を作成したい内容を入力&#10;例: 英単語リスト、教科書の内容、学習したいトピックなど"></textarea>
+                            <label for="ai-source-text" data-i18n="ai.source.textLabel">素材テキスト</label>
+                            <textarea id="ai-source-text" class="form-textarea" rows="5" data-i18n-placeholder="ai.source.textPlaceholder" placeholder="問題を作成したい内容を入力&#10;例: 英単語リスト、教科書の内容、学習したいトピックなど"></textarea>
                         </div>
 
                         <!-- 画像入力（複数対応） -->
                         <div id="ai-image-input-section" class="form-group" style="display: none;">
-                            <label>画像をアップロード（最大3枚）</label>
+                            <label data-i18n="ai.source.imageLabel">画像をアップロード（最大3枚）</label>
                             <div class="ai-images-container">
                                 <div id="ai-images-preview" class="ai-images-preview">
                                     <!-- アップロードされた画像がここに表示されます -->
@@ -828,39 +833,39 @@
                                     <input type="file" id="ai-image-upload" accept="image/*" multiple hidden>
                                     <label for="ai-image-upload" class="ai-image-upload-label">
                                         <span class="upload-icon">📷</span>
-                                        <span>クリックして画像を選択</span>
-                                        <span class="upload-hint">または画像をドラッグ＆ドロップ</span>
+                                        <span data-i18n="ai.source.imageUpload">クリックして画像を選択</span>
+                                        <span class="upload-hint" data-i18n="ai.source.imageDragDrop">または画像をドラッグ＆ドロップ</span>
                                     </label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>作成オプション</label>
+                            <label data-i18n="ai.creation.label">作成オプション</label>
                             <div class="radio-options">
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-creation-mode" value="exact" checked> この内容で問題を作る（素材の問題数分のみ生成）
+                                    <input type="radio" name="ai-creation-mode" value="exact" checked> <span data-i18n="ai.creation.exact">この内容で問題を作る（素材の問題数分のみ生成）</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-creation-mode" value="reference"> この内容を参考に問題を作る
+                                    <input type="radio" name="ai-creation-mode" value="reference"> <span data-i18n="ai.creation.reference">この内容を参考に問題を作る</span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>出題形式</label>
+                            <label data-i18n="ai.questionType.label">出題形式</label>
                             <div class="radio-options">
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-question-type" value="multiple-choice"> 4択のみ
+                                    <input type="radio" name="ai-question-type" value="multiple-choice"> <span data-i18n="ai.questionType.multipleChoice">4択のみ</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-question-type" value="typing"> タイピングのみ
+                                    <input type="radio" name="ai-question-type" value="typing"> <span data-i18n="ai.questionType.typing">タイピングのみ</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-question-type" value="both"> 両方対応
+                                    <input type="radio" name="ai-question-type" value="both"> <span data-i18n="ai.questionType.both">両方対応</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-question-type" value="auto" checked> AIに任せる
+                                    <input type="radio" name="ai-question-type" value="auto" checked> <span data-i18n="ai.questionType.auto">AIに任せる</span>
                                 </label>
                             </div>
                         </div>
@@ -868,58 +873,58 @@
                         <div class="form-group">
                             <label>
                                 <input type="checkbox" id="ai-language-learning" class="form-checkbox">
-                                語学学習問題として作成（音声読み上げ対応）
+                                <span data-i18n="ai.language.label">語学学習問題として作成（音声読み上げ対応）</span>
                             </label>
                         </div>
                         <div id="ai-audio-settings" class="audio-settings" style="display: none;">
                             <div class="form-group">
-                                <label for="ai-audio-lang">読み上げ言語</label>
+                                <label for="ai-audio-lang" data-i18n="editor.language.audioLang">読み上げ言語</label>
                                 <select id="ai-audio-lang" class="form-select form-select-small">
-                                    <option value="en-US">英語(US)</option>
-                                    <option value="en-GB">英語(UK)</option>
-                                    <option value="ja-JP">日本語</option>
-                                    <option value="zh-CN">中国語</option>
-                                    <option value="ko-KR">韓国語</option>
-                                    <option value="fr-FR">フランス語</option>
-                                    <option value="de-DE">ドイツ語</option>
-                                    <option value="es-ES">スペイン語</option>
+                                    <option value="en-US" data-i18n="editor.language.enUS">英語(US)</option>
+                                    <option value="en-GB" data-i18n="editor.language.enGB">英語(UK)</option>
+                                    <option value="ja-JP" data-i18n="editor.language.jaJP">日本語</option>
+                                    <option value="zh-CN" data-i18n="editor.language.zhCN">中国語</option>
+                                    <option value="ko-KR" data-i18n="editor.language.koKR">韓国語</option>
+                                    <option value="fr-FR" data-i18n="editor.language.frFR">フランス語</option>
+                                    <option value="de-DE" data-i18n="editor.language.deDE">ドイツ語</option>
+                                    <option value="es-ES" data-i18n="editor.language.esES">スペイン語</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="ai-instruction">追加指示（任意）</label>
-                            <input type="text" id="ai-instruction" class="form-input" placeholder="例: 中学生向けに、5問作成して">
+                            <label for="ai-instruction" data-i18n="ai.instruction.label">追加指示（任意）</label>
+                            <input type="text" id="ai-instruction" class="form-input" data-i18n-placeholder="ai.instruction.placeholder" placeholder="例: 中学生向けに、5問作成して">
                         </div>
 
                         <div class="form-group">
-                            <label>追加先セット</label>
+                            <label data-i18n="ai.targetSet.label">追加先セット</label>
                             <div class="radio-options">
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-target-set" value="none" checked> セットに追加しない
+                                    <input type="radio" name="ai-target-set" value="none" checked> <span data-i18n="ai.targetSet.none">セットに追加しない</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-target-set" value="existing"> 既存セットに追加
+                                    <input type="radio" name="ai-target-set" value="existing"> <span data-i18n="ai.targetSet.existing">既存セットに追加</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="ai-target-set" value="new"> 新規セット作成
+                                    <input type="radio" name="ai-target-set" value="new"> <span data-i18n="ai.targetSet.new">新規セット作成</span>
                                 </label>
                             </div>
                         </div>
                         <div id="ai-existing-set-select" class="form-group" style="display: none;">
-                            <label for="ai-select-set">セットを選択</label>
+                            <label for="ai-select-set" data-i18n="ai.targetSet.select">セットを選択</label>
                             <select id="ai-select-set" class="form-select">
                                 <!-- セットが動的に追加されます -->
                             </select>
                         </div>
-                        
+
                         <div id="ai-new-set-input" class="form-group" style="display: none;">
-                            <label for="ai-new-set-name">新規セット名</label>
-                            <input type="text" id="ai-new-set-name" class="form-input" placeholder="新しいセットの名前">
+                            <label for="ai-new-set-name" data-i18n="ai.targetSet.newName">新規セット名</label>
+                            <input type="text" id="ai-new-set-name" class="form-input" data-i18n-placeholder="ai.targetSet.newNamePlaceholder" placeholder="新しいセットの名前">
                         </div>
 
                         <div class="form-actions">
-                            <button type="button" id="generate-questions-btn" class="btn btn-primary btn-large">
+                            <button type="button" id="generate-questions-btn" class="btn btn-primary btn-large" data-i18n="ai.generate">
                                 🎨 問題を生成する
                             </button>
                         </div>
@@ -930,28 +935,30 @@
             <!-- ★ タブコンテンツ: データ管理 -->
             <div id="data-tab" class="manage-tab-content">
                 <div class="import-export-section">
-                    <h3>📦 データ管理</h3>
+                    <h3 data-i18n="data.title">📦 データ管理</h3>
                     <div class="import-export-buttons">
-                        <button id="export-zip-btn" class="btn btn-secondary">
+                        <button id="export-zip-btn" class="btn btn-secondary" data-i18n="data.exportZip">
                             📦 完全バックアップ (ZIP)
                         </button>
-                        <button id="export-json-btn" class="btn btn-secondary">
+                        <button id="export-json-btn" class="btn btn-secondary" data-i18n="data.exportJson">
                             📄 問題のみエクスポート (JSON)
                         </button>
                     </div>
-                    <p class="data-help">
-                        💡 <strong>完全バックアップ</strong>:画像・統計・履歴すべて含む<br>
+                    <p class="data-help" data-i18n-html="data.help.backup">
+                        💡 <strong>完全バックアップ</strong>:画像・統計・履歴すべて含む
+                    </p>
+                    <p class="data-help" data-i18n-html="data.help.jsonOnly">
                         💡 <strong>問題のみ</strong>:テキストデータのみ(画像含まず)
                     </p>
                     <div class="import-export-buttons">
                         <label class="btn btn-secondary file-label">
-                            📥 インポート
+                            <span data-i18n="data.import">📥 インポート</span>
                             <input type="file" id="import-file" accept=".zip,.json" hidden>
                         </label>
-                        <button id="import-sample-btn" class="btn btn-secondary">
+                        <button id="import-sample-btn" class="btn btn-secondary" data-i18n="data.sample">
                             📝 サンプルデータ
                         </button>
-                        <button id="clear-data-btn" class="btn btn-danger">
+                        <button id="clear-data-btn" class="btn btn-danger" data-i18n="data.clear">
                             🗑️ 全削除
                         </button>
                     </div>
@@ -964,11 +971,11 @@
     <nav class="app-nav">
         <button class="nav-btn" data-screen="quiz-screen">
             <span class="nav-icon">📝</span>
-            <span class="nav-label">学習</span>
+            <span class="nav-label" data-i18n="nav.study">学習</span>
         </button>
         <button class="nav-btn active" data-screen="manage-screen">
             <span class="nav-icon">⚙️</span>
-            <span class="nav-label">管理</span>
+            <span class="nav-label" data-i18n="nav.manage">管理</span>
         </button>
     </nav>
 
@@ -980,10 +987,10 @@
     <!-- 確認モーダル -->
     <div id="confirm-modal" class="modal confirm-modal">
         <div class="confirm-content">
-            <p id="confirm-message">確認メッセージ</p>
+            <p id="confirm-message" data-i18n="modal.confirm">確認メッセージ</p>
             <div class="confirm-actions">
-                <button id="confirm-no" class="btn btn-secondary">いいえ</button>
-                <button id="confirm-yes" class="btn btn-primary">はい</button>
+                <button id="confirm-no" class="btn btn-secondary" data-i18n="modal.no">いいえ</button>
+                <button id="confirm-yes" class="btn btn-primary" data-i18n="modal.yes">はい</button>
             </div>
         </div>
     </div>
@@ -991,14 +998,14 @@
     <!-- セット選択モーダル -->
     <div id="set-select-modal" class="modal confirm-modal">
         <div class="confirm-content set-select-content">
-            <h3>📦 セットに追加</h3>
-            <p id="set-select-message">選択した問題をセットに追加します</p>
+            <h3 data-i18n="modal.setSelect.title">📦 セットに追加</h3>
+            <p id="set-select-message" data-i18n="modal.setSelect.message">選択した問題をセットに追加します</p>
             <div id="set-select-checkboxes" class="set-checkboxes modal-set-list">
                 <!-- セットのチェックボックスがここに動的に追加されます -->
             </div>
             <div class="confirm-actions">
-                <button id="set-select-cancel" class="btn btn-secondary">キャンセル</button>
-                <button id="set-select-confirm" class="btn btn-primary">追加</button>
+                <button id="set-select-cancel" class="btn btn-secondary" data-i18n="modal.setSelect.cancel">キャンセル</button>
+                <button id="set-select-confirm" class="btn btn-primary" data-i18n="modal.setSelect.confirm">追加</button>
             </div>
         </div>
     </div>
@@ -1007,14 +1014,14 @@
     <div id="ai-preview-modal" class="modal ai-preview-modal">
         <div class="ai-preview-content">
             <div class="ai-preview-header">
-                <h3>🤖 生成された問題の確認</h3>
+                <h3 data-i18n="ai.preview.title">🤖 生成された問題の確認</h3>
                 <button id="ai-preview-close" class="btn btn-small btn-secondary">✕</button>
             </div>
-            <p class="ai-preview-info">追加する問題にチェックを入れてください</p>
+            <p class="ai-preview-info" data-i18n="ai.preview.info">追加する問題にチェックを入れてください</p>
             <div class="ai-preview-actions-top">
                 <label class="checkbox-label">
                     <input type="checkbox" id="ai-select-all" checked>
-                    すべて選択
+                    <span data-i18n="ai.preview.selectAll">すべて選択</span>
                 </label>
                 <span id="ai-selected-count">0問選択中</span>
             </div>
@@ -1022,8 +1029,8 @@
                 <!-- 生成された問題がここに表示されます -->
             </div>
             <div class="ai-preview-actions">
-                <button id="ai-preview-cancel" class="btn btn-secondary">キャンセル</button>
-                <button id="ai-preview-add" class="btn btn-primary">選択した問題を追加</button>
+                <button id="ai-preview-cancel" class="btn btn-secondary" data-i18n="ai.preview.cancel">キャンセル</button>
+                <button id="ai-preview-add" class="btn btn-primary" data-i18n="ai.preview.add">選択した問題を追加</button>
             </div>
         </div>
     </div>
@@ -1031,11 +1038,14 @@
     <!-- ローディング -->
     <div id="loading" class="loading">
         <div class="loading-spinner"></div>
-        <p id="loading-message">読み込み中...</p>
+        <p id="loading-message" data-i18n="loading">読み込み中...</p>
     </div>
 
     <!-- トースト通知 -->
     <div id="toast-container" class="toast-container"></div>
+
+    <!-- JavaScript - i18n（最初に読み込む） -->
+    <script src="js/i18n.js"></script>
 
     <!-- JavaScript - 基盤モジュール -->
     <script src="js/db.js"></script>

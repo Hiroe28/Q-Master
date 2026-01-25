@@ -606,7 +606,7 @@ async function showIntegratedResult() {
 
     const total = AppState.quiz.seenQuestions.size;
 
-    document.getElementById('result-total').innerHTML = `全${total}問完了しました`;
+    document.getElementById('result-total').innerHTML = I18n.t('quiz.result.total', { count: total });
 
     let detailHtml = '';
 
@@ -985,7 +985,7 @@ async function showIntegratedQuizPhase(question, showAnswered = false) {
         // 解説を表示（シャッフル時はキーを置換）
         const explanationContainer = document.getElementById('explanation-container');
         explanationContainer.style.display = 'block';
-        document.getElementById('result-text').textContent = result.quizCorrect ? '正解!' : '不正解...';
+        document.getElementById('result-text').textContent = result.quizCorrect ? I18n.t('quiz.result.correct') : I18n.t('quiz.result.incorrect');
         document.getElementById('result-text').className = result.quizCorrect ? 'result-text correct' : 'result-text incorrect';
 
         let explanationText = question.explanation_md || '解説はありません';
@@ -1156,7 +1156,7 @@ function showTypingResultUI(result, question, isSelectiveMode) {
 
     if (typingResult) typingResult.style.display = 'block';
     if (resultText) {
-        resultText.textContent = result.typingCorrect ? '正解!' : '不正解...';
+        resultText.textContent = result.typingCorrect ? I18n.t('quiz.result.correctTyping') : I18n.t('quiz.result.incorrectTyping');
         resultText.className = result.typingCorrect ? 'result-text correct' : 'result-text incorrect';
     }
     if (userAnswerEl) userAnswerEl.textContent = result.userAnswer || '';
@@ -1299,7 +1299,7 @@ async function handleIntegratedQuizAnswer(choice) {
     // 解説を表示（シャッフル時はキーを置換）
     const explanationContainer = document.getElementById('explanation-container');
     explanationContainer.style.display = 'block';
-    document.getElementById('result-text').textContent = isCorrect ? '正解!' : '不正解...';
+    document.getElementById('result-text').textContent = isCorrect ? I18n.t('quiz.result.correct') : I18n.t('quiz.result.incorrect');
     document.getElementById('result-text').className = isCorrect ? 'result-text correct' : 'result-text incorrect';
 
     let explanationText = question.explanation_md || '解説はありません';
@@ -1407,7 +1407,7 @@ async function handleIntegratedTypingAnswer() {
 
     if (typingResult) typingResult.style.display = 'block';
     if (resultText) {
-        resultText.textContent = isCorrect ? '正解!' : '不正解...';
+        resultText.textContent = isCorrect ? I18n.t('quiz.result.correctTyping') : I18n.t('quiz.result.incorrectTyping');
         resultText.className = isCorrect ? 'result-text correct' : 'result-text incorrect';
     }
     if (userAnswerEl) userAnswerEl.textContent = userAnswer;

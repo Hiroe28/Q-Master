@@ -11,6 +11,10 @@
  */
 async function initApp() {
     try {
+        // 多言語対応の初期化（最初に実行）
+        await I18n.init();
+        console.log('多言語設定を初期化しました');
+
         // データベース初期化
         await QuizDB.initDB();
         console.log('アプリケーションを初期化しました');

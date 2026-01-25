@@ -604,11 +604,11 @@ function editQuestion(id) {
  * 問題削除の確認
  */
 async function deleteQuestionConfirm(id) {
-    const confirmed = await QuizUI.showConfirm('この問題を削除しますか?');
+    const confirmed = await QuizUI.showConfirm(I18n.t('confirm.deleteQuestion'));
     if (confirmed) {
         try {
             await QuizDB.deleteQuestion(id);
-            QuizUI.showToast('問題を削除しました', 'success');
+            QuizUI.showToast(I18n.t('toast.questionDeleted'), 'success');
             await refreshManageScreen();
         } catch (error) {
             console.error('削除エラー:', error);
@@ -623,11 +623,11 @@ async function deleteQuestionConfirm(id) {
 async function markQuestionAsCompleted(questionId) {
     try {
         await QuizDB.markAsCompleted(questionId);
-        QuizUI.showToast('習得済みにしました', 'success');
+        QuizUI.showToast(I18n.t('toast.markedAsCompleted'), 'success');
         await refreshManageScreen();
     } catch (error) {
         console.error('習得済み設定エラー:', error);
-        QuizUI.showToast('エラーが発生しました', 'error');
+        QuizUI.showToast(I18n.t('toast.error'), 'error');
     }
 }
 

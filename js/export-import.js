@@ -60,7 +60,7 @@ async function exportToZip() {
         downloadBlob(content, filename);
 
         QuizUI.hideLoading();
-        QuizUI.showToast('エクスポートが完了しました', 'success');
+        QuizUI.showToast(I18n.t('toast.exportSuccess'), 'success');
 
     } catch (error) {
         QuizUI.hideLoading();

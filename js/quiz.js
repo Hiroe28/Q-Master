@@ -124,10 +124,10 @@ async function markCurrentAsCompleted() {
         if (!question) return;
 
         await QuizDB.markAsCompleted(question.id);
-        QuizUI.showToast('習得済みにしました', 'success');
+        QuizUI.showToast(I18n.t('toast.markedAsCompleted'), 'success');
     } catch (error) {
         console.error('習得済み設定エラー:', error);
-        QuizUI.showToast('エラーが発生しました', 'error');
+        QuizUI.showToast(I18n.t('toast.error'), 'error');
     }
 }
 
