@@ -299,3 +299,53 @@ const I18n = {
 - toast.questionSaved → トースト > 問題保存完了
 - confirm.deleteQuestion → 確認ダイアログ > 問題削除
 ```
+
+---
+
+## 🔥 連続学習日数（ストリーク）機能
+
+### 概要
+学習の継続を促進するため、連続学習日数を表示する機能。学習画面のトップに表示され、モチベーション維持に役立つ。
+
+### 表示要素
+1. **週間カレンダー** - 過去7日間の学習状況
+   - 学習した日: その日に回答した問題数を表示
+   - 学習していない日: ×マーク
+   - 今日（未学習）: 空の丸
+2. **今日の学習数** - 今日学習した問題数
+3. **現在のストリーク** - 連続学習日数
+4. **自己ベスト** - 過去最長の連続学習日数（LocalStorageに保存）
+
+### データ取得
+`attemptsストア`のタイムスタンプから日別の学習状況を算出。
+
+```javascript
+// db.js
+QuizDB.getLearningStreakStats()
+// 返り値: { currentStreak, bestStreak, todayCount, weeklyData }
+```
+
+### UI構成（index.html）
+```html
+<div class="streak-card">
+  <div class="streak-header">...</div>
+  <div class="streak-calendar">
+    <div id="streak-week" class="streak-week">...</div>
+  </div>
+  <div class="streak-today-count">...</div>
+  <div class="streak-stats">
+    <div class="streak-stat-item">現在の記録</div>
+    <div class="streak-fire">🔥</div>
+    <div class="streak-stat-item">自己ベスト</div>
+  </div>
+</div>
+```
+
+### ストリーク計算ロジック
+1. 今日学習していれば今日からカウント開始
+2. 今日学習していなければ昨日からカウント開始
+3. 連続して学習した日数をカウント
+
+### LocalStorage
+- キー: `quiz-app-best-streak`
+- 自己ベスト記録を永続化

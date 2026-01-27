@@ -2,6 +2,15 @@
   "nav.study": "がくしゅう",
   "nav.manage": "かんり",
 
+  "streak.title": "れんぞく がくしゅう にっすう",
+  "streak.dayNames": ["にち", "げつ", "か", "すい", "もく", "きん", "ど"],
+  "streak.today": "きょう",
+  "streak.todayCount": "きょうの がくしゅう:",
+  "streak.questions": "もん",
+  "streak.days": "にち",
+  "streak.current": "いまの きろく",
+  "streak.best": "じこベスト",
+
   "quiz.dashboard.title": "📊 きょう がくしゅうできる かず",
   "quiz.dashboard.reviewCount": "ふくしゅう",
   "quiz.dashboard.unstudiedCount": "まだやってない",

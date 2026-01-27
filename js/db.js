@@ -936,6 +936,171 @@ async function getQuestionsByEnabledSets() {
     return questions;
 }
 
+// ==================== 学習ストリーク統計 ====================
+
+const STREAK_STORAGE_KEY = 'quiz-app-best-streak';
+
+/**
+ * 指定日の開始・終了タイムスタンプを取得
+ * @param {Date} date - 日付
+ * @returns {Object} { start, end }
+ */
+function getDayRange(date) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+    return { start: start.getTime(), end: end.getTime() };
+}
+
+/**
+ * 日別の学習問題数を取得（過去n日間）
+ * @param {number} days - 取得する日数（デフォルト: 7）
+ * @returns {Promise<Map<string, number>>} 日付文字列 -> 問題数のMap
+ */
+async function getDailyStudyCounts(days = 7) {
+    const attempts = await getAllAttempts();
+    const dailyCounts = new Map();
+
+    // 今日から過去n日間の日付を初期化
+    const today = new Date();
+    for (let i = 0; i < days; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD形式
+        dailyCounts.set(dateStr, 0);
+    }
+
+    // 各attemptを日付ごとにカウント（同じ問題でも複数回カウント）
+    for (const attempt of attempts) {
+        const attemptDate = new Date(attempt.timestamp);
+        const dateStr = attemptDate.toISOString().split('T')[0];
+        if (dailyCounts.has(dateStr)) {
+            dailyCounts.set(dateStr, dailyCounts.get(dateStr) + 1);
+        }
+    }
+
+    return dailyCounts;
+}
+
+/**
+ * 今日の学習問題数を取得（ユニーク問題数）
+ * @returns {Promise<number>}
+ */
+async function getTodayStudyCount() {
+    const attempts = await getAllAttempts();
+    const today = new Date();
+    const { start, end } = getDayRange(today);
+
+    // 今日のユニーク問題をカウント
+    const todayQuestions = new Set();
+    for (const attempt of attempts) {
+        if (attempt.timestamp >= start && attempt.timestamp <= end) {
+            todayQuestions.add(attempt.question_id);
+        }
+    }
+
+    return todayQuestions.size;
+}
+
+/**
+ * 連続学習日数（ストリーク）を計算
+ * @returns {Promise<number>}
+ */
+async function calculateStreak() {
+    const attempts = await getAllAttempts();
+
+    // 日別に学習があったかをチェック
+    const studyDays = new Set();
+    for (const attempt of attempts) {
+        const dateStr = new Date(attempt.timestamp).toISOString().split('T')[0];
+        studyDays.add(dateStr);
+    }
+
+    if (studyDays.size === 0) return 0;
+
+    // 今日からさかのぼって連続日数を計算
+    let streak = 0;
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    // 今日学習していない場合は、昨日から計算開始
+    let checkDate = new Date(today);
+    if (!studyDays.has(todayStr)) {
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    // 連続して学習した日数をカウント
+    while (true) {
+        const dateStr = checkDate.toISOString().split('T')[0];
+        if (studyDays.has(dateStr)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+
+    return streak;
+}
+
+/**
+ * 自己ベストストリークを取得
+ * @returns {number}
+ */
+function getBestStreak() {
+    const stored = localStorage.getItem(STREAK_STORAGE_KEY);
+    return stored ? parseInt(stored, 10) : 0;
+}
+
+/**
+ * 自己ベストストリークを更新
+ * @param {number} streak - 現在のストリーク
+ */
+function updateBestStreak(streak) {
+    const currentBest = getBestStreak();
+    if (streak > currentBest) {
+        localStorage.setItem(STREAK_STORAGE_KEY, streak.toString());
+    }
+}
+
+/**
+ * 学習ストリーク統計を取得
+ * @returns {Promise<Object>} { currentStreak, bestStreak, todayCount, weeklyData }
+ */
+async function getLearningStreakStats() {
+    const currentStreak = await calculateStreak();
+    const bestStreak = getBestStreak();
+    const todayCount = await getTodayStudyCount();
+    const dailyCounts = await getDailyStudyCounts(7);
+
+    // 自己ベストを更新
+    updateBestStreak(currentStreak);
+
+    // 週間データを配列に変換（新しい日付から古い日付の順）
+    const weeklyData = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayOfWeek = date.getDay(); // 0=日, 1=月, ..., 6=土
+        weeklyData.push({
+            date: dateStr,
+            dayOfWeek,
+            count: dailyCounts.get(dateStr) || 0,
+            isToday: i === 0
+        });
+    }
+
+    return {
+        currentStreak,
+        bestStreak: Math.max(bestStreak, currentStreak),
+        todayCount,
+        weeklyData
+    };
+}
+
 // ==================== エクスポート ====================
 
 // グローバルにエクスポート
@@ -984,5 +1149,7 @@ window.QuizDB = {
     removeMultipleQuestionsFromSet,
     getQuestionsBySet,
     getEnabledSets,
-    getQuestionsByEnabledSets
+    getQuestionsByEnabledSets,
+    // Learning Streak Stats
+    getLearningStreakStats
 };
