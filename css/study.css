@@ -6,42 +6,42 @@
 
 .study-dashboard {
     background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);  /* 濃紺グラデーション */
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
     color: white;
 }
 
 .study-dashboard h3 {
-    margin: 0 0 12px 0;
-    font-size: 16px;
+    margin: 0 0 6px 0;
+    font-size: 14px;
     opacity: 0.95;
 }
 
 .study-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 6px;
+    margin-bottom: 8px;
 }
 
 .stat-card {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 6px;
+    padding: 8px 6px;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .stat-number {
-    font-size: 32px;
+    font-size: 20px;
     font-weight: bold;
-    margin-bottom: 4px;
+    margin-bottom: 1px;
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 10px;
     opacity: 0.9;
 }
 
@@ -52,19 +52,19 @@
     align-items: center;
     cursor: pointer;
     user-select: none;
-    padding: 8px 0;
-    margin-bottom: 8px;
+    padding: 4px 0;
+    margin-bottom: 4px;
 }
 
 .schedule-header h4 {
     margin: 0;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     opacity: 0.9;
 }
 
 .schedule-toggle {
-    font-size: 16px;
+    font-size: 14px;
     transition: transform 0.3s;
 }
 
@@ -84,15 +84,15 @@
 
 .mastery-stats {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 6px;
+    padding: 8px 10px;
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .mastery-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 5px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -101,11 +101,12 @@
 }
 
 .mastery-label {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .mastery-count {
     font-weight: bold;
+    font-size: 12px;
 }
 
 /* ==================== 学習モード（フラッシュカード） ==================== */
@@ -726,37 +727,37 @@
 
 .streak-card {
     background: linear-gradient(135deg, #e8eef5 0%, #d0dce8 100%);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .streak-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .streak-header h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 14px;
     color: #2c3e50;
     font-weight: 600;
 }
 
 /* 週間カレンダー */
 .streak-calendar {
-    margin-bottom: 16px;
+    margin-bottom: 6px;
 }
 
 .streak-week {
     display: flex;
     justify-content: space-between;
-    gap: 4px;
+    gap: 2px;
 }
 
 .streak-day {
@@ -764,11 +765,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
 }
 
 .streak-day-label {
-    font-size: 13px;
+    font-size: 11px;
     color: #5c6a7a;
     font-weight: 500;
 }
@@ -779,13 +780,13 @@
 }
 
 .streak-day-status {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 600;
 }
 
@@ -796,7 +797,7 @@
 
 .streak-day-status.no-study::before {
     content: '×';
-    font-size: 24px;
+    font-size: 16px;
 }
 
 /* 今日 - まだ学習してない場合は空の丸 */
@@ -815,19 +816,19 @@
 /* 今日の学習数 */
 .streak-today-count {
     text-align: center;
-    padding: 12px;
-    margin-bottom: 16px;
+    padding: 5px 8px;
+    margin-bottom: 6px;
     background: rgba(255, 255, 255, 0.6);
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 12px;
     color: #5c6a7a;
 }
 
 .today-count-number {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     color: var(--primary-color);
-    margin: 0 4px;
+    margin: 0 3px;
 }
 
 /* ストリーク統計 */
@@ -835,7 +836,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding-top: 12px;
+    padding-top: 6px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -844,26 +845,26 @@
 }
 
 .streak-number {
-    font-size: 36px;
+    font-size: 20px;
     font-weight: bold;
     color: #5c6a7a;
     line-height: 1;
 }
 
 .streak-unit {
-    font-size: 18px;
+    font-size: 12px;
     color: #5c6a7a;
-    margin-top: -4px;
+    margin-top: 0;
 }
 
 .streak-label {
-    font-size: 12px;
+    font-size: 9px;
     color: #8e9aab;
-    margin-top: 4px;
+    margin-top: 1px;
 }
 
 .streak-fire {
-    font-size: 40px;
+    font-size: 24px;
     opacity: 0.6;
 }
 
@@ -889,20 +890,44 @@
 /* スマホ対応 */
 @media (max-width: 400px) {
     .streak-day-status {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
+        width: 26px;
+        height: 26px;
+        font-size: 10px;
     }
 
     .streak-day-status.no-study::before {
-        font-size: 20px;
+        font-size: 14px;
     }
 
     .streak-number {
-        font-size: 28px;
+        font-size: 18px;
     }
 
     .streak-fire {
-        font-size: 32px;
+        font-size: 20px;
+    }
+}
+
+/* ==================== クイズ開始ボタン固定表示 ==================== */
+
+.quiz-start {
+    padding-bottom: 80px;
+}
+
+#start-quiz-btn {
+    position: fixed;
+    bottom: calc(var(--nav-height) + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 400px;
+    z-index: 90;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* iOS SafeArea対応 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    #start-quiz-btn {
+        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 12px);
     }
 }
