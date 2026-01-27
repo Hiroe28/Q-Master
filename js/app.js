@@ -38,9 +38,9 @@ async function initApp() {
             AIGenerator.initAIGenerator();
         }
 
-        // 管理画面を初期表示
-        await QuizManage.refreshManageScreen();
-        QuizUI.showScreen('manage-screen');
+        // 学習画面を初期表示
+        QuizCore.showQuizStart();
+        QuizUI.showScreen('quiz-screen');
 
         // Service Worker登録
         registerServiceWorker();

@@ -721,3 +721,188 @@
         font-size: 0.9rem;
     }
 }
+
+/* ==================== 連続学習日数カード ==================== */
+
+.streak-card {
+    background: linear-gradient(135deg, #e8eef5 0%, #d0dce8 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.streak-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.streak-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* 週間カレンダー */
+.streak-calendar {
+    margin-bottom: 16px;
+}
+
+.streak-week {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.streak-day {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.streak-day-label {
+    font-size: 13px;
+    color: #5c6a7a;
+    font-weight: 500;
+}
+
+.streak-day-label.is-today {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.streak-day-status {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 学習なし - ×マーク */
+.streak-day-status.no-study {
+    color: #b8c4ce;
+}
+
+.streak-day-status.no-study::before {
+    content: '×';
+    font-size: 24px;
+}
+
+/* 今日 - まだ学習してない場合は空の丸 */
+.streak-day-status.today-empty {
+    border: 2px solid #b8c4ce;
+    color: #b8c4ce;
+    background: transparent;
+}
+
+/* 学習済み - 問題数を表示 */
+.streak-day-status.studied {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 今日の学習数 */
+.streak-today-count {
+    text-align: center;
+    padding: 12px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #5c6a7a;
+}
+
+.today-count-number {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0 4px;
+}
+
+/* ストリーク統計 */
+.streak-stats {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.streak-stat-item {
+    text-align: center;
+}
+
+.streak-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #5c6a7a;
+    line-height: 1;
+}
+
+.streak-unit {
+    font-size: 18px;
+    color: #5c6a7a;
+    margin-top: -4px;
+}
+
+.streak-label {
+    font-size: 12px;
+    color: #8e9aab;
+    margin-top: 4px;
+}
+
+.streak-fire {
+    font-size: 40px;
+    opacity: 0.6;
+}
+
+/* ストリークがある場合のアクティブ状態 */
+.streak-card.has-streak .streak-number {
+    color: #e67e22;
+}
+
+.streak-card.has-streak .streak-fire {
+    opacity: 1;
+    animation: fireGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireGlow {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
+}
+
+/* スマホ対応 */
+@media (max-width: 400px) {
+    .streak-day-status {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .streak-day-status.no-study::before {
+        font-size: 20px;
+    }
+
+    .streak-number {
+        font-size: 28px;
+    }
+
+    .streak-fire {
+        font-size: 32px;
+    }
+}

@@ -22,6 +22,9 @@ async function showQuizStart() {
 
     // ダッシュボードを更新
     await updateStudyDashboard();
+
+    // 連続学習日数を更新
+    await updateStreakDisplay();
 }
 
 /**
@@ -214,10 +217,87 @@ function endQuiz() {
     showQuizStart();
 }
 
+/**
+ * 連続学習日数表示を更新
+ */
+async function updateStreakDisplay() {
+    try {
+        const stats = await QuizDB.getLearningStreakStats();
+
+        // 週間カレンダーを更新
+        const weekContainer = document.getElementById('streak-week');
+        if (weekContainer) {
+            const dayNames = I18n.t('streak.dayNames') || ['日', '月', '火', '水', '木', '金', '土'];
+            const todayLabel = I18n.t('streak.today') || '今日';
+
+            weekContainer.innerHTML = stats.weeklyData.map(day => {
+                const label = day.isToday ? todayLabel : dayNames[day.dayOfWeek];
+                const labelClass = day.isToday ? 'streak-day-label is-today' : 'streak-day-label';
+
+                let statusClass = '';
+                let statusContent = '';
+
+                if (day.count > 0) {
+                    // 学習済み - 問題数を表示
+                    statusClass = 'streak-day-status studied';
+                    statusContent = day.count;
+                } else if (day.isToday) {
+                    // 今日でまだ学習していない - 空の丸
+                    statusClass = 'streak-day-status today-empty';
+                    statusContent = '';
+                } else {
+                    // 過去の日で学習なし - ×マーク
+                    statusClass = 'streak-day-status no-study';
+                    statusContent = '';
+                }
+
+                return `
+                    <div class="streak-day">
+                        <div class="${labelClass}">${label}</div>
+                        <div class="${statusClass}">${statusContent}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 今日の学習数
+        const todayCountEl = document.getElementById('today-studied-count');
+        if (todayCountEl) {
+            todayCountEl.textContent = stats.todayCount;
+        }
+
+        // 現在のストリーク
+        const currentStreakEl = document.getElementById('current-streak');
+        if (currentStreakEl) {
+            currentStreakEl.textContent = stats.currentStreak;
+        }
+
+        // 自己ベスト
+        const bestStreakEl = document.getElementById('best-streak');
+        if (bestStreakEl) {
+            bestStreakEl.textContent = stats.bestStreak;
+        }
+
+        // ストリークがある場合はカードにクラスを追加
+        const streakCard = document.querySelector('.streak-card');
+        if (streakCard) {
+            if (stats.currentStreak > 0) {
+                streakCard.classList.add('has-streak');
+            } else {
+                streakCard.classList.remove('has-streak');
+            }
+        }
+
+    } catch (error) {
+        console.error('連続学習日数の更新エラー:', error);
+    }
+}
+
 // グローバルにエクスポート
 window.QuizCore = {
     showQuizStart,
     updateStudyDashboard,
+    updateStreakDisplay,
     markCurrentAsCompleted,
     renderTagCheckboxes,
     updateSelectedTags,
@@ -228,3 +308,4 @@ window.QuizCore = {
 // HTMLから直接呼ばれる関数をwindowに登録
 window.markCurrentAsCompleted = markCurrentAsCompleted;
 window.updateStudyDashboard = updateStudyDashboard;
+window.updateStreakDisplay = updateStreakDisplay;

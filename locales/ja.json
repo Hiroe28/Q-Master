@@ -2,6 +2,15 @@
   "nav.study": "学習",
   "nav.manage": "管理",
 
+  "streak.title": "連続学習日数",
+  "streak.dayNames": ["日", "月", "火", "水", "木", "金", "土"],
+  "streak.today": "今日",
+  "streak.todayCount": "今日の学習:",
+  "streak.questions": "問",
+  "streak.days": "日",
+  "streak.current": "現在の記録",
+  "streak.best": "自己ベスト",
+
   "quiz.dashboard.title": "📊 今日学習できる数",
   "quiz.dashboard.reviewCount": "復習対象",
   "quiz.dashboard.unstudiedCount": "未学習",

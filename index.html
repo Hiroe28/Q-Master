@@ -70,9 +70,45 @@
     <!-- メインコンテンツ -->
     <main class="app-main">
         <!-- クイズ画面 -->
-        <section id="quiz-screen" class="screen">
+        <section id="quiz-screen" class="screen active">
             <!-- クイズ開始画面 -->
             <div id="quiz-start" class="quiz-start">
+                <!-- 連続学習日数カード -->
+                <div class="streak-card">
+                    <div class="streak-header">
+                        <h3 data-i18n="streak.title">連続学習日数</h3>
+                    </div>
+
+                    <!-- 週間カレンダー -->
+                    <div class="streak-calendar">
+                        <div id="streak-week" class="streak-week">
+                            <!-- JSで動的に生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 今日の学習数 -->
+                    <div class="streak-today-count">
+                        <span data-i18n="streak.todayCount">今日の学習:</span>
+                        <span id="today-studied-count" class="today-count-number">0</span>
+                        <span data-i18n="streak.questions">問</span>
+                    </div>
+
+                    <!-- ストリーク統計 -->
+                    <div class="streak-stats">
+                        <div class="streak-stat-item">
+                            <div id="current-streak" class="streak-number">0</div>
+                            <div class="streak-unit" data-i18n="streak.days">日</div>
+                            <div class="streak-label" data-i18n="streak.current">現在の記録</div>
+                        </div>
+                        <div class="streak-fire">🔥</div>
+                        <div class="streak-stat-item">
+                            <div id="best-streak" class="streak-number">0</div>
+                            <div class="streak-unit" data-i18n="streak.days">日</div>
+                            <div class="streak-label" data-i18n="streak.best">自己ベスト</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="study-dashboard">
                     <h3 data-i18n="quiz.dashboard.title">📊 今日学習できる数</h3>
                     <div class="study-stats">
@@ -325,7 +361,7 @@
         </section>
 
         <!-- 管理画面 -->
-        <section id="manage-screen" class="screen active">
+        <section id="manage-screen" class="screen">
             <h2 data-i18n="manage.title">問題管理</h2>
 
             <!-- ★ 管理画面タブ -->
@@ -969,11 +1005,11 @@
 
     <!-- ナビゲーション -->
     <nav class="app-nav">
-        <button class="nav-btn" data-screen="quiz-screen">
+        <button class="nav-btn active" data-screen="quiz-screen">
             <span class="nav-icon">📝</span>
             <span class="nav-label" data-i18n="nav.study">学習</span>
         </button>
-        <button class="nav-btn active" data-screen="manage-screen">
+        <button class="nav-btn" data-screen="manage-screen">
             <span class="nav-icon">⚙️</span>
             <span class="nav-label" data-i18n="nav.manage">管理</span>
         </button>

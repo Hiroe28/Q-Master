@@ -2,6 +2,15 @@
   "nav.study": "Study",
   "nav.manage": "Manage",
 
+  "streak.title": "Learning Streak",
+  "streak.dayNames": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  "streak.today": "Today",
+  "streak.todayCount": "Today's study:",
+  "streak.questions": "Q",
+  "streak.days": "days",
+  "streak.current": "Current Streak",
+  "streak.best": "Personal Best",
+
   "quiz.dashboard.title": "📊 Today's Study Count",
   "quiz.dashboard.reviewCount": "Review",
   "quiz.dashboard.unstudiedCount": "Unstudied",
