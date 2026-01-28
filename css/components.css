@@ -543,6 +543,31 @@
     text-align: right;
 }
 
+/* ==================== スマホ向け調整 ==================== */
+
+@media (max-width: 480px) {
+    .form-group {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.95rem;
+    }
+
+    .data-help {
+        font-size: 0.8rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        margin: var(--spacing-xs) 0;
+    }
+}
+
 .next-review-text {
     font-size: 0.75rem;
     color: var(--info-color);

@@ -123,7 +123,7 @@ function getNewQuestionsForToday(allQuestions, allStats, limit = 20) {
 /**
  * 今日の学習内容を取得
  * @param {Array} baseQuestions - ベースとなる問題配列(セット選択済み)。省略時は全問題を取得
- * @param {number} dailyLimit - 1日の問題数上限（デフォルト: 10）
+ * @param {number} dailyLimit - 出題数上限（デフォルト: 10）
  * @param {number} newLimit - 新規問題の上限（デフォルト: dailyLimitの半分）
  */
 async function getTodayStudyPlan(baseQuestions = null, dailyLimit = 10, newLimit = null) {

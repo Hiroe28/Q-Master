@@ -954,6 +954,18 @@ function getDayRange(date) {
 }
 
 /**
+ * 日付をローカル時刻でYYYY-MM-DD形式の文字列に変換
+ * @param {Date} date - 日付オブジェクト
+ * @returns {string} YYYY-MM-DD形式の文字列
+ */
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+/**
  * 日別の学習問題数を取得（過去n日間）
  * @param {number} days - 取得する日数（デフォルト: 7）
  * @returns {Promise<Map<string, number>>} 日付文字列 -> 問題数のMap
@@ -962,19 +974,19 @@ async function getDailyStudyCounts(days = 7) {
     const attempts = await getAllAttempts();
     const dailyCounts = new Map();
 
-    // 今日から過去n日間の日付を初期化
+    // 今日から過去n日間の日付を初期化（ローカル時刻）
     const today = new Date();
     for (let i = 0; i < days; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD形式
+        const dateStr = formatLocalDate(date); // ローカル時刻でYYYY-MM-DD形式
         dailyCounts.set(dateStr, 0);
     }
 
-    // 各attemptを日付ごとにカウント（同じ問題でも複数回カウント）
+    // 各attemptを日付ごとにカウント（ローカル時刻で判定）
     for (const attempt of attempts) {
         const attemptDate = new Date(attempt.timestamp);
-        const dateStr = attemptDate.toISOString().split('T')[0];
+        const dateStr = formatLocalDate(attemptDate); // ローカル時刻でYYYY-MM-DD形式
         if (dailyCounts.has(dateStr)) {
             dailyCounts.set(dateStr, dailyCounts.get(dateStr) + 1);
         }
@@ -1010,19 +1022,19 @@ async function getTodayStudyCount() {
 async function calculateStreak() {
     const attempts = await getAllAttempts();
 
-    // 日別に学習があったかをチェック
+    // 日別に学習があったかをチェック（ローカル時刻で判定）
     const studyDays = new Set();
     for (const attempt of attempts) {
-        const dateStr = new Date(attempt.timestamp).toISOString().split('T')[0];
+        const dateStr = formatLocalDate(new Date(attempt.timestamp));
         studyDays.add(dateStr);
     }
 
     if (studyDays.size === 0) return 0;
 
-    // 今日からさかのぼって連続日数を計算
+    // 今日からさかのぼって連続日数を計算（ローカル時刻）
     let streak = 0;
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = formatLocalDate(today);
 
     // 今日学習していない場合は、昨日から計算開始
     let checkDate = new Date(today);
@@ -1032,7 +1044,7 @@ async function calculateStreak() {
 
     // 連続して学習した日数をカウント
     while (true) {
-        const dateStr = checkDate.toISOString().split('T')[0];
+        const dateStr = formatLocalDate(checkDate);
         if (studyDays.has(dateStr)) {
             streak++;
             checkDate.setDate(checkDate.getDate() - 1);
@@ -1083,7 +1095,7 @@ async function getLearningStreakStats() {
     for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = formatLocalDate(date); // ローカル時刻でYYYY-MM-DD形式
         const dayOfWeek = date.getDay(); // 0=日, 1=月, ..., 6=土
         weeklyData.push({
             date: dateStr,

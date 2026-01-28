@@ -29,7 +29,7 @@
   "quiz.mode.random": "ランダム",
   "quiz.mode.tag": "タグ指定",
 
-  "quiz.questionCount.label": "1日の問題数",
+  "quiz.questionCount.label": "出題数",
   "quiz.questionCount.5": "5問",
   "quiz.questionCount.10": "10問",
   "quiz.questionCount.20": "20問",

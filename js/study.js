@@ -129,7 +129,7 @@ async function startIntegratedMode() {
                 document.querySelector('input[name="question-count"]:checked')?.value || '10'
             );
 
-            // 1日の問題数に応じて新規問題の上限を設定（約半分を新規に割り当て）
+            // 出題数に応じて新規問題の上限を設定（約半分を新規に割り当て）
             const newQuestionsLimit = Math.ceil(selectedCount / 2);
             const studyPlan = await SM2.getTodayStudyPlan(baseQuestions, selectedCount, newQuestionsLimit);
 

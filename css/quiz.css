@@ -6,11 +6,17 @@
 
 .quiz-start {
     text-align: center;
-    padding: var(--spacing-xl);
+    padding: var(--spacing-md);
 }
 
 .quiz-start h2 {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 480px) {
+    .quiz-start {
+        padding: var(--spacing-sm);
+    }
 }
 
 /* ==================== クイズヘッダー ==================== */
