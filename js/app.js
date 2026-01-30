@@ -138,6 +138,9 @@ function setupEventListeners() {
         });
     }
 
+    // ツールチップの制御
+    setupTooltips();
+
     // クイズ画面
     setupQuizEventListeners();
 
@@ -438,6 +441,41 @@ function setupExportImportEventListeners() {
     // 全データ削除
     document.getElementById('clear-data-btn')?.addEventListener('click', () => {
         QuizExport.clearAllData();
+    });
+}
+
+/**
+ * ツールチップの表示制御
+ */
+function setupTooltips() {
+    // 全てのinfo-iconをクリックでトグル
+    document.querySelectorAll('.info-tooltip-wrapper').forEach(wrapper => {
+        const icon = wrapper.querySelector('.info-icon');
+        if (icon) {
+            icon.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 他のツールチップを閉じる
+                document.querySelectorAll('.info-tooltip-wrapper.show-tooltip').forEach(other => {
+                    if (other !== wrapper) {
+                        other.classList.remove('show-tooltip');
+                    }
+                });
+
+                // このツールチップをトグル
+                wrapper.classList.toggle('show-tooltip');
+            });
+        }
+    });
+
+    // 外側クリックでツールチップを閉じる
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.info-tooltip-wrapper')) {
+            document.querySelectorAll('.info-tooltip-wrapper.show-tooltip').forEach(wrapper => {
+                wrapper.classList.remove('show-tooltip');
+            });
+        }
     });
 }
 

@@ -20,7 +20,7 @@
 
 .study-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
     margin-bottom: 8px;
 }
@@ -29,19 +29,19 @@
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: 8px;
-    padding: 8px 10px;
+    padding: 6px 4px;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .stat-number {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     margin-bottom: 1px;
 }
 
 .stat-label {
-    font-size: 10px;
+    font-size: 9px;
     opacity: 0.9;
 }
 
@@ -49,6 +49,84 @@
 .stat-card-early {
     background: rgba(255, 193, 7, 0.25);
     border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+/* ==================== インフォツールチップ ==================== */
+
+.info-tooltip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 6px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.info-icon:hover {
+    background: var(--primary-color);
+}
+
+.info-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: normal;
+    width: max-content;
+    max-width: 280px;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.info-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+}
+
+.info-tooltip-wrapper.show-tooltip .info-tooltip {
+    display: block;
+}
+
+/* スマホでの位置調整 */
+@media (max-width: 400px) {
+    .info-tooltip {
+        left: auto;
+        right: -10px;
+        transform: none;
+        max-width: 250px;
+    }
+
+    .info-tooltip::after {
+        left: auto;
+        right: 20px;
+        transform: none;
+    }
 }
 
 .stat-card-early .stat-number {
