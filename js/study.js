@@ -75,16 +75,18 @@ function replaceChoiceKeysInExplanation(explanation, reverseMapping) {
         result = result.replace(new RegExp(`\\(${originalKey}\\)`, 'g'), `(__TEMP_${newKey}__)`);
         // （A） → （X）（全角括弧）
         result = result.replace(new RegExp(`（${originalKey}）`, 'g'), `（__TEMP_${newKey}__）`);
-        // A: → X:
+        // A: → X:（行中）
         result = result.replace(new RegExp(`([^a-zA-Z])${originalKey}:`, 'g'), `$1__TEMP_${newKey}__:`);
+        // A: → X:（行頭）
+        result = result.replace(new RegExp(`^${originalKey}:`, 'gm'), `__TEMP_${newKey}__:`);
         // A： → X：（全角コロン）
         result = result.replace(new RegExp(`([^a-zA-Z])${originalKey}：`, 'g'), `$1__TEMP_${newKey}__：`);
         // A. → X.（ただし小数点は除外）
         result = result.replace(new RegExp(`([^a-zA-Z0-9])${originalKey}\\.([^0-9])`, 'g'), `$1__TEMP_${newKey}__.$2`);
         // 「Aが正解」「Aは正解」などのパターン
         result = result.replace(new RegExp(`([^a-zA-Z])${originalKey}(が|は|を|の|も)`, 'g'), `$1__TEMP_${newKey}__$2`);
-        // 「正解はA」「答えはA」などのパターン（文末）
-        result = result.replace(new RegExp(`(正解|答え)(は|が)${originalKey}([。、.\\s]|$)`, 'g'), `$1$2__TEMP_${newKey}__$3`);
+        // 「正解はA」「答えはAです」などのパターン
+        result = result.replace(new RegExp(`(正解|答え)(は|が)${originalKey}(です|でした)?([。、.\\s]|$)`, 'g'), `$1$2__TEMP_${newKey}__$3$4`);
         // **A:** などMarkdown太字内
         result = result.replace(new RegExp(`\\*\\*${originalKey}:\\*\\*`, 'g'), `**__TEMP_${newKey}__:**`);
         result = result.replace(new RegExp(`\\*\\*${originalKey}：\\*\\*`, 'g'), `**__TEMP_${newKey}__：**`);
