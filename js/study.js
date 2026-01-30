@@ -30,6 +30,9 @@ function createChoiceShuffleMapping() {
 
 /**
  * 解説文中の選択肢キー（A, B, C, D）を置換
+ * マーカー方式（{{A}}, {{B}}, {{C}}, {{D}}）を優先し、
+ * マーカーがない場合は従来のパターン検出にフォールバック
+ *
  * @param {string} explanation - 解説文
  * @param {Object} reverseMapping - 元キー -> 表示キーのマッピング
  * @returns {string} 置換後の解説文
@@ -37,6 +40,24 @@ function createChoiceShuffleMapping() {
 function replaceChoiceKeysInExplanation(explanation, reverseMapping) {
     if (!explanation || !reverseMapping) return explanation;
 
+    // マーカー方式のチェック: {{A}}, {{B}}, {{C}}, {{D}} が存在するか
+    const hasMarkers = /\{\{[A-D]\}\}/.test(explanation);
+
+    if (hasMarkers) {
+        // マーカー方式: {{A}} → シャッフル後のキーに置換
+        let result = explanation;
+
+        // 一時プレースホルダーで衝突を回避
+        for (const [originalKey, newKey] of Object.entries(reverseMapping)) {
+            result = result.replace(new RegExp(`\\{\\{${originalKey}\\}\\}`, 'g'), `__MARKER_${newKey}__`);
+        }
+        // プレースホルダーを実際のキーに置換
+        result = result.replace(/__MARKER_([A-D])__/g, '$1');
+
+        return result;
+    }
+
+    // 従来方式: パターン検出による置換（後方互換性のため維持）
     let result = explanation;
 
     // 置換パターン（順序重要：長いパターンから先に）

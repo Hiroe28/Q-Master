@@ -134,6 +134,26 @@
             "caseSensitive": false,
             "strictMatch": true,
             "shuffleReady": true
+        },
+        {
+            "title": "[サンプル] IT用語: データベース",
+            "body_md": "データを効率的に管理・検索するためのソフトウェアを何と呼ぶか?",
+            "choices": {
+                "A": "データベース",
+                "B": "スプレッドシート",
+                "C": "ワープロソフト",
+                "D": "グラフィックソフト"
+            },
+            "answer": "A",
+            "explanation_md": "**正解は{{A}}（データベース）です。**\n\nデータベースは、大量のデータを構造化して保存し、効率的な検索・更新を可能にするソフトウェアです。\n\n**誤答解説:**\n- {{B}}: 表計算が主目的で、大規模データ管理には不向き\n- {{C}}: 文書作成用ソフトウェア\n- {{D}}: 画像編集・作成用ソフトウェア\n\n---\n*このサンプル問題はマーカー方式（{{A}}など）のデモです。削除して構いません。*",
+            "tags": ["サンプル", "IT", "シャッフル対応"],
+            "sets": [],
+            "type": "multiple-choice",
+            "typingAnswer": "",
+            "acceptableAnswers": [],
+            "caseSensitive": false,
+            "strictMatch": true,
+            "shuffleReady": true
         }
     ],
     "question_sets": []
