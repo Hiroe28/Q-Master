@@ -150,9 +150,13 @@ async function startIntegratedMode() {
                 document.querySelector('input[name="question-count"]:checked')?.value || '10'
             );
 
+            // 先取り学習オプションを取得
+            const earlyLearningCheckbox = document.getElementById('early-learning-mode');
+            const includeEarlyReview = earlyLearningCheckbox?.checked || false;
+
             // 出題数に応じて新規問題の上限を設定（約半分を新規に割り当て）
             const newQuestionsLimit = Math.ceil(selectedCount / 2);
-            const studyPlan = await SM2.getTodayStudyPlan(baseQuestions, selectedCount, newQuestionsLimit);
+            const studyPlan = await SM2.getTodayStudyPlan(baseQuestions, selectedCount, newQuestionsLimit, includeEarlyReview);
 
             const newQuestions = [];
             for (const id of studyPlan.new) {
@@ -166,8 +170,18 @@ async function startIntegratedMode() {
                 if (q) reviewQuestions.push(q);
             }
 
+            // 先取り学習問題を追加
+            const earlyReviewQuestions = [];
+            if (studyPlan.earlyReview) {
+                for (const id of studyPlan.earlyReview) {
+                    const q = baseQuestions.find(bq => bq.id === id);
+                    if (q) earlyReviewQuestions.push(q);
+                }
+            }
+
             const shuffledReview = QuizUI.shuffleArray(reviewQuestions);
-            const allQuestions = [...newQuestions, ...shuffledReview];
+            const shuffledEarlyReview = QuizUI.shuffleArray(earlyReviewQuestions);
+            const allQuestions = [...newQuestions, ...shuffledReview, ...shuffledEarlyReview];
             questions = allQuestions.slice(0, selectedCount);
 
         } else if (mode === 'unanswered') {

@@ -102,6 +102,18 @@ async function updateStudyDashboard() {
         document.getElementById('today-review-count').textContent = studyPlan.review.length;
         document.getElementById('today-unstudied-count').textContent = unstudiedCount;
 
+        // 先取り可能な問題数を取得・表示
+        const earlyReviewStats = await SM2.getEarlyReviewStats();
+        const earlyReviewCountEl = document.getElementById('early-review-count');
+        const earlyReviewCard = document.getElementById('early-review-card');
+        if (earlyReviewCountEl) {
+            earlyReviewCountEl.textContent = earlyReviewStats.count;
+        }
+        // 先取り可能な問題がない場合はカードを非表示
+        if (earlyReviewCard) {
+            earlyReviewCard.style.display = earlyReviewStats.count > 0 ? 'block' : 'none';
+        }
+
         // 復習スケジュール統計を取得
         const scheduleStats = await SM2.getReviewScheduleStats();
 

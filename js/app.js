@@ -157,13 +157,19 @@ function setupQuizEventListeners() {
         AppState.quiz.mode = e.target.value;
         const tagSelectContainer = document.getElementById('quiz-tag-select-container');
         const questionCountSelect = document.getElementById('question-count-select');
+        const earlyLearningOption = document.getElementById('early-learning-option');
 
         if (tagSelectContainer) {
             tagSelectContainer.style.display = e.target.value === 'tag' ? 'block' : 'none';
         }
 
+        // 「今日の学習」モードのみ問題数選択と先取り学習オプションを表示
+        const isTodayMode = e.target.value === 'today';
         if (questionCountSelect) {
-            questionCountSelect.style.display = e.target.value === 'today' ? 'block' : 'none';
+            questionCountSelect.style.display = isTodayMode ? 'block' : 'none';
+        }
+        if (earlyLearningOption) {
+            earlyLearningOption.style.display = isTodayMode ? 'block' : 'none';
         }
     });
 

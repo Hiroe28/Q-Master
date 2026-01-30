@@ -14,6 +14,7 @@
   "quiz.dashboard.title": "📊 きょう がくしゅうできる かず",
   "quiz.dashboard.reviewCount": "ふくしゅう",
   "quiz.dashboard.unstudiedCount": "まだやってない",
+  "quiz.dashboard.earlyReviewCount": "さきどり できる",
   "quiz.schedule.title": "📅 ふくしゅう スケジュール",
   "quiz.schedule.today": "📌 きょう",
   "quiz.schedule.tomorrow": "📆 あした",
@@ -33,6 +34,9 @@
   "quiz.questionCount.5": "5もん",
   "quiz.questionCount.10": "10もん",
   "quiz.questionCount.20": "20もん",
+
+  "quiz.earlyLearning.label": "⏩ さきどり がくしゅう",
+  "quiz.earlyLearning.help": "きょうの ふくしゅうが すくないとき、あしたいこうの もんだいも がくしゅうできるよ",
 
   "quiz.tagSelect.label": "タグを えらぶ（いくつでも えらべるよ）",
   "quiz.setSelect.label": "もんだいセットを えらぶ",
