@@ -14,6 +14,7 @@
   "quiz.dashboard.title": "📊 今日学習できる数",
   "quiz.dashboard.reviewCount": "復習対象",
   "quiz.dashboard.unstudiedCount": "未学習",
+  "quiz.dashboard.earlyReviewCount": "先取り可能",
   "quiz.schedule.title": "📅 復習スケジュール",
   "quiz.schedule.today": "📌 今日",
   "quiz.schedule.tomorrow": "📆 明日",
@@ -33,6 +34,9 @@
   "quiz.questionCount.5": "5問",
   "quiz.questionCount.10": "10問",
   "quiz.questionCount.20": "20問",
+
+  "quiz.earlyLearning.label": "⏩ 先取り学習を含める",
+  "quiz.earlyLearning.help": "今日の復習が少ない場合、明日以降の復習を先取りして学習できます",
 
   "quiz.tagSelect.label": "タグを選択(複数選択可)",
   "quiz.setSelect.label": "問題セットを選択",

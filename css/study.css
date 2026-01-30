@@ -45,6 +45,20 @@
     opacity: 0.9;
 }
 
+/* 先取り学習カード */
+.stat-card-early {
+    background: rgba(255, 193, 7, 0.25);
+    border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+.stat-card-early .stat-number {
+    color: #ffc107;
+}
+
+.stat-card-early .stat-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
 /* 復習スケジュールの折りたたみ */
 .schedule-header {
     display: flex;

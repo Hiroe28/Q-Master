@@ -14,6 +14,7 @@
   "quiz.dashboard.title": "📊 Today's Study Count",
   "quiz.dashboard.reviewCount": "Review",
   "quiz.dashboard.unstudiedCount": "Unstudied",
+  "quiz.dashboard.earlyReviewCount": "Early Review",
   "quiz.schedule.title": "📅 Review Schedule",
   "quiz.schedule.today": "📌 Today",
   "quiz.schedule.tomorrow": "📆 Tomorrow",
@@ -33,6 +34,9 @@
   "quiz.questionCount.5": "5",
   "quiz.questionCount.10": "10",
   "quiz.questionCount.20": "20",
+
+  "quiz.earlyLearning.label": "⏩ Include Early Review",
+  "quiz.earlyLearning.help": "Study upcoming reviews early when today's reviews are few",
 
   "quiz.tagSelect.label": "Select Tags (multiple)",
   "quiz.setSelect.label": "Select Question Set",

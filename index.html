@@ -120,6 +120,10 @@
                             <div class="stat-number" id="today-unstudied-count">0</div>
                             <div class="stat-label" data-i18n="quiz.dashboard.unstudiedCount">未学習</div>
                         </div>
+                        <div class="stat-card stat-card-early" id="early-review-card">
+                            <div class="stat-number" id="early-review-count">0</div>
+                            <div class="stat-label" data-i18n="quiz.dashboard.earlyReviewCount">先取り可能</div>
+                        </div>
                     </div>
 
                     <div class="schedule-section">
@@ -187,6 +191,15 @@
                             <input type="radio" name="question-count" value="20"> <span data-i18n="quiz.questionCount.20">20問</span>
                         </label>
                     </div>
+                </div>
+
+                <!-- 先取り学習オプション（今日の学習モード用） -->
+                <div class="form-group" id="early-learning-option" style="display: block;">
+                    <label class="checkbox-label early-learning-label">
+                        <input type="checkbox" id="early-learning-mode" class="form-checkbox">
+                        <span data-i18n="quiz.earlyLearning.label">⏩ 先取り学習を含める</span>
+                    </label>
+                    <p class="data-help" data-i18n="quiz.earlyLearning.help">今日の復習が少ない場合、明日以降の復習を先取りして学習できます</p>
                 </div>
 
                 <div class="form-group" id="quiz-tag-select-container" style="display: none;">

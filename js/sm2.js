@@ -79,19 +79,19 @@ function calculateSM2(card, quality) {
  */
 function getQuestionsForReview(allStats) {
     const now = Date.now();
-    
+
     // ★ 今日の終わりまでを基準にする
     const today = new Date(now);
     today.setHours(23, 59, 59, 999);
     const todayEnd = today.getTime();
-    
+
     const reviewQuestions = allStats.filter(stat => {
         // 完全習得済みは除外
         if (getMasteryLevel(stat) === 'completed') return false;
-        
+
         // nextReviewDateが設定されていない場合は復習不要
         if (!stat.nextReviewDate) return false;
-        
+
         // 今日の終わりまでに復習日が来ている問題
         return stat.nextReviewDate <= todayEnd;
     });
@@ -100,6 +100,66 @@ function getQuestionsForReview(allStats) {
     reviewQuestions.sort((a, b) => a.nextReviewDate - b.nextReviewDate);
 
     return reviewQuestions;
+}
+
+/**
+ * 先取り学習可能な問題を取得（明日以降に復習予定の問題）
+ * @param {Array} allStats - 全統計データ
+ * @param {number} daysAhead - 何日先まで含めるか（デフォルト: 7日）
+ * @returns {Array} 先取り学習可能な問題のリスト
+ */
+function getEarlyReviewQuestions(allStats, daysAhead = 7) {
+    const now = Date.now();
+
+    // 今日の終わり
+    const today = new Date(now);
+    today.setHours(23, 59, 59, 999);
+    const todayEnd = today.getTime();
+
+    // 先取り範囲の終わり（daysAhead日後）
+    const futureDate = new Date(today);
+    futureDate.setDate(futureDate.getDate() + daysAhead);
+    const futureEnd = futureDate.getTime();
+
+    const earlyQuestions = allStats.filter(stat => {
+        // 完全習得済みは除外
+        if (getMasteryLevel(stat) === 'completed') return false;
+
+        // nextReviewDateが設定されていない場合は除外
+        if (!stat.nextReviewDate) return false;
+
+        // 明日以降〜daysAhead日後までの復習予定問題
+        return stat.nextReviewDate > todayEnd && stat.nextReviewDate <= futureEnd;
+    });
+
+    // 次回復習日が近い順でソート
+    earlyQuestions.sort((a, b) => a.nextReviewDate - b.nextReviewDate);
+
+    return earlyQuestions;
+}
+
+/**
+ * 先取り学習可能な問題数を取得
+ * @param {Array} baseQuestionIds - 対象問題のIDセット（オプション）
+ * @returns {Object} { count, questions }
+ */
+async function getEarlyReviewStats(baseQuestionIds = null) {
+    const allStats = await QuizDB.getAllStats();
+
+    // 先取り可能な問題を取得（7日先まで）
+    const earlyQuestions = getEarlyReviewQuestions(allStats, 7);
+
+    // ベース問題の指定がある場合はフィルタリング
+    let filteredQuestions = earlyQuestions;
+    if (baseQuestionIds) {
+        const idSet = baseQuestionIds instanceof Set ? baseQuestionIds : new Set(baseQuestionIds);
+        filteredQuestions = earlyQuestions.filter(stat => idSet.has(stat.question_id));
+    }
+
+    return {
+        count: filteredQuestions.length,
+        questions: filteredQuestions
+    };
 }
 
 /**
@@ -125,8 +185,9 @@ function getNewQuestionsForToday(allQuestions, allStats, limit = 20) {
  * @param {Array} baseQuestions - ベースとなる問題配列(セット選択済み)。省略時は全問題を取得
  * @param {number} dailyLimit - 出題数上限（デフォルト: 10）
  * @param {number} newLimit - 新規問題の上限（デフォルト: dailyLimitの半分）
+ * @param {boolean} includeEarlyReview - 先取り学習を含めるか（デフォルト: false）
  */
-async function getTodayStudyPlan(baseQuestions = null, dailyLimit = 10, newLimit = null) {
+async function getTodayStudyPlan(baseQuestions = null, dailyLimit = 10, newLimit = null, includeEarlyReview = false) {
     const allQuestions = baseQuestions || await QuizDB.getAllQuestions();
     const allStats = await QuizDB.getAllStats();
 
@@ -141,7 +202,19 @@ async function getTodayStudyPlan(baseQuestions = null, dailyLimit = 10, newLimit
 
     // 復習が必要な問題(完全習得済みは除外、ベース問題に含まれるもののみ)
     const allReviewQuestions = getQuestionsForReview(allStats);
-    const reviewQuestions = allReviewQuestions.filter(stat => baseQuestionIds.has(stat.question_id));
+    let reviewQuestions = allReviewQuestions.filter(stat => baseQuestionIds.has(stat.question_id));
+
+    // 先取り学習が有効で、今日の復習がdailyLimit未満の場合
+    let earlyReviewQuestions = [];
+    if (includeEarlyReview) {
+        const remainingSlots = dailyLimit - reviewQuestions.length;
+        if (remainingSlots > 0) {
+            // 先取り問題を取得（7日先まで）
+            const allEarlyQuestions = getEarlyReviewQuestions(allStats, 7);
+            const filteredEarlyQuestions = allEarlyQuestions.filter(stat => baseQuestionIds.has(stat.question_id));
+            earlyReviewQuestions = filteredEarlyQuestions.slice(0, remainingSlots);
+        }
+    }
 
     // 新規問題を取得(statsに記録がない問題)
     const newQuestions = allQuestions.filter(q => !statsMap.has(q.id));
@@ -153,8 +226,9 @@ async function getTodayStudyPlan(baseQuestions = null, dailyLimit = 10, newLimit
 
     return {
         review: reviewQuestions.map(s => s.question_id),
+        earlyReview: earlyReviewQuestions.map(s => s.question_id),
         new: selectedNewQuestions.map(q => q.id),
-        total: reviewQuestions.length + selectedNewQuestions.length
+        total: reviewQuestions.length + earlyReviewQuestions.length + selectedNewQuestions.length
     };
 }
 
@@ -342,6 +416,8 @@ async function getReviewScheduleStats() {
 window.SM2 = {
     calculateSM2,
     getQuestionsForReview,
+    getEarlyReviewQuestions,
+    getEarlyReviewStats,
     getNewQuestionsForToday,
     getTodayStudyPlan,
     getMasteryStats,
