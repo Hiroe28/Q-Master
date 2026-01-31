@@ -327,9 +327,117 @@ const DEFAULT_SYSTEM_PROMPT_TEMPLATE = `あなたは教育問題作成のプロ�
 
 ---
 
-## 【出力形式】
+## 【出力形式 - 厳守】
 
-必ずJSON形式で出力してください。questionsキーの配列として問題を含めてください。
+**必ず以下の正確なJSON形式で出力してください。形式を変えないでください。**
+
+### **基本形式（4択のみ: type="multiple-choice"）**
+
+\`\`\`json
+{
+  "questions": [
+    {
+      "title": "問題のタイトル",
+      "body_md": "問題文（Markdown形式）",
+      "choices": {
+        "A": "選択肢Aのテキスト",
+        "B": "選択肢Bのテキスト",
+        "C": "選択肢Cのテキスト",
+        "D": "選択肢Dのテキスト"
+      },
+      "answer": "C",
+      "explanation_md": "**正解は{{C}}です。** 解説文...",
+      "type": "multiple-choice",
+      "shuffleReady": true
+    }
+  ]
+}
+\`\`\`
+
+### **タイピング対応形式（type="both" または "typing"）**
+
+タイピングモードでは追加フィールドが必要です：
+
+\`\`\`json
+{
+  "questions": [
+    {
+      "title": "問題のタイトル",
+      "body_md": "問題文",
+      "choices": {
+        "A": "正解の選択肢",
+        "B": "誤答1",
+        "C": "誤答2",
+        "D": "誤答3"
+      },
+      "answer": "A",
+      "explanation_md": "解説文...",
+      "type": "both",
+      "typingAnswer": "正解のテキスト（タイピング入力用）",
+      "acceptableAnswers": ["正解のテキスト", "別解1", "別解2"],
+      "caseSensitive": false,
+      "strictMatch": true,
+      "shuffleReady": true
+    }
+  ]
+}
+\`\`\`
+
+### **語学学習形式（音声読み上げ対応）**
+
+語学問題では音声設定も追加します：
+
+\`\`\`json
+{
+  "questions": [
+    {
+      "title": "英単語: beautiful",
+      "body_md": "「美しい」を英語で?",
+      "choices": {
+        "A": "beautiful",
+        "B": "wonderful",
+        "C": "peaceful",
+        "D": "powerful"
+      },
+      "answer": "A",
+      "explanation_md": "**beautiful** = 美しい\\n\\n形容詞として使われます。",
+      "type": "both",
+      "typingAnswer": "beautiful",
+      "acceptableAnswers": ["beautiful", "Beautiful"],
+      "caseSensitive": false,
+      "strictMatch": true,
+      "isLanguageLearning": true,
+      "audioEnabled": true,
+      "audioLang": "en-US",
+      "shuffleReady": true
+    }
+  ]
+}
+\`\`\`
+
+---
+
+### **重要な形式ルール**
+
+1. **choices は必ずオブジェクト形式**: \`{ "A": "...", "B": "...", "C": "...", "D": "..." }\`
+   - 配列形式 \`[{key: "A", text: "..."}]\` は使わないでください
+2. **answer は必ず "A", "B", "C", "D" のいずれか**: 正解の選択肢キーを直接指定
+3. **explanation_md**: 解説文で選択肢を参照する際は \`{{A}}\`, \`{{B}}\`, \`{{C}}\`, \`{{D}}\` マーカーを使用
+4. **type**:
+   - "multiple-choice": 4択のみ
+   - "typing": タイピングのみ（4択も必須）
+   - "both": 4択とタイピング両方
+5. **タイピング関連フィールド**（type="typing" または "both" の場合）:
+   - typingAnswer: タイピングの正解テキスト
+   - acceptableAnswers: 許容する別解の配列（空配列可）
+   - caseSensitive: 大文字小文字を区別するか（通常false）
+   - strictMatch: 完全一致か（通常true）
+6. **語学学習フィールド**（英語などの語学問題の場合）:
+   - isLanguageLearning: true
+   - audioEnabled: true（音声読み上げ有効）
+   - audioLang: "en-US", "ja-JP" など
+7. **shuffleReady**: 常に \`true\` を設定
+8. **tags**（タグが指定されている場合）: \`"tags": ["タグ1", "タグ2"]\` を含める
 `;
 
 // ==================== プロンプト生成 ====================
@@ -458,26 +566,46 @@ ${typeInstruction}
     }
 
     // 語学学習の指示
-    if (languageInstruction) {
+    if (isLanguageLearning) {
         additionalInstructions += `
 ---
 
-## 【語学学習設定】
+## 【語学学習設定 - 必須フィールド】
 
-${languageInstruction}
+この問題は語学学習用です。**以下のフィールドを必ず含めてください**:
+
+\`\`\`json
+{
+  "isLanguageLearning": true,
+  "audioEnabled": true,
+  "audioLang": "${audioLang}"
+}
+\`\`\`
 `;
     }
 
     // タイピング形式の指示
     if (questionType === 'typing' || questionType === 'both') {
+        const typingType = questionType === 'typing' ? 'typing' : 'both';
         additionalInstructions += `
 ---
 
-## 【タイピング問題の設定】
+## 【タイピング問題の設定 - 必須フィールド】
 
-- 4択必須 + typingAnswer + acceptableAnswers を設定
-- caseSensitive: false
-- strictMatch: true
+type="${typingType}"を指定し、**以下のフィールドを必ず含めてください**:
+
+\`\`\`json
+{
+  "type": "${typingType}",
+  "typingAnswer": "正解のテキスト",
+  "acceptableAnswers": ["正解のテキスト", "別解があれば追加"],
+  "caseSensitive": false,
+  "strictMatch": true
+}
+\`\`\`
+
+- **typingAnswer**: ユーザーがタイピングで入力する正解
+- **acceptableAnswers**: 正解として許容する別解の配列（大文字小文字違いなど）
 `;
     }
 
@@ -488,10 +616,19 @@ ${languageInstruction}
 
 ## 【重要: タグの設定】
 
-すべての問題に以下のタグを設定してください:
+すべての問題に**以下のタグのみ**を設定してください（勝手にタグを追加しないでください）:
 \`\`\`json
 "tags": ${JSON.stringify(tags)}
 \`\`\`
+`;
+    } else {
+        // タグが指定されていない場合は、tagsフィールドを含めない
+        additionalInstructions += `
+---
+
+## 【タグについて】
+
+タグは指定されていません。JSONに"tags"フィールドを含めないでください。
 `;
     }
 
@@ -529,7 +666,7 @@ function buildUserPrompt(mode, content, instruction) {
 // ==================== API呼び出し ====================
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const ANTHROPIC_MODEL = 'claude-sonnet-4-5-20250514';
+const ANTHROPIC_MODEL = 'claude-sonnet-4-5-20250929';
 const ANTHROPIC_VERSION = '2023-06-01';
 
 async function callClaudeAPIText(systemPrompt, userPrompt) {
@@ -645,28 +782,26 @@ async function callClaudeAPIWithImages(systemPrompt, userPrompt, images) {
 }
 
 function parseAIResponse(response) {
+    // まず、```json ... ``` ブロックを抽出
+    let jsonStr = response;
+    const jsonBlockMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonBlockMatch) {
+        jsonStr = jsonBlockMatch[1].trim();
+    }
+
+    // JSONオブジェクトを抽出（最外側の { } を見つける）
+    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+        jsonStr = jsonMatch[0];
+    }
+
     try {
-        return JSON.parse(response);
-    } catch (error) {
-        console.warn('JSON解析失敗、フォールバック:', error);
-        
-        let jsonStr = response;
-        const jsonBlockMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
-        if (jsonBlockMatch) {
-            jsonStr = jsonBlockMatch[1];
-        }
-
-        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            jsonStr = jsonMatch[0];
-        }
-
-        try {
-            return JSON.parse(jsonStr);
-        } catch (parseError) {
-            console.error('JSON解析エラー:', parseError);
-            throw new Error('AIの応答を解析できませんでした');
-        }
+        const parsed = JSON.parse(jsonStr);
+        return parsed;
+    } catch (parseError) {
+        console.error('JSON解析エラー:', parseError);
+        console.error('解析対象の文字列:', jsonStr.substring(0, 500));
+        throw new Error('AIの応答を解析できませんでした');
     }
 }
 
@@ -680,15 +815,113 @@ function validateQuestions(questions, expectedType) {
     for (let i = 0; i < questions.length; i++) {
         const q = questions[i];
 
+        // AIが異なるフィールド名を使用している場合の対応
+        // body_mdがない場合、questionやbodyを代替として使用
         if (!q.body_md) {
+            if (q.question) {
+                q.body_md = q.question;
+            } else if (q.body) {
+                q.body_md = q.body;
+            } else if (q.text) {
+                q.body_md = q.text;
+            }
+        }
+
+        if (!q.body_md) {
+            console.error(`問題${i + 1}のデータ:`, q);
             throw new Error(`問題${i + 1}: 問題文が必要です`);
         }
+
+        // 選択肢の形式を正規化
+        if (!q.choices) {
+            // optionsという名前で提供されている場合
+            if (q.options) {
+                if (Array.isArray(q.options)) {
+                    // 配列形式: ["選択肢A", "選択肢B", ...] → オブジェクト形式に変換
+                    q.choices = {
+                        A: q.options[0] || '',
+                        B: q.options[1] || '',
+                        C: q.options[2] || '',
+                        D: q.options[3] || ''
+                    };
+                } else {
+                    q.choices = q.options;
+                }
+            } else if (q.answers) {
+                q.choices = q.answers;
+            }
+        }
+
+        // 配列形式のchoicesをオブジェクト形式に変換（フォールバック処理）
+        if (Array.isArray(q.choices)) {
+            console.warn(`問題${i + 1}: choicesが配列形式です。オブジェクト形式に変換します。`);
+            // 形式1: [{ key: "A", text: "...", isCorrect: true/false }, ...]
+            if (q.choices[0] && typeof q.choices[0] === 'object' && q.choices[0].key) {
+                const newChoices = {};
+                let correctAnswer = null;
+                q.choices.forEach(choice => {
+                    const key = choice.key || choice.label;
+                    const text = choice.text || choice.value || choice.content || '';
+                    if (key) {
+                        newChoices[key] = text;
+                        // isCorrectフラグから正解を特定
+                        if (choice.isCorrect === true || choice.correct === true) {
+                            correctAnswer = key;
+                        }
+                    }
+                });
+                q.choices = newChoices;
+                // answerが未設定の場合、isCorrectから設定
+                if (!q.answer && correctAnswer) {
+                    q.answer = correctAnswer;
+                }
+            } else {
+                // 形式2: ["選択肢A", "選択肢B", ...] → オブジェクト形式に変換
+                q.choices = {
+                    A: q.choices[0] || '',
+                    B: q.choices[1] || '',
+                    C: q.choices[2] || '',
+                    D: q.choices[3] || ''
+                };
+            }
+        }
+
+        // 選択肢の値がオブジェクトの場合、textプロパティを抽出
+        // 例: { A: { text: "選択肢A", ... }, B: { text: "選択肢B", ... } }
+        if (q.choices && !Array.isArray(q.choices)) {
+            ['A', 'B', 'C', 'D'].forEach(key => {
+                if (q.choices[key] && typeof q.choices[key] === 'object') {
+                    // textまたはlabelまたはvalueまたはcontentプロパティを探す
+                    const obj = q.choices[key];
+                    q.choices[key] = obj.text || obj.label || obj.value || obj.content || String(obj);
+                }
+            });
+        }
+
         if (!q.choices || !q.choices.A) {
+            console.error(`問題${i + 1}のデータ:`, q);
             throw new Error(`問題${i + 1}: 選択肢が必要です`);
         }
         if (!q.answer) {
             q.answer = 'A';
         }
+
+        // 解説のフォールバック処理
+        if (!q.explanation_md) {
+            if (q.explanation) {
+                q.explanation_md = q.explanation;
+            } else if (q.rationale) {
+                q.explanation_md = q.rationale;
+            } else {
+                q.explanation_md = '';
+            }
+        }
+
+        // タイトルのフォールバック処理
+        if (!q.title) {
+            q.title = '';
+        }
+
         if (!q.type) {
             q.type = 'multiple-choice';
         }
@@ -730,6 +963,23 @@ function validateQuestions(questions, expectedType) {
 
 // ==================== モーダル ====================
 
+/**
+ * 解説文中のマーカー {{A}}, {{B}}, {{C}}, {{D}} を実際のキーに置換
+ * AIプレビューではシャッフルしないので、そのままA, B, C, Dに置換
+ */
+function replaceMarkersInExplanation(explanation) {
+    if (!explanation) return '';
+
+    // マーカー方式: {{A}} → A
+    let result = explanation;
+    ['A', 'B', 'C', 'D'].forEach(key => {
+        const marker = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        result = result.replace(marker, key);
+    });
+
+    return result;
+}
+
 function showPreviewModal(questions) {
     AIState.generatedQuestions = questions;
     AIState.selectedQuestions = new Set(questions.map((_, i) => i));
@@ -755,6 +1005,9 @@ function showPreviewModal(questions) {
             `;
         }).join('');
 
+        // 解説のマーカーを置換
+        const explanationText = replaceMarkersInExplanation(q.explanation_md || '解説はありません');
+
         return `
             <div class="ai-preview-item" data-index="${index}">
                 <label class="ai-preview-checkbox">
@@ -771,7 +1024,7 @@ function showPreviewModal(questions) {
                     </div>
                     <details class="ai-preview-explanation-details">
                         <summary class="ai-preview-explanation-toggle">💡 解説を見る</summary>
-                        <div class="ai-preview-explanation-content markdown-content" data-markdown="${QuizUI.escapeHtml(q.explanation_md || '解説はありません')}"></div>
+                        <div class="ai-preview-explanation-content markdown-content" data-markdown="${QuizUI.escapeHtml(explanationText)}"></div>
                     </details>
                 </div>
             </div>
