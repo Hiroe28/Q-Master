@@ -206,9 +206,9 @@
   "sets.editor.searchPlaceholder": "問題を検索...",
   "sets.editor.removeSelected": "選択を除外",
 
-  "ai.apiKey.title": "🔑 OpenAI APIキー設定",
+  "ai.apiKey.title": "🔑 Anthropic APIキー設定",
   "ai.apiKey.label": "APIキー",
-  "ai.apiKey.placeholder": "sk-...",
+  "ai.apiKey.placeholder": "sk-ant-...",
   "ai.apiKey.save": "💾 保存",
   "ai.apiKey.delete": "🗑️ 削除",
 
@@ -223,6 +223,21 @@
   "ai.source.imageLabel": "画像をアップロード（最大3枚）",
   "ai.source.imageUpload": "クリックして画像を選択",
   "ai.source.imageDragDrop": "または画像をドラッグ＆ドロップ",
+
+  "ai.prompt.title": "📝 問題設定（任意）",
+  "ai.prompt.hint": "設定すると、より適切な問題が生成されます。空欄の場合は素材から自動判断します。",
+  "ai.prompt.genre": "ジャンル",
+  "ai.prompt.genrePlaceholder": "例: 高校数学、TOEIC、Python",
+  "ai.prompt.difficulty": "難易度",
+  "ai.prompt.difficultyPlaceholder": "例: 初級、中級、上級",
+  "ai.prompt.tags": "タグ（カンマ区切り）",
+  "ai.prompt.tagsPlaceholder": "例: 数学II, 微分積分, 期末テスト",
+  "ai.prompt.saveTemplate": "💾 設定を保存",
+  "ai.prompt.selectTemplate": "保存済み設定から選択",
+  "ai.prompt.noTemplate": "保存済み設定から選択...",
+  "ai.prompt.templateName": "設定名を入力してください",
+  "ai.prompt.templateSaved": "設定を保存しました",
+  "ai.prompt.templateDeleted": "設定を削除しました",
 
   "ai.creation.label": "作成オプション",
   "ai.creation.exact": "この内容で問題を作る（素材の問題数分のみ生成）",

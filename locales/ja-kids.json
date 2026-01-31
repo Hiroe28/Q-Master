@@ -206,9 +206,9 @@
   "sets.editor.searchPlaceholder": "もんだいを けんさく...",
   "sets.editor.removeSelected": "えらんだものを はずす",
 
-  "ai.apiKey.title": "🔑 OpenAI APIキー せってい",
+  "ai.apiKey.title": "🔑 Anthropic APIキー せってい",
   "ai.apiKey.label": "APIキー",
-  "ai.apiKey.placeholder": "sk-...",
+  "ai.apiKey.placeholder": "sk-ant-...",
   "ai.apiKey.save": "💾 ほぞん",
   "ai.apiKey.delete": "🗑️ さくじょ",
 
@@ -223,6 +223,21 @@
   "ai.source.imageLabel": "がぞうを アップロード（さいだい3まい）",
   "ai.source.imageUpload": "クリックして がぞうを えらぶ",
   "ai.source.imageDragDrop": "または がぞうを ドラッグ＆ドロップ",
+
+  "ai.prompt.title": "📝 もんだいせってい（かかなくても いいよ）",
+  "ai.prompt.hint": "せっていすると、もっと ぴったりな もんだいが つくれるよ。からっぽなら じどうで はんだんするよ。",
+  "ai.prompt.genre": "ジャンル",
+  "ai.prompt.genrePlaceholder": "れい: こうこう すうがく、えいけん、Python",
+  "ai.prompt.difficulty": "むずかしさ",
+  "ai.prompt.difficultyPlaceholder": "れい: かんたん、ふつう、むずかしい",
+  "ai.prompt.tags": "タグ（カンマで くぎる）",
+  "ai.prompt.tagsPlaceholder": "れい: すうがく, かけざん, テスト",
+  "ai.prompt.saveTemplate": "💾 せっていを ほぞん",
+  "ai.prompt.selectTemplate": "ほぞんずみ せっていから えらぶ",
+  "ai.prompt.noTemplate": "ほぞんずみ せっていから えらぶ...",
+  "ai.prompt.templateName": "せっていの なまえを いれてね",
+  "ai.prompt.templateSaved": "せっていを ほぞんしたよ",
+  "ai.prompt.templateDeleted": "せっていを けしたよ",
 
   "ai.creation.label": "さくせい オプション",
   "ai.creation.exact": "この ないようで もんだいを つくる",

@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'quiz_app_db';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 // データベース接続を保持
 let db = null;
@@ -96,6 +96,13 @@ async function initDB() {
                 const notificationsStore = database.createObjectStore('notifications', { keyPath: 'id' });
                 notificationsStore.createIndex('created_at', 'created_at', { unique: false });
                 notificationsStore.createIndex('read', 'read', { unique: false });
+            }
+
+            // prompt_templatesストア(AIプロンプトテンプレート)
+            if (!database.objectStoreNames.contains('prompt_templates')) {
+                const templatesStore = database.createObjectStore('prompt_templates', { keyPath: 'id' });
+                templatesStore.createIndex('name', 'name', { unique: false });
+                templatesStore.createIndex('created_at', 'created_at', { unique: false });
             }
 
             console.log('データベーススキーマを作成しました');
@@ -1347,6 +1354,103 @@ async function deleteOldNotifications() {
     }
 }
 
+// ==================== Prompt Templates (AIプロンプトテンプレート) ====================
+
+/**
+ * プロンプトテンプレートを追加
+ * @param {Object} templateData - テンプレートデータ
+ */
+async function addPromptTemplate(templateData) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('prompt_templates', 'readwrite');
+        const template = {
+            id: generateUUID(),
+            name: templateData.name || '',
+            genre: templateData.genre || '',
+            difficulty: templateData.difficulty || '',
+            defaultTags: templateData.defaultTags || [],
+            created_at: Date.now(),
+            updated_at: Date.now()
+        };
+
+        const request = store.add(template);
+        request.onsuccess = () => resolve(template);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * プロンプトテンプレートを更新
+ */
+async function updatePromptTemplate(id, updates) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('prompt_templates', 'readwrite');
+        const getRequest = store.get(id);
+
+        getRequest.onsuccess = () => {
+            const existing = getRequest.result;
+            if (!existing) {
+                reject(new Error('テンプレートが見つかりません'));
+                return;
+            }
+
+            const updated = {
+                ...existing,
+                ...updates,
+                id: id,
+                updated_at: Date.now()
+            };
+
+            const putRequest = store.put(updated);
+            putRequest.onsuccess = () => resolve(updated);
+            putRequest.onerror = () => reject(putRequest.error);
+        };
+
+        getRequest.onerror = () => reject(getRequest.error);
+    });
+}
+
+/**
+ * プロンプトテンプレートを取得
+ */
+async function getPromptTemplate(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('prompt_templates');
+        const request = store.get(id);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 全プロンプトテンプレートを取得
+ */
+async function getAllPromptTemplates() {
+    return new Promise((resolve, reject) => {
+        const store = getStore('prompt_templates');
+        const request = store.getAll();
+        request.onsuccess = () => {
+            const templates = request.result || [];
+            // 新しい順にソート
+            templates.sort((a, b) => b.created_at - a.created_at);
+            resolve(templates);
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * プロンプトテンプレートを削除
+ */
+async function deletePromptTemplate(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('prompt_templates', 'readwrite');
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
 // ==================== エクスポート ====================
 
 // グローバルにエクスポート
@@ -1413,5 +1517,11 @@ window.QuizDB = {
     getAllNotifications,
     getUnreadNotificationCount,
     deleteNotification,
-    deleteOldNotifications
+    deleteOldNotifications,
+    // Prompt Templates (AIプロンプトテンプレート)
+    addPromptTemplate,
+    updatePromptTemplate,
+    getPromptTemplate,
+    getAllPromptTemplates,
+    deletePromptTemplate
 };

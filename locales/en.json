@@ -206,9 +206,9 @@
   "sets.editor.searchPlaceholder": "Search questions...",
   "sets.editor.removeSelected": "Remove Selected",
 
-  "ai.apiKey.title": "🔑 OpenAI API Key Settings",
+  "ai.apiKey.title": "🔑 Anthropic API Key Settings",
   "ai.apiKey.label": "API Key",
-  "ai.apiKey.placeholder": "sk-...",
+  "ai.apiKey.placeholder": "sk-ant-...",
   "ai.apiKey.save": "💾 Save",
   "ai.apiKey.delete": "🗑️ Delete",
 
@@ -223,6 +223,21 @@
   "ai.source.imageLabel": "Upload images (max 3)",
   "ai.source.imageUpload": "Click to select images",
   "ai.source.imageDragDrop": "or drag and drop",
+
+  "ai.prompt.title": "📝 Question Settings (Optional)",
+  "ai.prompt.hint": "Settings help generate more appropriate questions. Auto-detected from source if left empty.",
+  "ai.prompt.genre": "Genre",
+  "ai.prompt.genrePlaceholder": "e.g., High School Math, TOEIC, Python",
+  "ai.prompt.difficulty": "Difficulty",
+  "ai.prompt.difficultyPlaceholder": "e.g., Beginner, Intermediate, Advanced",
+  "ai.prompt.tags": "Tags (comma separated)",
+  "ai.prompt.tagsPlaceholder": "e.g., Math II, Calculus, Final Exam",
+  "ai.prompt.saveTemplate": "💾 Save Settings",
+  "ai.prompt.selectTemplate": "Select from saved settings",
+  "ai.prompt.noTemplate": "Select from saved settings...",
+  "ai.prompt.templateName": "Enter a name for this setting",
+  "ai.prompt.templateSaved": "Settings saved",
+  "ai.prompt.templateDeleted": "Settings deleted",
 
   "ai.creation.label": "Creation Options",
   "ai.creation.exact": "Create questions from this content",
