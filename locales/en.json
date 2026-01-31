@@ -255,6 +255,21 @@
   "ai.preview.cancel": "Cancel",
   "ai.preview.add": "Add Selected Questions",
 
+  "ai.generateBackground": "🔄 Generate in Background",
+  "ai.backgroundGenerating": "Generating in background...",
+
+  "notification.title": "Notifications",
+  "notification.markAllRead": "Mark All Read",
+  "notification.empty": "No notifications",
+  "notification.confirm": "View",
+  "notification.time.justNow": "Just now",
+  "notification.time.minutesAgo": "{{minutes}} min ago",
+  "notification.time.hoursAgo": "{{hours}} hr ago",
+  "notification.time.daysAgo": "{{days}} days ago",
+  "notification.aiComplete": "AI Generation Complete",
+  "notification.aiCompleteMessage": "{{count}} questions generated",
+  "notification.aiError": "AI Generation Error",
+
   "data.title": "📦 Data Management",
   "data.exportZip": "📦 Full Backup (ZIP)",
   "data.exportJson": "📄 Export Questions (JSON)",

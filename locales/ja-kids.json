@@ -255,6 +255,21 @@
   "ai.preview.cancel": "キャンセル",
   "ai.preview.add": "えらんだ もんだいを ついか",
 
+  "ai.generateBackground": "🔄 うらで つくる",
+  "ai.backgroundGenerating": "うらで つくりちゅう...",
+
+  "notification.title": "おしらせ",
+  "notification.markAllRead": "ぜんぶ よんだ",
+  "notification.empty": "おしらせは ないよ",
+  "notification.confirm": "かくにんする",
+  "notification.time.justNow": "たったいま",
+  "notification.time.minutesAgo": "{{minutes}}ふん まえ",
+  "notification.time.hoursAgo": "{{hours}}じかん まえ",
+  "notification.time.daysAgo": "{{days}}にち まえ",
+  "notification.aiComplete": "もんだい できたよ！",
+  "notification.aiCompleteMessage": "{{count}}もんの もんだいが できたよ",
+  "notification.aiError": "もんだい つくれなかった",
+
   "data.title": "📦 データ かんり",
   "data.exportZip": "📦 かんぜん バックアップ (ZIP)",
   "data.exportJson": "📄 もんだいだけ エクスポート (JSON)",
