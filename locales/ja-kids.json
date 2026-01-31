@@ -38,6 +38,8 @@
   "quiz.earlyLearning.label": "⏩ さきどり がくしゅう",
   "quiz.earlyLearning.help": "きょうの ふくしゅうが すくないとき、あしたいこうの もんだいも がくしゅうできるよ",
 
+  "quiz.excludeUnlearned.label": "📖 ふくしゅう だけ（あたらしい もんだいは いれない）",
+
   "quiz.tagSelect.label": "タグを えらぶ（いくつでも えらべるよ）",
   "quiz.setSelect.label": "もんだいセットを えらぶ",
   "quiz.setSelect.help": "えらばなければ ぜんぶの もんだいが でるよ",

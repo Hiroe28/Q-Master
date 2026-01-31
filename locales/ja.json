@@ -38,6 +38,8 @@
   "quiz.earlyLearning.label": "⏩ 先取り学習を含める",
   "quiz.earlyLearning.help": "今日の復習が少ない場合、明日以降の復習を先取りして学習できます",
 
+  "quiz.excludeUnlearned.label": "📖 復習のみ（未学習を含まない）",
+
   "quiz.tagSelect.label": "タグを選択(複数選択可)",
   "quiz.setSelect.label": "問題セットを選択",
   "quiz.setSelect.help": "未選択時は全問題が対象になります",

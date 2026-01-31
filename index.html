@@ -106,13 +106,6 @@
                         </div>
                     </div>
 
-                    <!-- 今日の学習数 -->
-                    <div class="streak-today-count">
-                        <span data-i18n="streak.todayCount">今日の学習:</span>
-                        <span id="today-studied-count" class="today-count-number">0</span>
-                        <span data-i18n="streak.questions">問</span>
-                    </div>
-
                     <!-- ストリーク統計 -->
                     <div class="streak-stats">
                         <div class="streak-stat-item">
@@ -213,15 +206,15 @@
                     </div>
                 </div>
 
-                <!-- 先取り学習オプション（今日の学習モード用） -->
-                <div class="form-group" id="early-learning-option" style="display: block;">
+                <!-- 今日の学習モード用オプション -->
+                <div class="form-group today-mode-options" id="today-mode-options" style="display: block;">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="exclude-unlearned-mode" class="form-checkbox">
+                        <span data-i18n="quiz.excludeUnlearned.label">📖 復習のみ（未学習を含まない）</span>
+                    </label>
                     <label class="checkbox-label early-learning-label">
                         <input type="checkbox" id="early-learning-mode" class="form-checkbox">
                         <span data-i18n="quiz.earlyLearning.label">⏩ 先取り学習を含める</span>
-                        <span class="info-tooltip-wrapper" id="early-learning-info">
-                            <span class="info-icon">?</span>
-                            <span class="info-tooltip" data-i18n="quiz.earlyLearning.help">今日の復習が少ない場合、明日以降の復習を先取りして学習できます</span>
-                        </span>
                     </label>
                 </div>
 

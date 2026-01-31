@@ -156,14 +156,21 @@ async function startIntegratedMode() {
             const earlyLearningCheckbox = document.getElementById('early-learning-mode');
             const includeEarlyReview = earlyLearningCheckbox?.checked || false;
 
-            // 出題数に応じて新規問題の上限を設定（約半分を新規に割り当て）
-            const newQuestionsLimit = Math.ceil(selectedCount / 2);
+            // 未学習を含まないオプションを取得
+            const excludeUnlearnedCheckbox = document.getElementById('exclude-unlearned-mode');
+            const excludeUnlearned = excludeUnlearnedCheckbox?.checked || false;
+
+            // 出題数に応じて新規問題の上限を設定（未学習を除外する場合は0）
+            const newQuestionsLimit = excludeUnlearned ? 0 : Math.ceil(selectedCount / 2);
             const studyPlan = await SM2.getTodayStudyPlan(baseQuestions, selectedCount, newQuestionsLimit, includeEarlyReview);
 
             const newQuestions = [];
-            for (const id of studyPlan.new) {
-                const q = baseQuestions.find(bq => bq.id === id);
-                if (q) newQuestions.push(q);
+            // 未学習を除外しない場合のみ新規問題を追加
+            if (!excludeUnlearned) {
+                for (const id of studyPlan.new) {
+                    const q = baseQuestions.find(bq => bq.id === id);
+                    if (q) newQuestions.push(q);
+                }
             }
 
             const reviewQuestions = [];

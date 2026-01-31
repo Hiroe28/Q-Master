@@ -158,11 +158,22 @@
     padding: var(--spacing-sm);
 }
 
+/* 今日のモードオプション */
+.today-mode-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.today-mode-options .checkbox-label {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
 /* 先取り学習オプション */
 .early-learning-label {
     background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius);
     border: 1px solid rgba(255, 193, 7, 0.3);
 }
 

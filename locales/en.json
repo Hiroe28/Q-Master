@@ -38,6 +38,8 @@
   "quiz.earlyLearning.label": "⏩ Include Early Review",
   "quiz.earlyLearning.help": "Study upcoming reviews early when today's reviews are few",
 
+  "quiz.excludeUnlearned.label": "📖 Review Only (exclude unstudied)",
+
   "quiz.tagSelect.label": "Select Tags (multiple)",
   "quiz.setSelect.label": "Select Question Set",
   "quiz.setSelect.help": "All questions will be used if none selected",
