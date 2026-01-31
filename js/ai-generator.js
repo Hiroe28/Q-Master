@@ -1,6 +1,6 @@
 /**
  * ai-generator.js - AI問題生成機能
- * OpenAI Responses API (GPT-5 mini) + Structured Outputsを使用
+ * Anthropic Messages API (Claude Sonnet 4.5) を使用
  */
 
 // ==================== 状態管理 ====================
@@ -20,14 +20,14 @@ const AIState = {
 
 function saveApiKey(key) {
     if (!key || !key.trim()) {
-        localStorage.removeItem('openai_api_key');
+        localStorage.removeItem('anthropic_api_key');
         return;
     }
-    localStorage.setItem('openai_api_key', btoa(key.trim()));
+    localStorage.setItem('anthropic_api_key', btoa(key.trim()));
 }
 
 function getApiKey() {
-    const encoded = localStorage.getItem('openai_api_key');
+    const encoded = localStorage.getItem('anthropic_api_key');
     if (!encoded) return null;
     try {
         return atob(encoded);
@@ -38,7 +38,7 @@ function getApiKey() {
 }
 
 function deleteApiKey() {
-    localStorage.removeItem('openai_api_key');
+    localStorage.removeItem('anthropic_api_key');
 }
 
 function hasApiKey() {
@@ -48,7 +48,7 @@ function hasApiKey() {
 // ==================== UI更新 ====================
 
 function updateApiKeyUI() {
-    const apiKeyInput = document.getElementById('openai-api-key');
+    const apiKeyInput = document.getElementById('anthropic-api-key');
     const statusEl = document.getElementById('api-key-status');
     const generatorDisabled = document.getElementById('ai-generator-disabled');
     const generatorForm = document.getElementById('ai-generator-form');
@@ -227,9 +227,118 @@ function getQuestionSchema() {
     };
 }
 
+// ==================== プロンプトテンプレート ====================
+
+/**
+ * デフォルトのシステムプロンプトテンプレート
+ * ジャンル・難易度・タグを動的に挿入して使用
+ */
+const DEFAULT_SYSTEM_PROMPT_TEMPLATE = `あなたは教育問題作成のプロフェッショナルです。
+与えられた情報から、高品質な学習問題を作成してください。以下の形式で、適切な難易度の問題を作成します。できる限り、全ての情報をマスターできるようにお願い致します。
+
+**対象ジャンル**: {{GENRE}}
+**難易度レベル**: {{DIFFICULTY}}
+**タグ**: {{TAGS}}
+
+問題文や解説では、適切な箇所でMarkdownの表を活用してください。
+- 複数の概念や制度を比較する場合
+- 計算過程を整理して示す場合
+- 分類や体系を整理する場合
+- 数値データを見やすく提示する場合
+などで表を使うと、理解しやすくなります。無駄な多用は避けてください。
+
+**タイトル**: 問題内容がわかりやすい短い見出しを付けてください。答えを含んでも構いません(学習時は非表示のため)。
+
+**正答の配置**: 正答はA,B,C,Dにランダムにしてバランスよく配置し、どれかに偏らないようにしてください。
+
+---
+
+## 【選択肢シャッフル対応 - 最重要】
+
+このアプリは選択肢シャッフル機能を搭載しています。解説で選択肢を参照する際は、**必ずマーカー方式を使用**してください。
+
+### **マーカー方式とは**
+
+解説中で選択肢を参照する際、\`{{A}}\`, \`{{B}}\`, \`{{C}}\`, \`{{D}}\`の記法を使います。
+シャッフル時、アプリが自動的に正しい選択肢キーに置換します。
+
+### **なぜマーカー方式が必要か**
+
+- シャッフル時、選択肢の**内容**は移動しますが、**ラベル(A,B,C,D)は固定**です
+- 例: 元々「A: 正解」だったものが、シャッフル後は「C: 正解」の位置に移動
+- マーカーを使わないと、解説と実際の選択肢が一致しなくなります
+
+### **必須ルール**
+
+1. **すべての問題で\`shuffleReady: true\`を設定**
+2. **解説では必ず\`{{A}}\`, \`{{B}}\`, \`{{C}}\`, \`{{D}}\`を使用**
+3. **生のA, B, C, Dは絶対に使わない**
+
+---
+
+## 【解説の書き方 - 重要】
+
+### **簡潔さを最優先**
+- 解説は全体で**200〜300文字程度**を目安に
+- 冗長な説明は避け、要点を簡潔に
+
+### **構成**
+1. **正解の理由**(1〜2文) - \`**正解は{{A}}です。**\`のように太字で強調
+2. **誤答の理由**(各1文) - マーカー(\`{{B}}:\`, \`{{C}}:\`など)を使って簡潔に説明
+3. **覚え方や補足**(1文) - 必要な場合のみ
+
+### **Markdown形式必須**
+- 改行・太字・箇条書きを活用
+- 表は本当に必要な場合のみ(1つまで)
+- 読みやすさ最優先
+
+---
+
+## 【解説の良い例】
+
+### 例: 理科(生物)
+
+✅ **良い例(マーカー方式・簡潔で読みやすい):**
+\`\`\`markdown
+**正解は{{C}}です。** ミトコンドリアは細胞内でATPを生成する「エネルギー工場」です。
+
+**誤答の理由:**
+- {{A}}: 葉緑体は光合成を行う器官で、植物細胞にのみ存在します
+- {{B}}: リボソームはタンパク質を合成する器官です
+- {{D}}: ゴルジ体はタンパク質の修飾・輸送を行います
+
+**覚え方:** ミト=ATP、リボ=タンパク質
+\`\`\`
+
+---
+
+## 【タグ設定】
+
+タグは生成された問題に自動的に設定されます。
+指定されたタグ: {{TAGS}}
+
+---
+
+## 【LaTeX数式】
+
+数学・物理・化学で必須。
+インライン:\`$F=ma$\`
+ディスプレイ:\`$$x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$$\`
+
+---
+
+## 【出力形式】
+
+必ずJSON形式で出力してください。questionsキーの配列として問題を含めてください。
+`;
+
 // ==================== プロンプト生成 ====================
 
-function buildSystemPrompt(questionType, isLanguageLearning, audioLang, numImages, mode) {
+/**
+ * ジャンル・難易度・タグを含むシステムプロンプトを構築
+ */
+function buildSystemPrompt(questionType, isLanguageLearning, audioLang, numImages, mode, promptSettings = {}) {
+    const { genre, difficulty, tags } = promptSettings;
     let typeInstruction = '';
 
     if (questionType === 'multiple-choice') {
@@ -297,76 +406,96 @@ B「サービス維持に使われるデータ」
 `;
     }
 
-    return `教育問題作成プロ。素材から高品質問題を作成。
-${imageInstruction}
+    // ジャンル・難易度・タグが指定されている場合はデフォルトテンプレートを使用
+    const genreText = genre || '指定なし（素材から判断）';
+    const difficultyText = difficulty || '指定なし（素材から判断）';
+    const tagsText = tags && tags.length > 0 ? tags.join(', ') : '指定なし（素材から判断）';
 
-**原則**
-1. 素材の内容のみ使用
-2. 問題文と選択肢を分離
-3. 画像の選択肢はA,B,C,Dに変換
-4. **解説は必ずMarkdown形式で記述**。問題文はMarkdownマストではない。
-5. **タイトルは問題内容がわかりやすい短い見出しを付ける**（答えを含んでも良い。学習時は非表示のため）
-${modeInstruction}
+    // デフォルトテンプレートにパラメータを挿入
+    let basePrompt = DEFAULT_SYSTEM_PROMPT_TEMPLATE
+        .replace('{{GENRE}}', genreText)
+        .replace('{{DIFFICULTY}}', difficultyText)
+        .replace(/\{\{TAGS\}\}/g, tagsText);
 
-**出題形式**
+    // 追加の指示を構築
+    let additionalInstructions = '';
+
+    // 画像処理の指示
+    if (numImages > 0) {
+        additionalInstructions += `
+---
+
+## 【画像からの問題作成】
+
+**画像${numImages}枚から問題を作成してください。**
+
+**最重要: 画像の選択肢処理**
+画像に選択肢(ア、イ、ウ、エなど)がある場合:
+- **問題文には選択肢内容を含めない**
+- 選択肢のみ抽出してA,B,C,Dに変換
+- 「ア→A」「イ→B」「ウ→C」「エ→D」
+
+**画像内容を網羅**
+- 教科書: 全重要概念を問題化
+- 用語集: 各項目1問(最大10問)
+- 表/グラフ: 各行列の内容
+`;
+    }
+
+    // 出題形式の指示
+    additionalInstructions += `
+---
+
+## 【出題形式】
+
 ${typeInstruction}
 どの形式でも4択必須(minLength:1)
+`;
 
-**ルール**
+    // モード別の問題数指示
+    if (modeInstruction) {
+        additionalInstructions += modeInstruction;
+    }
 
-1. **問題文**: 
-   - 選択肢内容を含めない。問いのみ
-   - 複数の要素がある場合は改行で見やすく
+    // 語学学習の指示
+    if (languageInstruction) {
+        additionalInstructions += `
+---
 
-2. **選択肢(本試験レベル)**:
-   - 正解をA-Dにランダム配置
-   - ひっかけ: 部分的正解や微妙な誤り
-   - 具体的で明確
-
-3. **Markdown表**: 比較/計算/分類/数値で使用。無駄な多用避ける。
-
-4. **LaTeX数式**: 数学/物理/化学で必須。
-   インライン:\`$F=ma$\`
-   ディスプレイ:\`$$x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$$\`
-
-5. **解説(Markdown必須・200-300文字)**:
-
-   **必須フォーマット:**
-   - 正解理由を**太字**で強調
-   - 誤答は箇条書き(- または番号)で整理
-   - 改行を適切に使い読みやすく
-
-   **重要: 選択肢シャッフル対応（マーカー方式）**
-   - 解説で選択肢キーを参照する場合は **{{A}}, {{B}}, {{C}}, {{D}}** のマーカー記法を使用
-   - マーカーはシャッフル時に自動的に置換される
-   - shuffleReady: true を必ず設定
-
-   **良い例（マーカー方式）:**
-   \`\`\`
-   **正解は{{A}}です。** ROE(自己資本利益率)が高いほど、株主資本を効率的に活用していることを示します。
-
-   **誤答解説:**
-   - {{B}}: ROEは「逆」ではなく、高いほど効率的です
-   - {{C}}: ROAと自己資本比率は別の指標です
-   - {{D}}: 部分的に正解ですが、{{A}}がより本質的な説明です
-
-   **覚え方:** E=Equity(株主資本)、A=Assets(総資産)
-   \`\`\`
-
-   **悪い例(これは避ける - 生のキーを使用):**
-   \`\`\`
-   正解はA。B:逆。C:無関係。D:正しいがAがより本質的。
-   \`\`\`
-
-6. **タイピング(typing/both)**:
-   4択必須+typingAnswer+acceptableAnswers
-   caseSensitive=false, strictMatch=true
+## 【語学学習設定】
 
 ${languageInstruction}
+`;
+    }
 
-**重要: すべての問題文と解説でMarkdownを活用し、改行・太字・箇条書きを使って読みやすくすること**
+    // タイピング形式の指示
+    if (questionType === 'typing' || questionType === 'both') {
+        additionalInstructions += `
+---
 
-JSON Schemaに厳密準拠。`;
+## 【タイピング問題の設定】
+
+- 4択必須 + typingAnswer + acceptableAnswers を設定
+- caseSensitive: false
+- strictMatch: true
+`;
+    }
+
+    // タグを問題に含める指示
+    if (tags && tags.length > 0) {
+        additionalInstructions += `
+---
+
+## 【重要: タグの設定】
+
+すべての問題に以下のタグを設定してください:
+\`\`\`json
+"tags": ${JSON.stringify(tags)}
+\`\`\`
+`;
+    }
+
+    return basePrompt + additionalInstructions;
 }
 
 
@@ -399,32 +528,31 @@ function buildUserPrompt(mode, content, instruction) {
 
 // ==================== API呼び出し ====================
 
-async function callOpenAIAPIText(systemPrompt, userPrompt) {
+const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
+const ANTHROPIC_MODEL = 'claude-sonnet-4-5-20250514';
+const ANTHROPIC_VERSION = '2023-06-01';
+
+async function callClaudeAPIText(systemPrompt, userPrompt) {
     const apiKey = getApiKey();
     if (!apiKey) {
         throw new Error('APIキーが設定されていません');
     }
 
-    const response = await fetch('https://api.openai.com/v1/responses', {
+    const response = await fetch(ANTHROPIC_API_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+            'x-api-key': apiKey,
+            'anthropic-version': ANTHROPIC_VERSION,
+            'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-            model: 'gpt-5-mini',
-            input: [
-                { role: 'system', content: systemPrompt },
+            model: ANTHROPIC_MODEL,
+            max_tokens: 8192,
+            system: systemPrompt,
+            messages: [
                 { role: 'user', content: userPrompt }
-            ],
-            text: {
-                format: {
-                    type: 'json_schema',
-                    name: 'quiz_questions',
-                    strict: true,
-                    schema: getQuestionSchema()
-                }
-            }
+            ]
         })
     });
 
@@ -440,57 +568,55 @@ async function callOpenAIAPIText(systemPrompt, userPrompt) {
     }
 
     const data = await response.json();
-    
-    if (data.output && Array.isArray(data.output)) {
-        const messageItem = data.output.find(item => item.type === 'message');
-        if (messageItem && messageItem.content && Array.isArray(messageItem.content)) {
-            const textContent = messageItem.content.find(c => c.type === 'output_text');
-            if (textContent && textContent.text) {
-                return textContent.text;
-            }
+
+    // Anthropic Messages APIのレスポンス形式
+    if (data.content && Array.isArray(data.content)) {
+        const textContent = data.content.find(c => c.type === 'text');
+        if (textContent && textContent.text) {
+            return textContent.text;
         }
     }
-    
-    return data.output_text || JSON.stringify(data.output?.[0]);
+
+    throw new Error('APIからの応答を解析できませんでした');
 }
 
-async function callOpenAIAPIWithImages(systemPrompt, userPrompt, images) {
+async function callClaudeAPIWithImages(systemPrompt, userPrompt, images) {
     const apiKey = getApiKey();
     if (!apiKey) {
         throw new Error('APIキーが設定されていません');
     }
 
+    // Anthropic形式の画像コンテンツを作成
     const imageContents = images.map(img => ({
-        type: 'input_image',
-        image_url: `data:${img.mimeType};base64,${img.base64}`
+        type: 'image',
+        source: {
+            type: 'base64',
+            media_type: img.mimeType,
+            data: img.base64
+        }
     }));
 
-    const response = await fetch('https://api.openai.com/v1/responses', {
+    const response = await fetch(ANTHROPIC_API_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+            'x-api-key': apiKey,
+            'anthropic-version': ANTHROPIC_VERSION,
+            'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-            model: 'gpt-5-mini',
-            input: [
-                { role: 'system', content: systemPrompt },
+            model: ANTHROPIC_MODEL,
+            max_tokens: 8192,
+            system: systemPrompt,
+            messages: [
                 {
                     role: 'user',
                     content: [
                         ...imageContents,
-                        { type: 'input_text', text: userPrompt }
+                        { type: 'text', text: userPrompt }
                     ]
                 }
-            ],
-            text: {
-                format: {
-                    type: 'json_schema',
-                    name: 'quiz_questions',
-                    strict: true,
-                    schema: getQuestionSchema()
-                }
-            }
+            ]
         })
     });
 
@@ -506,18 +632,16 @@ async function callOpenAIAPIWithImages(systemPrompt, userPrompt, images) {
     }
 
     const data = await response.json();
-    
-    if (data.output && Array.isArray(data.output)) {
-        const messageItem = data.output.find(item => item.type === 'message');
-        if (messageItem && messageItem.content && Array.isArray(messageItem.content)) {
-            const textContent = messageItem.content.find(c => c.type === 'output_text');
-            if (textContent && textContent.text) {
-                return textContent.text;
-            }
+
+    // Anthropic Messages APIのレスポンス形式
+    if (data.content && Array.isArray(data.content)) {
+        const textContent = data.content.find(c => c.type === 'text');
+        if (textContent && textContent.text) {
+            return textContent.text;
         }
     }
-    
-    return data.output_text || JSON.stringify(data.output?.[0]);
+
+    throw new Error('APIからの応答を解析できませんでした');
 }
 
 function parseAIResponse(response) {
@@ -814,13 +938,109 @@ async function addSelectedQuestions() {
 function resetGeneratorForm() {
     const sourceText = document.getElementById('ai-source-text');
     const instruction = document.getElementById('ai-instruction');
+    const genre = document.getElementById('ai-genre');
+    const difficulty = document.getElementById('ai-difficulty');
+    const tags = document.getElementById('ai-tags');
 
     if (sourceText) sourceText.value = '';
     if (instruction) instruction.value = '';
+    if (genre) genre.value = '';
+    if (difficulty) difficulty.value = '';
+    if (tags) tags.value = '';
 
     clearAllImages();
     AIState.targetSetId = null;
     AIState.newSetName = null;
+}
+
+// ==================== プロンプトテンプレート管理 ====================
+
+/**
+ * 保存済みテンプレートのセレクトボックスを更新
+ */
+async function updateTemplateSelect() {
+    const selectEl = document.getElementById('ai-template-select');
+    if (!selectEl) return;
+
+    try {
+        const templates = await QuizDB.getAllPromptTemplates();
+
+        // 最初のオプションを保持
+        const firstOption = selectEl.options[0];
+        selectEl.innerHTML = '';
+        selectEl.appendChild(firstOption);
+
+        templates.forEach(template => {
+            const option = document.createElement('option');
+            option.value = template.id;
+            option.textContent = template.name;
+            option.dataset.genre = template.genre || '';
+            option.dataset.difficulty = template.difficulty || '';
+            option.dataset.tags = (template.defaultTags || []).join(', ');
+            selectEl.appendChild(option);
+        });
+    } catch (error) {
+        console.error('テンプレート一覧の取得エラー:', error);
+    }
+}
+
+/**
+ * 現在の設定をテンプレートとして保存
+ */
+async function saveCurrentTemplate() {
+    const genre = document.getElementById('ai-genre')?.value.trim() || '';
+    const difficulty = document.getElementById('ai-difficulty')?.value.trim() || '';
+    const tagsInput = document.getElementById('ai-tags')?.value.trim() || '';
+    const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+    if (!genre && !difficulty && tags.length === 0) {
+        QuizUI.showToast('保存する設定を入力してください', 'error');
+        return;
+    }
+
+    // テンプレート名を入力
+    const name = prompt(I18n.t('ai.prompt.templateName'));
+    if (!name || !name.trim()) {
+        return;
+    }
+
+    try {
+        await QuizDB.addPromptTemplate({
+            name: name.trim(),
+            genre,
+            difficulty,
+            defaultTags: tags
+        });
+
+        QuizUI.showToast(I18n.t('ai.prompt.templateSaved'), 'success');
+        await updateTemplateSelect();
+    } catch (error) {
+        console.error('テンプレート保存エラー:', error);
+        QuizUI.showToast('保存に失敗しました', 'error');
+    }
+}
+
+/**
+ * テンプレートを選択して適用
+ */
+async function applyTemplate(templateId) {
+    if (!templateId) return;
+
+    try {
+        const template = await QuizDB.getPromptTemplate(templateId);
+        if (!template) return;
+
+        const genreEl = document.getElementById('ai-genre');
+        const difficultyEl = document.getElementById('ai-difficulty');
+        const tagsEl = document.getElementById('ai-tags');
+
+        if (genreEl) genreEl.value = template.genre || '';
+        if (difficultyEl) difficultyEl.value = template.difficulty || '';
+        if (tagsEl) tagsEl.value = (template.defaultTags || []).join(', ');
+
+    } catch (error) {
+        console.error('テンプレート適用エラー:', error);
+    }
 }
 
 // ==================== メイン生成 ====================
@@ -835,6 +1055,12 @@ async function generateQuestions() {
         const audioLang = document.getElementById('ai-audio-lang')?.value || 'en-US';
         const instruction = document.getElementById('ai-instruction')?.value.trim() || '';
         const targetSetOption = document.querySelector('input[name="ai-target-set"]:checked')?.value || 'none';
+
+        // プロンプト設定を取得
+        const genre = document.getElementById('ai-genre')?.value.trim() || '';
+        const difficulty = document.getElementById('ai-difficulty')?.value.trim() || '';
+        const tagsInput = document.getElementById('ai-tags')?.value.trim() || '';
+        const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
 
         if (sourceType === 'text' && !sourceText) {
             QuizUI.showToast('素材テキストを入力してください', 'error');
@@ -883,21 +1109,23 @@ async function generateQuestions() {
         
         QuizUI.showLoading(loadingMessage);
 
-        // ★ modeを追加
+        // プロンプト設定を構築
+        const promptSettings = { genre, difficulty, tags };
         const systemPrompt = buildSystemPrompt(
             questionType,
             isLanguageLearning,
             audioLang,
             isImageInput ? AIState.uploadedImages.length : 0,
-            mode  // ← 追加
+            mode,
+            promptSettings
         );
         const userPrompt = buildUserPrompt(mode, isImageInput ? '' : sourceText, instruction);
 
         let response;
         if (isImageInput) {
-            response = await callOpenAIAPIWithImages(systemPrompt, userPrompt, AIState.uploadedImages);
+            response = await callClaudeAPIWithImages(systemPrompt, userPrompt, AIState.uploadedImages);
         } else {
-            response = await callOpenAIAPIText(systemPrompt, userPrompt);
+            response = await callClaudeAPIText(systemPrompt, userPrompt);
         }
 
         const result = parseAIResponse(response);
@@ -929,6 +1157,12 @@ async function generateQuestionsBackground() {
         const audioLang = document.getElementById('ai-audio-lang')?.value || 'en-US';
         const instruction = document.getElementById('ai-instruction')?.value.trim() || '';
         const targetSetOption = document.querySelector('input[name="ai-target-set"]:checked')?.value || 'none';
+
+        // プロンプト設定を取得
+        const genre = document.getElementById('ai-genre')?.value.trim() || '';
+        const difficulty = document.getElementById('ai-difficulty')?.value.trim() || '';
+        const tagsInput = document.getElementById('ai-tags')?.value.trim() || '';
+        const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
 
         if (sourceType === 'text' && !sourceText) {
             QuizUI.showToast('素材テキストを入力してください', 'error');
@@ -986,20 +1220,22 @@ async function generateQuestionsBackground() {
         // バックグラウンドで生成処理を実行
         try {
             const isImageInput = sourceType === 'image';
+            const promptSettings = { genre, difficulty, tags };
             const systemPrompt = buildSystemPrompt(
                 questionType,
                 isLanguageLearning,
                 audioLang,
                 isImageInput ? imagesToProcess.length : 0,
-                mode
+                mode,
+                promptSettings
             );
             const userPrompt = buildUserPrompt(mode, isImageInput ? '' : sourceText, instruction);
 
             let response;
             if (isImageInput) {
-                response = await callOpenAIAPIWithImages(systemPrompt, userPrompt, imagesToProcess);
+                response = await callClaudeAPIWithImages(systemPrompt, userPrompt, imagesToProcess);
             } else {
-                response = await callOpenAIAPIText(systemPrompt, userPrompt);
+                response = await callClaudeAPIText(systemPrompt, userPrompt);
             }
 
             const result = parseAIResponse(response);
@@ -1071,7 +1307,7 @@ function initAIGenerator() {
     const saveApiKeyBtn = document.getElementById('save-api-key-btn');
     if (saveApiKeyBtn) {
         saveApiKeyBtn.addEventListener('click', () => {
-            const input = document.getElementById('openai-api-key');
+            const input = document.getElementById('anthropic-api-key');
             const key = input?.value.trim();
 
             if (key === '••••••••••••••••') {
@@ -1084,8 +1320,8 @@ function initAIGenerator() {
                 return;
             }
 
-            if (!key.startsWith('sk-')) {
-                QuizUI.showToast('有効なOpenAI APIキーを入力してください', 'error');
+            if (!key.startsWith('sk-ant-')) {
+                QuizUI.showToast('有効なAnthropic APIキーを入力してください（sk-ant-で始まる形式）', 'error');
                 return;
             }
 
@@ -1110,7 +1346,7 @@ function initAIGenerator() {
     const toggleApiKeyBtn = document.getElementById('toggle-api-key-btn');
     if (toggleApiKeyBtn) {
         toggleApiKeyBtn.addEventListener('click', () => {
-            const input = document.getElementById('openai-api-key');
+            const input = document.getElementById('anthropic-api-key');
             if (input) {
                 if (input.type === 'password') {
                     const key = getApiKey();
@@ -1233,8 +1469,23 @@ function initAIGenerator() {
         generateBgBtn.addEventListener('click', generateQuestionsBackground);
     }
 
+    // テンプレート保存ボタン
+    const saveTemplateBtn = document.getElementById('ai-save-template-btn');
+    if (saveTemplateBtn) {
+        saveTemplateBtn.addEventListener('click', saveCurrentTemplate);
+    }
+
+    // テンプレート選択
+    const templateSelect = document.getElementById('ai-template-select');
+    if (templateSelect) {
+        templateSelect.addEventListener('change', (e) => {
+            applyTemplate(e.target.value);
+        });
+    }
+
     setupPreviewModalEvents();
     updateApiKeyUI();
+    updateTemplateSelect();
 }
 
 function setupPreviewModalEvents() {
@@ -1294,7 +1545,10 @@ window.AIGenerator = {
     hidePreviewModal,
     addSelectedQuestions,
     getQuestionSchema,
-    updateBackgroundIndicator
+    updateBackgroundIndicator,
+    updateTemplateSelect,
+    saveCurrentTemplate,
+    applyTemplate
 };
 
 window.generateQuestions = generateQuestions;

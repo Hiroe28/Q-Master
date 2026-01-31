@@ -829,12 +829,12 @@
             <div id="ai-tab" class="manage-tab-content">
                 <!-- APIキー設定セクション -->
                 <div class="api-key-section">
-                    <h3 data-i18n="ai.apiKey.title">🔑 OpenAI APIキー設定</h3>
+                    <h3 data-i18n="ai.apiKey.title">🔑 Anthropic APIキー設定</h3>
                     <div class="api-key-form">
                         <div class="form-group">
-                            <label for="openai-api-key" data-i18n="ai.apiKey.label">APIキー</label>
+                            <label for="anthropic-api-key" data-i18n="ai.apiKey.label">APIキー</label>
                             <div class="api-key-input-wrapper">
-                                <input type="password" id="openai-api-key" class="form-input" data-i18n-placeholder="ai.apiKey.placeholder" placeholder="sk-...">
+                                <input type="password" id="anthropic-api-key" class="form-input" data-i18n-placeholder="ai.apiKey.placeholder" placeholder="sk-ant-...">
                                 <button type="button" id="toggle-api-key-btn" class="btn btn-small btn-secondary">👁️</button>
                             </div>
                         </div>
@@ -907,6 +907,39 @@
                                         <span data-i18n="ai.source.imageUpload">クリックして画像を選択</span>
                                         <span class="upload-hint" data-i18n="ai.source.imageDragDrop">または画像をドラッグ＆ドロップ</span>
                                     </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- プロンプト設定 -->
+                        <div class="form-group ai-prompt-settings">
+                            <label data-i18n="ai.prompt.title">📝 問題設定（任意）</label>
+                            <p class="form-hint" data-i18n="ai.prompt.hint">設定すると、より適切な問題が生成されます。空欄の場合は素材から自動判断します。</p>
+
+                            <div class="ai-prompt-fields">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label for="ai-genre" data-i18n="ai.prompt.genre">ジャンル</label>
+                                        <input type="text" id="ai-genre" class="form-input" data-i18n-placeholder="ai.prompt.genrePlaceholder" placeholder="例: 高校数学、TOEIC、Python">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="ai-difficulty" data-i18n="ai.prompt.difficulty">難易度</label>
+                                        <input type="text" id="ai-difficulty" class="form-input" data-i18n-placeholder="ai.prompt.difficultyPlaceholder" placeholder="例: 初級、中級、上級">
+                                    </div>
+                                </div>
+                                <div class="form-field">
+                                    <label for="ai-tags" data-i18n="ai.prompt.tags">タグ（カンマ区切り）</label>
+                                    <input type="text" id="ai-tags" class="form-input" data-i18n-placeholder="ai.prompt.tagsPlaceholder" placeholder="例: 数学II, 微分積分, 期末テスト">
+                                </div>
+
+                                <!-- テンプレート保存・選択 -->
+                                <div class="ai-template-actions">
+                                    <button type="button" id="ai-save-template-btn" class="btn btn-small btn-secondary" data-i18n="ai.prompt.saveTemplate">
+                                        💾 設定を保存
+                                    </button>
+                                    <select id="ai-template-select" class="form-select" data-i18n-title="ai.prompt.selectTemplate">
+                                        <option value="" data-i18n="ai.prompt.noTemplate">保存済み設定から選択...</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
