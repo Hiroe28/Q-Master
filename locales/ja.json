@@ -255,6 +255,21 @@
   "ai.preview.cancel": "キャンセル",
   "ai.preview.add": "選択した問題を追加",
 
+  "ai.generateBackground": "🔄 バックグラウンドで生成",
+  "ai.backgroundGenerating": "バックグラウンドで生成中...",
+
+  "notification.title": "通知",
+  "notification.markAllRead": "すべて既読",
+  "notification.empty": "通知はありません",
+  "notification.confirm": "確認する",
+  "notification.time.justNow": "たった今",
+  "notification.time.minutesAgo": "{{minutes}}分前",
+  "notification.time.hoursAgo": "{{hours}}時間前",
+  "notification.time.daysAgo": "{{days}}日前",
+  "notification.aiComplete": "AI問題生成完了",
+  "notification.aiCompleteMessage": "{{count}}問の問題が生成されました",
+  "notification.aiError": "AI問題生成エラー",
+
   "data.title": "📦 データ管理",
   "data.exportZip": "📦 完全バックアップ (ZIP)",
   "data.exportJson": "📄 問題のみエクスポート (JSON)",

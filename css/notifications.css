@@ -1,0 +1,452 @@
+/**
+ * notifications.css - 通知システムスタイル
+ * バックグラウンド生成通知、通知パネル等
+ */
+
+/* ==================== ヘッダーアクション ==================== */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ==================== 通知ベル ==================== */
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-bell {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.notification-bell:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.bell-icon {
+    font-size: 1.4rem;
+    filter: grayscale(0);
+}
+
+/* 通知バッジ */
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ==================== 通知パネル ==================== */
+
+.notification-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 360px;
+    max-width: calc(100vw - 20px);
+    max-height: 70vh;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+.notification-panel.active {
+    display: flex;
+}
+
+/* パネルヘッダー */
+.notification-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.notification-panel-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color, #4a90d9);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.mark-all-read-btn:hover {
+    background-color: rgba(74, 144, 217, 0.1);
+}
+
+/* 通知リスト */
+.notification-list {
+    overflow-y: auto;
+    flex: 1;
+    max-height: 400px;
+}
+
+/* 空状態 */
+.notification-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #888;
+}
+
+.notification-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* 通知アイテム */
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #f0f7ff;
+}
+
+.notification-item.unread:hover {
+    background-color: #e5f0fc;
+}
+
+.notification-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.notification-action-btn {
+    background: var(--primary-color, #4a90d9);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.notification-action-btn:hover {
+    background: var(--primary-hover, #3a7bc8);
+}
+
+.notification-delete-btn {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.notification-delete-btn:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+/* ==================== バックグラウンド生成ボタン ==================== */
+
+.ai-generate-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.ai-generate-actions .btn {
+    flex: 1;
+    min-width: 200px;
+}
+
+#generate-questions-bg-btn {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border: none;
+}
+
+#generate-questions-bg-btn:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #3d4246 100%);
+}
+
+/* バックグラウンド生成中インジケーター */
+.background-generating-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    background: linear-gradient(135deg, #e8f4fd 0%, #d4e9f7 100%);
+    border-radius: 8px;
+    color: #2980b9;
+    font-size: 0.9rem;
+}
+
+.spinner-small {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(41, 128, 185, 0.3);
+    border-top-color: #2980b9;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==================== モバイル対応 ==================== */
+
+@media (max-width: 600px) {
+    .header-actions {
+        gap: 8px;
+    }
+
+    .notification-bell {
+        padding: 6px;
+    }
+
+    .bell-icon {
+        font-size: 1.2rem;
+    }
+
+    .notification-badge {
+        min-width: 16px;
+        height: 16px;
+        font-size: 0.6rem;
+        top: 0;
+        right: 0;
+    }
+
+    /* モバイルではパネルを画面幅いっぱいに */
+    .notification-panel {
+        position: fixed;
+        top: 60px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100vh - 80px);
+        border-radius: 12px;
+    }
+
+    .notification-list {
+        max-height: calc(100vh - 160px);
+    }
+
+    .notification-item {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .notification-icon {
+        font-size: 1.3rem;
+        width: 28px;
+        height: 28px;
+    }
+
+    .notification-title {
+        font-size: 0.85rem;
+    }
+
+    .notification-message {
+        font-size: 0.8rem;
+    }
+
+    .notification-actions {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .notification-action-btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
+    /* AI生成ボタンの調整 */
+    .ai-generate-actions {
+        flex-direction: column;
+    }
+
+    .ai-generate-actions .btn {
+        min-width: 100%;
+    }
+
+    .background-generating-indicator {
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+}
+
+/* 小さいモバイル画面 */
+@media (max-width: 400px) {
+    .notification-panel {
+        right: 5px;
+        left: 5px;
+    }
+
+    .notification-panel-header {
+        padding: 12px;
+    }
+
+    .notification-panel-header h3 {
+        font-size: 0.9rem;
+    }
+
+    .mark-all-read-btn {
+        font-size: 0.75rem;
+    }
+}
+
+/* ==================== ダークモード対応（将来用） ==================== */
+
+@media (prefers-color-scheme: dark) {
+    .notification-panel {
+        background: #2d2d2d;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .notification-panel-header {
+        background: #3d3d3d;
+        border-bottom-color: #444;
+    }
+
+    .notification-panel-header h3 {
+        color: #fff;
+    }
+
+    .notification-item {
+        border-bottom-color: #444;
+    }
+
+    .notification-item:hover {
+        background-color: #3d3d3d;
+    }
+
+    .notification-item.unread {
+        background-color: #2a3a4a;
+    }
+
+    .notification-item.unread:hover {
+        background-color: #354555;
+    }
+
+    .notification-title {
+        color: #fff;
+    }
+
+    .notification-message {
+        color: #bbb;
+    }
+
+    .notification-time {
+        color: #888;
+    }
+
+    .notification-empty {
+        color: #888;
+    }
+}

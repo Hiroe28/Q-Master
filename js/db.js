@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'quiz_app_db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 // データベース接続を保持
 let db = null;
@@ -82,6 +82,20 @@ async function initDB() {
                 const statsStore = database.createObjectStore('stats', { keyPath: 'question_id' });
                 statsStore.createIndex('wrong_count', 'wrong_count', { unique: false });
                 statsStore.createIndex('last_wrong_at', 'last_wrong_at', { unique: false });
+            }
+
+            // pending_questionsストア(バックグラウンド生成された問題の一時保存)
+            if (!database.objectStoreNames.contains('pending_questions')) {
+                const pendingStore = database.createObjectStore('pending_questions', { keyPath: 'id' });
+                pendingStore.createIndex('created_at', 'created_at', { unique: false });
+                pendingStore.createIndex('status', 'status', { unique: false });
+            }
+
+            // notificationsストア(通知管理)
+            if (!database.objectStoreNames.contains('notifications')) {
+                const notificationsStore = database.createObjectStore('notifications', { keyPath: 'id' });
+                notificationsStore.createIndex('created_at', 'created_at', { unique: false });
+                notificationsStore.createIndex('read', 'read', { unique: false });
             }
 
             console.log('データベーススキーマを作成しました');
@@ -1113,6 +1127,226 @@ async function getLearningStreakStats() {
     };
 }
 
+// ==================== Pending Questions (バックグラウンド生成) ====================
+
+/**
+ * バックグラウンド生成リクエストを追加
+ * @param {Object} requestData - 生成リクエストデータ
+ */
+async function addPendingRequest(requestData) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('pending_questions', 'readwrite');
+        const request = {
+            id: generateUUID(),
+            status: 'pending', // pending, generating, completed, error
+            questions: [],
+            targetSetId: requestData.targetSetId || null,
+            newSetName: requestData.newSetName || null,
+            error: null,
+            created_at: Date.now(),
+            completed_at: null
+        };
+
+        const dbRequest = store.add(request);
+        dbRequest.onsuccess = () => resolve(request);
+        dbRequest.onerror = () => reject(dbRequest.error);
+    });
+}
+
+/**
+ * バックグラウンド生成リクエストを更新
+ */
+async function updatePendingRequest(id, updates) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('pending_questions', 'readwrite');
+        const getRequest = store.get(id);
+
+        getRequest.onsuccess = () => {
+            const existing = getRequest.result;
+            if (!existing) {
+                reject(new Error('リクエストが見つかりません'));
+                return;
+            }
+
+            const updated = { ...existing, ...updates };
+            const putRequest = store.put(updated);
+            putRequest.onsuccess = () => resolve(updated);
+            putRequest.onerror = () => reject(putRequest.error);
+        };
+
+        getRequest.onerror = () => reject(getRequest.error);
+    });
+}
+
+/**
+ * バックグラウンド生成リクエストを取得
+ */
+async function getPendingRequest(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('pending_questions');
+        const request = store.get(id);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 全バックグラウンド生成リクエストを取得
+ */
+async function getAllPendingRequests() {
+    return new Promise((resolve, reject) => {
+        const store = getStore('pending_questions');
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 完了したバックグラウンド生成リクエストを取得
+ */
+async function getCompletedPendingRequests() {
+    const all = await getAllPendingRequests();
+    return all.filter(r => r.status === 'completed');
+}
+
+/**
+ * バックグラウンド生成リクエストを削除
+ */
+async function deletePendingRequest(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('pending_questions', 'readwrite');
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// ==================== Notifications (通知管理) ====================
+
+/**
+ * 通知を追加
+ * @param {Object} notificationData - 通知データ
+ */
+async function addNotification(notificationData) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('notifications', 'readwrite');
+        const notification = {
+            id: generateUUID(),
+            type: notificationData.type || 'info', // ai_generation, info, error
+            title: notificationData.title || '',
+            message: notificationData.message || '',
+            data: notificationData.data || null, // 関連データ（pendingRequestIdなど）
+            read: false,
+            created_at: Date.now()
+        };
+
+        const request = store.add(notification);
+        request.onsuccess = () => resolve(notification);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 通知を既読にする
+ */
+async function markNotificationAsRead(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('notifications', 'readwrite');
+        const getRequest = store.get(id);
+
+        getRequest.onsuccess = () => {
+            const notification = getRequest.result;
+            if (!notification) {
+                reject(new Error('通知が見つかりません'));
+                return;
+            }
+
+            notification.read = true;
+            const putRequest = store.put(notification);
+            putRequest.onsuccess = () => resolve(notification);
+            putRequest.onerror = () => reject(putRequest.error);
+        };
+
+        getRequest.onerror = () => reject(getRequest.error);
+    });
+}
+
+/**
+ * 全通知を既読にする
+ */
+async function markAllNotificationsAsRead() {
+    const notifications = await getAllNotifications();
+    for (const notification of notifications) {
+        if (!notification.read) {
+            await markNotificationAsRead(notification.id);
+        }
+    }
+}
+
+/**
+ * 通知を取得
+ */
+async function getNotification(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('notifications');
+        const request = store.get(id);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 全通知を取得（新しい順）
+ */
+async function getAllNotifications() {
+    return new Promise((resolve, reject) => {
+        const store = getStore('notifications');
+        const request = store.getAll();
+        request.onsuccess = () => {
+            const notifications = request.result || [];
+            // 新しい順にソート
+            notifications.sort((a, b) => b.created_at - a.created_at);
+            resolve(notifications);
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 未読通知の数を取得
+ */
+async function getUnreadNotificationCount() {
+    const notifications = await getAllNotifications();
+    return notifications.filter(n => !n.read).length;
+}
+
+/**
+ * 通知を削除
+ */
+async function deleteNotification(id) {
+    return new Promise((resolve, reject) => {
+        const store = getStore('notifications', 'readwrite');
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * 古い通知を削除（30日以上前）
+ */
+async function deleteOldNotifications() {
+    const notifications = await getAllNotifications();
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+    for (const notification of notifications) {
+        if (notification.created_at < thirtyDaysAgo) {
+            await deleteNotification(notification.id);
+        }
+    }
+}
+
 // ==================== エクスポート ====================
 
 // グローバルにエクスポート
@@ -1163,5 +1397,21 @@ window.QuizDB = {
     getEnabledSets,
     getQuestionsByEnabledSets,
     // Learning Streak Stats
-    getLearningStreakStats
+    getLearningStreakStats,
+    // Pending Questions (バックグラウンド生成)
+    addPendingRequest,
+    updatePendingRequest,
+    getPendingRequest,
+    getAllPendingRequests,
+    getCompletedPendingRequests,
+    deletePendingRequest,
+    // Notifications (通知管理)
+    addNotification,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    getNotification,
+    getAllNotifications,
+    getUnreadNotificationCount,
+    deleteNotification,
+    deleteOldNotifications
 };

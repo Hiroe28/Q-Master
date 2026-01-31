@@ -38,6 +38,12 @@ async function initApp() {
             AIGenerator.initAIGenerator();
         }
 
+        // 通知システムの初期化
+        if (typeof NotificationUI !== 'undefined') {
+            await NotificationUI.init();
+            console.log('通知システムを初期化しました');
+        }
+
         // 学習画面を初期表示
         QuizCore.showQuizStart();
         QuizUI.showScreen('quiz-screen');

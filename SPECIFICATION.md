@@ -447,3 +447,86 @@ if (/\{\{[A-D]\}\}/.test(explanation)) {
 
 AI問題生成機能では、マーカー方式で解説を生成するよう指示される。
 生成された問題は自動的に `shuffleReady: true` が設定される。
+
+---
+
+## 🔄 バックグラウンド問題生成機能
+
+### 概要
+AI問題生成の待ち時間を改善するため、バックグラウンドで問題を生成し、完了時に通知する機能。ユーザーは生成中も他の操作を続けられる。
+
+### フロー
+1. ユーザーが「バックグラウンドで生成」ボタンをクリック
+2. 生成リクエストがキューに追加され、フォームがリセットされる
+3. バックグラウンドでAPI呼び出しが実行される
+4. 生成完了時に通知が作成され、ヘッダーの🔔アイコンにバッジが表示される
+5. 通知パネルで「確認する」をクリックすると、プレビューモーダルが表示される
+6. ユーザーは問題を選択して追加できる
+
+### データベーススキーマ
+
+#### pending_questions ストア
+```javascript
+{
+  id: 'uuid',
+  status: 'pending' | 'generating' | 'completed' | 'error',
+  questions: [...],              // 生成された問題配列
+  targetSetId: 'set-id' | null,  // 追加先セット
+  newSetName: 'セット名' | null, // 新規セット名
+  error: null | '...',           // エラーメッセージ
+  created_at: timestamp,
+  completed_at: timestamp | null
+}
+```
+
+#### notifications ストア
+```javascript
+{
+  id: 'uuid',
+  type: 'ai_generation' | 'info' | 'error',
+  title: '通知タイトル',
+  message: '通知メッセージ',
+  data: { pendingRequestId: '...' },  // 関連データ
+  read: false,
+  created_at: timestamp
+}
+```
+
+### UI構成
+
+#### ヘッダー通知アイコン
+```html
+<button id="notification-bell" class="notification-bell">
+  <span class="bell-icon">🔔</span>
+  <span id="notification-badge" class="notification-badge">3</span>
+</button>
+```
+
+#### 通知パネル
+- 未読通知は青い背景でハイライト
+- 各通知に「確認する」ボタンと削除ボタン
+- 「すべて既読」ボタン
+- 30日以上前の通知は自動削除
+
+#### AI生成ボタン
+- 「問題を生成する」: 従来通りローディング表示で待機
+- 「バックグラウンドで生成」: フォームをリセットしてバックグラウンド実行
+
+### 技術仕様
+
+```javascript
+// NotificationUI モジュール
+NotificationUI.init()              // 初期化
+NotificationUI.updateBadge()       // バッジ更新
+NotificationUI.openPanel()         // パネル表示
+NotificationUI.addNotification()   // 通知追加
+
+// AIGenerator 追加関数
+AIGenerator.generateQuestionsBackground()  // バックグラウンド生成
+AIGenerator.updateBackgroundIndicator()    // インジケーター更新
+```
+
+### モバイル対応
+- 通知パネルは画面幅に合わせてレスポンシブ表示
+- 小さい画面では画面端からのマージンを調整
+- タッチ操作に適したボタンサイズ

@@ -11,7 +11,9 @@ const AIState = {
     uploadedImages: [],
     targetSetId: null,
     newSetName: null,
-    MAX_IMAGES: 3
+    pendingRequestId: null, // バックグラウンド生成用
+    MAX_IMAGES: 3,
+    backgroundGenerating: false // バックグラウンド生成中フラグ
 };
 
 // ==================== APIキー管理 ====================
@@ -790,6 +792,12 @@ async function addSelectedQuestions() {
         }
         QuizUI.showToast(message, 'success');
 
+        // pendingRequestがある場合は削除
+        if (AIState.pendingRequestId) {
+            await QuizDB.deletePendingRequest(AIState.pendingRequestId);
+            AIState.pendingRequestId = null;
+        }
+
         resetGeneratorForm();
 
         if (typeof refreshManageScreen === 'function') {
@@ -902,6 +910,158 @@ async function generateQuestions() {
         QuizUI.hideLoading();
         console.error('生成エラー:', error);
         QuizUI.showToast('生成に失敗しました: ' + error.message, 'error');
+    }
+}
+
+// ==================== バックグラウンド生成 ====================
+
+/**
+ * バックグラウンドで問題を生成
+ * UIをブロックせずに生成処理を実行し、完了時に通知
+ */
+async function generateQuestionsBackground() {
+    try {
+        const sourceType = document.querySelector('input[name="ai-source-type"]:checked')?.value || 'text';
+        const sourceText = document.getElementById('ai-source-text')?.value.trim();
+        const mode = document.querySelector('input[name="ai-creation-mode"]:checked')?.value || 'exact';
+        const questionType = document.querySelector('input[name="ai-question-type"]:checked')?.value || 'both';
+        const isLanguageLearning = document.getElementById('ai-language-learning')?.checked || false;
+        const audioLang = document.getElementById('ai-audio-lang')?.value || 'en-US';
+        const instruction = document.getElementById('ai-instruction')?.value.trim() || '';
+        const targetSetOption = document.querySelector('input[name="ai-target-set"]:checked')?.value || 'none';
+
+        if (sourceType === 'text' && !sourceText) {
+            QuizUI.showToast('素材テキストを入力してください', 'error');
+            return;
+        }
+
+        if (sourceType === 'image' && AIState.uploadedImages.length === 0) {
+            QuizUI.showToast('画像をアップロードしてください', 'error');
+            return;
+        }
+
+        if (!hasApiKey()) {
+            QuizUI.showToast('APIキーが設定されていません', 'error');
+            return;
+        }
+
+        // ターゲットセット情報を取得
+        let targetSetId = null;
+        let newSetName = null;
+
+        if (targetSetOption === 'existing') {
+            targetSetId = document.getElementById('ai-select-set')?.value;
+            if (!targetSetId) {
+                QuizUI.showToast('セットを選択してください', 'error');
+                return;
+            }
+        } else if (targetSetOption === 'new') {
+            newSetName = document.getElementById('ai-new-set-name')?.value.trim();
+            if (!newSetName) {
+                QuizUI.showToast('新規セット名を入力してください', 'error');
+                return;
+            }
+        }
+
+        // 画像データをコピー（フォームリセット前に保持）
+        const imagesToProcess = [...AIState.uploadedImages];
+
+        // pendingRequestを作成
+        const pendingRequest = await QuizDB.addPendingRequest({
+            targetSetId,
+            newSetName
+        });
+
+        // ステータスを生成中に更新
+        await QuizDB.updatePendingRequest(pendingRequest.id, { status: 'generating' });
+
+        // フォームをリセットしてUIを解放
+        resetGeneratorForm();
+        QuizUI.showToast('バックグラウンドで問題を生成中...完了時に通知します', 'info');
+
+        // バックグラウンドフラグを設定
+        AIState.backgroundGenerating = true;
+        updateBackgroundIndicator();
+
+        // バックグラウンドで生成処理を実行
+        try {
+            const isImageInput = sourceType === 'image';
+            const systemPrompt = buildSystemPrompt(
+                questionType,
+                isLanguageLearning,
+                audioLang,
+                isImageInput ? imagesToProcess.length : 0,
+                mode
+            );
+            const userPrompt = buildUserPrompt(mode, isImageInput ? '' : sourceText, instruction);
+
+            let response;
+            if (isImageInput) {
+                response = await callOpenAIAPIWithImages(systemPrompt, userPrompt, imagesToProcess);
+            } else {
+                response = await callOpenAIAPIText(systemPrompt, userPrompt);
+            }
+
+            const result = parseAIResponse(response);
+            validateQuestions(result.questions, questionType);
+
+            // 完了状態に更新
+            await QuizDB.updatePendingRequest(pendingRequest.id, {
+                status: 'completed',
+                questions: result.questions,
+                completed_at: Date.now()
+            });
+
+            // 通知を追加
+            await NotificationUI.addNotification({
+                type: 'ai_generation',
+                title: 'AI問題生成完了',
+                message: `${result.questions.length}問の問題が生成されました`,
+                data: {
+                    pendingRequestId: pendingRequest.id,
+                    questionCount: result.questions.length
+                }
+            });
+
+        } catch (error) {
+            console.error('バックグラウンド生成エラー:', error);
+
+            // エラー状態に更新
+            await QuizDB.updatePendingRequest(pendingRequest.id, {
+                status: 'error',
+                error: error.message
+            });
+
+            // エラー通知
+            await NotificationUI.addNotification({
+                type: 'error',
+                title: 'AI問題生成エラー',
+                message: error.message,
+                data: {
+                    pendingRequestId: pendingRequest.id
+                }
+            });
+        }
+
+        // バックグラウンドフラグを解除
+        AIState.backgroundGenerating = false;
+        updateBackgroundIndicator();
+
+    } catch (error) {
+        console.error('バックグラウンド生成開始エラー:', error);
+        QuizUI.showToast('生成の開始に失敗しました: ' + error.message, 'error');
+        AIState.backgroundGenerating = false;
+        updateBackgroundIndicator();
+    }
+}
+
+/**
+ * バックグラウンド生成中インジケーターを更新
+ */
+function updateBackgroundIndicator() {
+    const indicator = document.getElementById('background-generating-indicator');
+    if (indicator) {
+        indicator.style.display = AIState.backgroundGenerating ? 'flex' : 'none';
     }
 }
 
@@ -1067,6 +1227,12 @@ function initAIGenerator() {
         generateBtn.addEventListener('click', generateQuestions);
     }
 
+    // バックグラウンド生成ボタン
+    const generateBgBtn = document.getElementById('generate-questions-bg-btn');
+    if (generateBgBtn) {
+        generateBgBtn.addEventListener('click', generateQuestionsBackground);
+    }
+
     setupPreviewModalEvents();
     updateApiKeyUI();
 }
@@ -1122,11 +1288,13 @@ window.AIGenerator = {
     updateApiKeyUI,
     updateSetOptions,
     generateQuestions,
+    generateQuestionsBackground,
     initAIGenerator,
     showPreviewModal,
     hidePreviewModal,
     addSelectedQuestions,
-    getQuestionSchema
+    getQuestionSchema,
+    updateBackgroundIndicator
 };
 
 window.generateQuestions = generateQuestions;
