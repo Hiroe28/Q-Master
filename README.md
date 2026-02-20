@@ -141,7 +141,7 @@ AI問題生成機能を使うには、Anthropic APIキーが必要です。
 
 ## 開発者向け情報
 
-技術的な詳細については [SPECIFICATION.md](./SPECIFICATION.md) を参照してください。
+技術的な詳細については [SPEC.md](./SPEC.md) を参照してください。
 
 ### 技術スタック
 - Vanilla JavaScript (ES6+)

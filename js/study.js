@@ -398,19 +398,22 @@ async function showCurrentQuestionInPhase(showAnswered = false) {
     // フェーズに応じた表示
     if (phaseName === 'learn') {
         if (questionContainer) questionContainer.style.display = 'none';
-        showIntegratedLearnPhase(question, showAnswered);
+        await showIntegratedLearnPhase(question, showAnswered);
     } else if (phaseName === 'quiz') {
         if (questionContainer) questionContainer.style.display = 'block';
-        showIntegratedQuizPhase(question, showAnswered);
+        await showIntegratedQuizPhase(question, showAnswered);
     } else if (phaseName === 'typing') {
         if (questionContainer) questionContainer.style.display = 'block';
-        showIntegratedTypingPhase(question, showAnswered);
+        await showIntegratedTypingPhase(question, showAnswered);
     }
 
     // アクションボタンの表示
     document.getElementById('skip-question-btn').style.display = 'none';
     document.getElementById('next-question-btn').style.display = 'none';
     document.getElementById('mark-completed-btn').style.display = 'none';
+
+    // モバイル対策: コンテンツ描画完了後に再度スクロール位置をリセット
+    scrollToTop();
 }
 
 /**
@@ -507,6 +510,8 @@ async function moveToNextQuestionInPhase() {
 
 /**
  * 画面を一番上にスクロールする
+ * モバイルブラウザではDOM更新前のscrollTop設定が反映されない場合があるため、
+ * requestAnimationFrameで描画後にも再度スクロールをリセットする
  */
 function scrollToTop() {
     // メインコンテンツエリアをスクロール
@@ -518,6 +523,16 @@ function scrollToTop() {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+
+    // モバイルブラウザ対策: 描画サイクル後に再度スクロールリセット
+    requestAnimationFrame(() => {
+        if (appMain) {
+            appMain.scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+    });
 }
 
 /**

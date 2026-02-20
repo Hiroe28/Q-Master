@@ -3,7 +3,7 @@
  * オフライン対応とキャッシュ管理
  */
 
-const CACHE_NAME = 'quiz-app-v2';
+const CACHE_NAME = 'quiz-app-v4';
 
 // キャッシュするファイル一覧
 const FILES_TO_CACHE = [
@@ -28,6 +28,7 @@ const FILES_TO_CACHE = [
     './js/study.js',
     './js/typing.js',
     './js/app.js',
+    './css/notifications.css',
     './manifest.webmanifest',
     './sample-data.json',
     // CDNライブラリもキャッシュ

@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'quiz_app_db';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 // データベース接続を保持
 let db = null;
@@ -1523,5 +1523,5 @@ window.QuizDB = {
     updatePromptTemplate,
     getPromptTemplate,
     getAllPromptTemplates,
-    deletePromptTemplate
+    deletePromptTemplate,
 };
