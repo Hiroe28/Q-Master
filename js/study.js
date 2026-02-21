@@ -383,6 +383,11 @@ async function showCurrentQuestionInPhase(showAnswered = false) {
     document.getElementById('integrated-learn-container').style.display = 'none';
     document.getElementById('explanation-container').style.display = 'none';
 
+    // アクションボタンをリセット（フェーズ表示関数で必要に応じて再表示される）
+    document.getElementById('skip-question-btn').style.display = 'none';
+    document.getElementById('next-question-btn').style.display = 'none';
+    document.getElementById('mark-completed-btn').style.display = 'none';
+
     const questionContainer = document.querySelector('.question-container');
 
     // 前へボタンの表示制御（最初の問題では非表示）
@@ -408,11 +413,6 @@ async function showCurrentQuestionInPhase(showAnswered = false) {
         if (questionContainer) questionContainer.style.display = 'block';
         await showIntegratedTypingPhase(question, showAnswered);
     }
-
-    // アクションボタンの表示
-    document.getElementById('skip-question-btn').style.display = 'none';
-    document.getElementById('next-question-btn').style.display = 'none';
-    document.getElementById('mark-completed-btn').style.display = 'none';
 
     // モバイル対策: コンテンツ描画完了後に再度スクロール位置をリセット
     scrollToTop();
@@ -514,7 +514,36 @@ async function moveToNextQuestionInPhase() {
     // ★ 画面を一番上にスクロール
     scrollToTop();
 
-    await showCurrentQuestionInPhase();
+    // 既に解答済みの問題に移動する場合は解答済み状態で表示
+    const showAnswered = isCurrentQuestionAnsweredInPhase();
+    await showCurrentQuestionInPhase(showAnswered);
+}
+
+/**
+ * 現在のフェーズで現在の問題が既に解答済みかどうかを判定
+ * @returns {boolean} 解答済みならtrue
+ */
+function isCurrentQuestionAnsweredInPhase() {
+    const phaseQuestions = AppState.integrated.phaseQuestions;
+    const questionIndex = AppState.integrated.currentQuestionIndex;
+
+    if (questionIndex >= phaseQuestions.length) return false;
+
+    const question = phaseQuestions[questionIndex];
+    const result = AppState.integrated.questionResults.get(question.id);
+    if (!result) return false;
+
+    const phaseName = AppState.integrated.phases[AppState.integrated.currentPhaseIndex];
+
+    if (phaseName === 'quiz') {
+        return result.quizCorrect !== null && result.quizCorrect !== undefined;
+    } else if (phaseName === 'typing') {
+        return result.typingCorrect !== null && result.typingCorrect !== undefined;
+    } else if (phaseName === 'learn') {
+        return result.learnSeen === true;
+    }
+
+    return false;
 }
 
 /**
@@ -1260,6 +1289,16 @@ function flipIntegratedCard(event) {
         flashcard.classList.add('flipped');
         AppState.integrated.isFlipped = true;
         AppState.integrated.phaseCompleted = true;
+
+        // 学習フェーズで閲覧済みとして記録（前へ/次へナビゲーション用）
+        if (question) {
+            let result = AppState.integrated.questionResults.get(question.id);
+            if (!result) {
+                result = { quizCorrect: null, typingCorrect: null, selectedChoice: null };
+                AppState.integrated.questionResults.set(question.id, result);
+            }
+            result.learnSeen = true;
+        }
 
         // ★ 裏返した時に裏面のスクロール位置をリセット
         requestAnimationFrame(() => {
