@@ -105,8 +105,13 @@ async function registerServiceWorker() {
 function setupEventListeners() {
     // ナビゲーション
     document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const screenId = btn.dataset.screen;
+
+            // セッション中なら進捗を保存
+            if (AppState.quiz.format === 'integrated') {
+                await QuizIntegrated.saveSessionProgress();
+            }
 
             // 画面切り替え時にno-scrollクラスをリセット（学習フェーズ中断時の対策）
             document.querySelector('.app-main')?.classList.remove('no-scroll');
@@ -155,6 +160,16 @@ function setupEventListeners() {
 
     // インポート/エクスポート
     setupExportImportEventListeners();
+
+    // 途中退出時の進捗保存
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            QuizIntegrated.saveSessionProgress();
+        }
+    });
+    window.addEventListener('pagehide', () => {
+        QuizIntegrated.saveSessionProgress();
+    });
 }
 
 /**

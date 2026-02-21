@@ -223,7 +223,9 @@ async function startQuiz() {
 /**
  * クイズを終了
  */
-function endQuiz() {
+async function endQuiz() {
+    // セッション中の進捗を保存
+    await QuizIntegrated.saveSessionProgress();
     // 画面スクロールを有効に戻す
     document.querySelector('.app-main')?.classList.remove('no-scroll');
     showQuizStart();

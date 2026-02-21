@@ -119,6 +119,8 @@ async function startIntegratedMode() {
         AppState.integrated.questionResults = new Map();
         AppState.integrated.failedQuestions = [];
         AppState.integrated.isRetryMode = false; // 復習モードフラグ
+        AppState.integrated.retriedQuestions = new Set();
+        AppState.integrated.progressSaved = false;
 
         // シャッフルモードの設定を読み込む
         const shuffleModeCheckbox = document.getElementById('shuffle-choices-mode');
@@ -437,6 +439,7 @@ async function moveToNextPhase() {
  */
 async function finishAllPhases() {
     console.log('🏁 全フェーズ完了、結果を集計中...');
+    AppState.integrated.progressSaved = false;
 
     const allQuestions = AppState.integrated.allQuestions;
     const failedQuestions = [];
@@ -463,15 +466,21 @@ async function finishAllPhases() {
         } else {
             // 両方正解した問題のみSM-2統計を更新
             if (!AppState.quiz.seenQuestions.has(question.id)) {
-                await QuizDB.updateStats(question.id, true);
+                const wasRetried = AppState.integrated.retriedQuestions.has(question.id);
+                await QuizDB.updateStats(question.id, !wasRetried);
                 AppState.quiz.seenQuestions.add(question.id);
-                console.log(`✅ 合格&統計更新: ${question.title || question.id.substring(0, 8)}`);
+                console.log(`${wasRetried ? '🔄' : '✅'} 合格&統計更新: ${question.title || question.id.substring(0, 8)}${wasRetried ? ' (リトライ→低品質)' : ''}`);
             }
         }
     }
 
     if (failedQuestions.length > 0) {
         console.log(`🔄 ${failedQuestions.length}問を4択からやり直します`);
+
+        // 失敗問題をリトライ済みSetに記録（低品質スコアで更新するため）
+        failedQuestions.forEach(q => {
+            AppState.integrated.retriedQuestions.add(q.id);
+        });
 
         // 失敗した問題で再スタート
         AppState.integrated.allQuestions = failedQuestions;
@@ -1531,6 +1540,42 @@ function speakText(text, lang = 'en-US') {
     window.speechSynthesis.speak(utterance);
 }
 
+/**
+ * セッション中の進捗を保存（途中退出対策）
+ * visibilitychange/pagehide/ナビ移動時に呼ばれる
+ */
+async function saveSessionProgress() {
+    if (AppState.quiz.format !== 'integrated') return;
+    if (!AppState.integrated.allQuestions?.length) return;
+    if (AppState.integrated.progressSaved) return;
+
+    console.log('💾 セッション途中の進捗を保存中...');
+
+    for (const question of AppState.integrated.allQuestions) {
+        // 既にこのセッションで統計更新済みならスキップ
+        if (AppState.quiz.seenQuestions.has(question.id)) continue;
+
+        const result = AppState.integrated.questionResults.get(question.id);
+        if (!result) continue; // 未回答の問題はスキップ
+
+        const hasTyping = (question.type === 'typing' || question.type === 'both') && question.typingAnswer;
+        const isPassed = hasTyping
+            ? (result.quizCorrect === true && result.typingCorrect === true)
+            : (result.quizCorrect === true);
+
+        if (isPassed) {
+            const wasRetried = AppState.integrated.retriedQuestions.has(question.id);
+            await QuizDB.updateStats(question.id, !wasRetried);
+        } else {
+            await QuizDB.updateStats(question.id, false);
+        }
+        AppState.quiz.seenQuestions.add(question.id);
+    }
+
+    AppState.integrated.progressSaved = true;
+    console.log('💾 進捗保存完了');
+}
+
 // グローバルにエクスポート
 window.QuizIntegrated = {
     startIntegratedMode,
@@ -1547,6 +1592,7 @@ window.QuizIntegrated = {
     nextIntegratedLearnPhase: moveToNextQuestionInPhase,
     handleIntegratedQuizAnswer,
     handleIntegratedTypingAnswer,
+    saveSessionProgress,
     speakText,
     scrollToTop
 };

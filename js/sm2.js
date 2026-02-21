@@ -173,9 +173,9 @@ function getNewQuestionsForToday(allQuestions, allStats, limit = 20) {
     const studiedIds = new Set(allStats.map(s => s.question_id));
     const newQuestions = allQuestions.filter(q => !studiedIds.has(q.id));
     
-    // ランダムに選択
-    const shuffled = [...newQuestions].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, limit);
+    // 登録順(created_at昇順)で選択
+    const sorted = [...newQuestions].sort((a, b) => (a.created_at || 0) - (b.created_at || 0));
+    return sorted.slice(0, limit);
 }
 
 // ==================== 使用例 ====================
@@ -216,8 +216,9 @@ async function getTodayStudyPlan(baseQuestions = null, dailyLimit = 10, newLimit
         }
     }
 
-    // 新規問題を取得(statsに記録がない問題)
-    const newQuestions = allQuestions.filter(q => !statsMap.has(q.id));
+    // 新規問題を取得(statsに記録がない問題) - 登録順(created_at昇順)でソート
+    const newQuestions = allQuestions.filter(q => !statsMap.has(q.id))
+        .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));
 
     // ★ 新規問題の数を決定
     // newLimitが指定されていればそれを使用、そうでなければdailyLimitの半分を上限とする

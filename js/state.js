@@ -59,7 +59,10 @@ const AppState = {
         isFlipped: false,       // 学習フェーズでカードが裏返されているか
         phaseCompleted: false,  // 現在のフェーズが完了したか
         questionResults: new Map(), // 問題ごとの結果 questionId -> {quizCorrect: bool, typingCorrect: bool}
-        failedQuestions: []     // 失敗した問題のリスト
+        failedQuestions: [],    // 失敗した問題のリスト
+        retriedQuestions: new Set(), // リトライに回された問題のID
+        progressSaved: false    // 途中退出時の進捗保存済みフラグ
+
     },
     // タグ入力ヘルパー
     tagInput: null
