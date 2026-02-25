@@ -987,13 +987,13 @@ function formatLocalDate(date) {
 }
 
 /**
- * 日別の学習問題数を取得（過去n日間）
+ * 日別の学習問題数を取得（過去n日間、ユニーク問題数）
  * @param {number} days - 取得する日数（デフォルト: 7）
- * @returns {Promise<Map<string, number>>} 日付文字列 -> 問題数のMap
+ * @returns {Promise<Map<string, number>>} 日付文字列 -> ユニーク問題数のMap
  */
 async function getDailyStudyCounts(days = 7) {
     const attempts = await getAllAttempts();
-    const dailyCounts = new Map();
+    const dailyQuestions = new Map(); // date -> Set of unique question_ids
 
     // 今日から過去n日間の日付を初期化（ローカル時刻）
     const today = new Date();
@@ -1001,18 +1001,23 @@ async function getDailyStudyCounts(days = 7) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = formatLocalDate(date); // ローカル時刻でYYYY-MM-DD形式
-        dailyCounts.set(dateStr, 0);
+        dailyQuestions.set(dateStr, new Set());
     }
 
-    // 各attemptを日付ごとにカウント（ローカル時刻で判定）
+    // 各attemptの問題IDを日付ごとにユニークに記録（ローカル時刻で判定）
     for (const attempt of attempts) {
         const attemptDate = new Date(attempt.timestamp);
         const dateStr = formatLocalDate(attemptDate); // ローカル時刻でYYYY-MM-DD形式
-        if (dailyCounts.has(dateStr)) {
-            dailyCounts.set(dateStr, dailyCounts.get(dateStr) + 1);
+        if (dailyQuestions.has(dateStr)) {
+            dailyQuestions.get(dateStr).add(attempt.question_id);
         }
     }
 
+    // SetのサイズをカウントとしてMapに変換
+    const dailyCounts = new Map();
+    for (const [dateStr, questionSet] of dailyQuestions) {
+        dailyCounts.set(dateStr, questionSet.size);
+    }
     return dailyCounts;
 }
 
