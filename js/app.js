@@ -108,6 +108,15 @@ function setupEventListeners() {
         btn.addEventListener('click', async () => {
             const screenId = btn.dataset.screen;
 
+            // クイズセッション中なら確認ダイアログを表示
+            const isQuizActive = AppState.quiz.format === 'integrated'
+                && document.getElementById('quiz-content')?.style.display === 'block';
+
+            if (isQuizActive) {
+                const confirmLeave = confirm(I18n.t('quiz.confirmLeave') || '学習中です。中断しますか？');
+                if (!confirmLeave) return;
+            }
+
             // セッション中なら進捗を保存
             if (AppState.quiz.format === 'integrated') {
                 await QuizIntegrated.saveSessionProgress();

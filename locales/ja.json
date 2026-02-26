@@ -334,5 +334,7 @@
   "confirm.deleteSet": "このセットを削除しますか？（問題自体は削除されません）",
   "confirm.removeFromSet": "{{count}}件の問題をセットから除外しますか？",
   "confirm.clearData": "すべてのデータを削除しますか？この操作は取り消せません。",
-  "confirm.endQuiz": "クイズを終了しますか？"
+  "confirm.endQuiz": "クイズを終了しますか？",
+
+  "quiz.confirmLeave": "学習中です。中断しますか？"
 }

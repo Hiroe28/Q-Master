@@ -334,5 +334,7 @@
   "confirm.deleteSet": "Delete this set? (Questions will not be deleted)",
   "confirm.removeFromSet": "Remove {{count}} questions from set?",
   "confirm.clearData": "Delete all data? This cannot be undone.",
-  "confirm.endQuiz": "End the quiz?"
+  "confirm.endQuiz": "End the quiz?",
+
+  "quiz.confirmLeave": "You are in a study session. Do you want to leave?"
 }
