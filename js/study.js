@@ -467,9 +467,15 @@ async function finishAllPhases() {
             // 両方正解した問題のみSM-2統計を更新
             if (!AppState.quiz.seenQuestions.has(question.id)) {
                 const wasRetried = AppState.integrated.retriedQuestions.has(question.id);
-                await QuizDB.updateStats(question.id, !wasRetried);
+                if (!wasRetried) {
+                    // 初回正解: 通常通りstats更新（interval増加）
+                    await QuizDB.updateStats(question.id, true);
+                    console.log(`✅ 合格&統計更新: ${question.title || question.id.substring(0, 8)}`);
+                } else {
+                    // リトライ後正解: statsを更新しない（interval現状維持）
+                    console.log(`🔄 リトライ合格（進捗維持）: ${question.title || question.id.substring(0, 8)}`);
+                }
                 AppState.quiz.seenQuestions.add(question.id);
-                console.log(`${wasRetried ? '🔄' : '✅'} 合格&統計更新: ${question.title || question.id.substring(0, 8)}${wasRetried ? ' (リトライ→低品質)' : ''}`);
             }
         }
     }

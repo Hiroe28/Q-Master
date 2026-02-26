@@ -334,5 +334,7 @@
   "confirm.deleteSet": "この セットを さくじょする？（もんだいは きえないよ）",
   "confirm.removeFromSet": "{{count}}けんの もんだいを セットから はずす？",
   "confirm.clearData": "ぜんぶの データを さくじょする？もとには もどせないよ。",
-  "confirm.endQuiz": "クイズを おわりにする？"
+  "confirm.endQuiz": "クイズを おわりにする？",
+
+  "quiz.confirmLeave": "べんきょうちゅう だよ。やめちゃう？"
 }
