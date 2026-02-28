@@ -508,6 +508,8 @@ async function updateStats(questionId, correct) {
                 ...sm2Result,
                 lastReviewDate: Date.now(),
                 totalReviews: (stats.totalReviews || 0) + 1,
+                // 初回学習日を記録（新規エントリ作成時のみ）
+                firstStudiedAt: stats.firstStudiedAt || Date.now(),
                 // 既存の統計も更新(互換性のため)
                 wrong_count: correct ? stats.wrong_count || 0 : (stats.wrong_count || 0) + 1,
                 last_correct_at: correct ? Date.now() : stats.last_correct_at,
@@ -993,9 +995,18 @@ function formatLocalDate(date) {
  */
 async function getDailyStudyCounts(days = 7) {
     const attempts = await getAllAttempts();
+    const allStats = await getAllStats();
     const dailyQuestions = new Map(); // date -> Set of unique question_ids
     const dailyNewQuestions = new Map(); // date -> Set of first-time question_ids
     const firstAttemptDate = new Map(); // question_id -> earliest timestamp
+
+    // statsからfirstStudiedAtマップを構築
+    const firstStudiedAtMap = new Map(); // question_id -> firstStudiedAt timestamp
+    for (const stat of allStats) {
+        if (stat.firstStudiedAt) {
+            firstStudiedAtMap.set(stat.question_id, stat.firstStudiedAt);
+        }
+    }
 
     // 今日から過去n日間の日付を初期化（ローカル時刻）
     const today = new Date();
@@ -1021,8 +1032,9 @@ async function getDailyStudyCounts(days = 7) {
         }
     }
 
-    // 最初のattemptがウィンドウ内の日にあれば、その日の初学習にカウント
-    for (const [qid, ts] of firstAttemptDate) {
+    // 初学習日を判定: stats.firstStudiedAtを優先し、なければfirstAttemptDateにフォールバック
+    for (const [qid] of firstAttemptDate) {
+        const ts = firstStudiedAtMap.get(qid) || firstAttemptDate.get(qid);
         const dateStr = formatLocalDate(new Date(ts));
         if (dailyNewQuestions.has(dateStr)) {
             dailyNewQuestions.get(dateStr).add(qid);
