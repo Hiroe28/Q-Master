@@ -179,6 +179,7 @@ quiz-app/
   nextReviewDate: null,
   lastReviewDate: null,
   totalReviews: 0,
+  firstStudiedAt: null,              // 初回学習日（タイムスタンプ）
   // 互換性用
   wrong_count: 0,
   last_wrong_at: null,
