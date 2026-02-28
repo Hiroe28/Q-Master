@@ -994,6 +994,8 @@ function formatLocalDate(date) {
 async function getDailyStudyCounts(days = 7) {
     const attempts = await getAllAttempts();
     const dailyQuestions = new Map(); // date -> Set of unique question_ids
+    const dailyNewQuestions = new Map(); // date -> Set of first-time question_ids
+    const firstAttemptDate = new Map(); // question_id -> earliest timestamp
 
     // 今日から過去n日間の日付を初期化（ローカル時刻）
     const today = new Date();
@@ -1002,21 +1004,38 @@ async function getDailyStudyCounts(days = 7) {
         date.setDate(date.getDate() - i);
         const dateStr = formatLocalDate(date); // ローカル時刻でYYYY-MM-DD形式
         dailyQuestions.set(dateStr, new Set());
+        dailyNewQuestions.set(dateStr, new Set());
     }
 
-    // 各attemptの問題IDを日付ごとにユニークに記録（ローカル時刻で判定）
+    // 全attemptsを走査し、日別ユニーク問題と各問題の最初のattempt日を特定
     for (const attempt of attempts) {
-        const attemptDate = new Date(attempt.timestamp);
-        const dateStr = formatLocalDate(attemptDate); // ローカル時刻でYYYY-MM-DD形式
+        const dateStr = formatLocalDate(new Date(attempt.timestamp));
+        const qid = attempt.question_id;
+
         if (dailyQuestions.has(dateStr)) {
-            dailyQuestions.get(dateStr).add(attempt.question_id);
+            dailyQuestions.get(dateStr).add(qid);
+        }
+
+        if (!firstAttemptDate.has(qid) || attempt.timestamp < firstAttemptDate.get(qid)) {
+            firstAttemptDate.set(qid, attempt.timestamp);
+        }
+    }
+
+    // 最初のattemptがウィンドウ内の日にあれば、その日の初学習にカウント
+    for (const [qid, ts] of firstAttemptDate) {
+        const dateStr = formatLocalDate(new Date(ts));
+        if (dailyNewQuestions.has(dateStr)) {
+            dailyNewQuestions.get(dateStr).add(qid);
         }
     }
 
     // SetのサイズをカウントとしてMapに変換
     const dailyCounts = new Map();
     for (const [dateStr, questionSet] of dailyQuestions) {
-        dailyCounts.set(dateStr, questionSet.size);
+        dailyCounts.set(dateStr, {
+            total: questionSet.size,
+            newCount: dailyNewQuestions.get(dateStr)?.size || 0
+        });
     }
     return dailyCounts;
 }
@@ -1123,10 +1142,12 @@ async function getLearningStreakStats() {
         date.setDate(date.getDate() - i);
         const dateStr = formatLocalDate(date); // ローカル時刻でYYYY-MM-DD形式
         const dayOfWeek = date.getDay(); // 0=日, 1=月, ..., 6=土
+        const dayData = dailyCounts.get(dateStr) || { total: 0, newCount: 0 };
         weeklyData.push({
             date: dateStr,
             dayOfWeek,
-            count: dailyCounts.get(dateStr) || 0,
+            count: dayData.total,
+            newCount: dayData.newCount,
             isToday: i === 0
         });
     }
