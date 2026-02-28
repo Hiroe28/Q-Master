@@ -472,8 +472,9 @@ async function finishAllPhases() {
                     await QuizDB.updateStats(question.id, true);
                     console.log(`✅ 合格&統計更新: ${question.title || question.id.substring(0, 8)}`);
                 } else {
-                    // リトライ後正解: statsを更新しない（interval現状維持）
-                    console.log(`🔄 リトライ合格（進捗維持）: ${question.title || question.id.substring(0, 8)}`);
+                    // リトライ後正解: 低品質スコアでstats更新（intervalは抑制されるがstatsエントリは確実に作成）
+                    await QuizDB.updateStats(question.id, false);
+                    console.log(`🔄 リトライ合格（低品質で記録）: ${question.title || question.id.substring(0, 8)}`);
                 }
                 AppState.quiz.seenQuestions.add(question.id);
             }
