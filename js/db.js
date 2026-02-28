@@ -481,6 +481,7 @@ async function updateStats(questionId, correct) {
         const getRequest = store.get(questionId);
 
         getRequest.onsuccess = () => {
+            const isNewEntry = !getRequest.result;
             let stats = getRequest.result || {
                 question_id: questionId,
                 // SM-2用フィールド
@@ -508,8 +509,8 @@ async function updateStats(questionId, correct) {
                 ...sm2Result,
                 lastReviewDate: Date.now(),
                 totalReviews: (stats.totalReviews || 0) + 1,
-                // 初回学習日を記録（新規エントリ作成時のみ）
-                firstStudiedAt: stats.firstStudiedAt || Date.now(),
+                // 初回学習日を記録（新規エントリ作成時のみ。既存エントリには付与しない）
+                firstStudiedAt: stats.firstStudiedAt || (isNewEntry ? Date.now() : null),
                 // 既存の統計も更新(互換性のため)
                 wrong_count: correct ? stats.wrong_count || 0 : (stats.wrong_count || 0) + 1,
                 last_correct_at: correct ? Date.now() : stats.last_correct_at,
