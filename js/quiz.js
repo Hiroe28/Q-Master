@@ -265,10 +265,14 @@ async function updateStreakDisplay() {
                     statusContent = '';
                 }
 
+                const newBadge = (day.count > 0 && day.newCount > 0)
+                    ? `<span class="streak-new-badge">${day.newCount}</span>`
+                    : '';
+
                 return `
                     <div class="streak-day">
                         <div class="${labelClass}">${label}</div>
-                        <div class="${statusClass}">${statusContent}</div>
+                        <div class="${statusClass}">${statusContent}${newBadge}</div>
                     </div>
                 `;
             }).join('');
